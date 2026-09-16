@@ -9,7 +9,11 @@ class KelulusanController extends Controller
 {
     public function index()
     {
-        return view('kelulusan', ['nisn' => null, 'siswa' => null]);
+        return view('kelulusan', [
+            'nisn' => null,
+            'siswa' => null,
+            'adaData' => Graduate::where('tampil', true)->exists(),
+        ]);
     }
 
     public function cek(Request $request)
@@ -19,6 +23,7 @@ class KelulusanController extends Controller
         return view('kelulusan', [
             'nisn' => $nisn,
             'siswa' => $nisn !== '' ? Graduate::where('nisn', $nisn)->where('tampil', true)->latest('tahun_ajaran')->first() : null,
+            'adaData' => Graduate::where('tampil', true)->exists(),
         ]);
     }
 }

@@ -21,8 +21,12 @@
         @if ($siswa->pesan)<tr><td class="px-4 py-2.5 text-slate-500">Pesan</td><td class="px-4 py-2.5">{{ $siswa->pesan }}</td></tr>@endif
       </tbody></table>
     </div>
+  @elseif (! $adaData)
+    <div class="kartu p-6 max-w-xl mt-6 text-[13.5px] text-slate-600">
+      Data kelulusan tahun ini <strong>belum dibuka</strong> oleh sekolah. Silakan cek kembali setelah tanggal pengumuman resmi, atau hubungi wali kelas.
+    </div>
   @elseif ($nisn)
-    <p class="text-rose-700 text-[14px] mt-5">NISN <strong>{{ $nisn }}</strong> tidak ditemukan di data kelulusan.</p>
+    <p class="text-rose-700 text-[14px] mt-5">NISN <strong>{{ $nisn }}</strong> tidak ditemukan pada data kelulusan. Periksa kembali angka NISN Anda atau hubungi wali kelas.</p>
   @endif
 </x-seksi>
 @endsection
