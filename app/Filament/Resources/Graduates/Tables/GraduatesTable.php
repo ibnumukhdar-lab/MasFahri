@@ -71,10 +71,16 @@ class GraduatesTable
                         ->all()),
             ])
             ->headerActions([
+                Action::make('unduh_template')
+                    ->label('Unduh template')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->color('gray')
+                    ->url(route('template.kelulusan'))
+                    ->openUrlInNewTab(false),
                 Action::make('impor_csv')
                     ->label('Impor CSV')
                     ->icon('heroicon-o-arrow-up-tray')
-                    ->modalDescription('Kolom yang dibaca: nisn, nama, kelas, status, pesan. Baris dengan NISN yang sudah ada akan diperbarui.')
+                    ->modalDescription('Pakai tombol "Unduh template" di samping, isi datanya (kolom: nisn, nama, kelas, status, pesan, tahun_ajaran), lalu unggah berkasnya di sini. Baris dengan NISN yang sudah ada akan diperbarui; baris contoh pada template otomatis dilewati.')
                     ->schema([
                         FileUpload::make('berkas')
                             ->label('Berkas CSV')

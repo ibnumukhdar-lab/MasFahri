@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\KelulusanController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\SpmbController;
+use App\Http\Controllers\TemplateController;
 use Illuminate\Support\Facades\Route;
 
 // ---------- halaman utama ----------
@@ -33,6 +34,10 @@ Route::get('/login', [AuthController::class, 'form'])->middleware('guest')->name
 Route::post('/login', [AuthController::class, 'masuk'])->middleware('throttle:8,1')->name('login.proses');
 Route::post('/logout', [AuthController::class, 'keluar'])->middleware('auth')->name('logout');
 Route::get('/profil', [AuthController::class, 'profil'])->middleware('auth')->name('profil');
+
+// ---------- template unduhan untuk admin ----------
+Route::get('/template/kelulusan.csv', [TemplateController::class, 'kelulusan'])
+    ->middleware('auth')->name('template.kelulusan');
 
 // ---------- alamat lama WordPress: dialihkan permanen (301) ----------
 foreach (config('smaita.alihkan', []) as $lama => $tujuan) {

@@ -50,6 +50,7 @@ class ImporKelulusan extends Command
             $nisn = trim((string) ($b[$kolom('nisn')] ?? ''));
             $nama = trim((string) ($b[$kolom('nama')] ?? ''));
             if ($nisn === '' || $nama === '') continue;
+            if (stripos($nama, 'CONTOH') !== false) continue;   // baris contoh pada template tidak diimpor
             $ambil = fn (string $k) => ($kolom($k) !== false && isset($b[$kolom($k)])) ? trim((string) $b[$kolom($k)]) : null;
             $siap[$nisn] = [
                 'nama' => $nama,
