@@ -16,4 +16,5 @@ class ListPages extends ListRecords
             CreateAction::make(),
         ];
     }
+
 }

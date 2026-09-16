@@ -31,7 +31,7 @@ class PhotosRelationManager extends RelationManager
             ->components([
                 FileUpload::make('berkas')
                     ->label('Berkas foto')
-                    ->disk('unggahan')
+                    ->disk('media')->visibility('public')
                     ->directory('unggahan')
                     ->image()
                     ->imageEditor()

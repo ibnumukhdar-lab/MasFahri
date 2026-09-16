@@ -16,4 +16,12 @@ class EditPage extends EditRecord
             DeleteAction::make(),
         ];
     }
+
+    /** Kolom bantu "sisipkan dari galeri" tidak disimpan ke database. */
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        unset($data['sisipkan_galeri']);
+
+        return $data;
+    }
 }

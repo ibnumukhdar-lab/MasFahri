@@ -38,6 +38,17 @@ return [
             'report' => false,
         ],
 
+        'media' => [
+            'driver' => 'local',
+            // Di produksi MEDIA_ROOT diarahkan ke folder media DI DALAM docroot
+            // (Hostinger hanya menyajikan berkas yang benar-benar ada di docroot).
+            'root' => env('MEDIA_ROOT', public_path('media')),
+            'url' => env('MEDIA_URL', env('APP_URL') . '/media'),
+            'visibility' => 'public',
+            'throw' => false,
+            'report' => false,
+        ],
+
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
