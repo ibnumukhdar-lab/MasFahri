@@ -1,59 +1,66 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Situs SMA IT Arafah Boarding School — smaitarafah.sch.id
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Situs resmi SMA Islam Terpadu Arafah Boarding School (Sampit, Kotawaringin Timur).
+Sejak **16 September 2026** situs ini berjalan dengan **Laravel 12** menggantikan
+WordPress. Kode WordPress lama tidak dihapus — diarsipkan di server
+(`~/wordpress-arsip-smaita-20260916`, beserta database `u8151173_wp91`).
 
-## About Laravel
+## Isi aplikasi
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+| Bagian | Keterangan |
+|---|---|
+| Halaman publik | beranda, tentang, visi & misi, kurikulum, tahfizh, diniyah, ekskul, galeri, berita (+kategori & pencarian), SPMB, pengumuman kelulusan, alumni, tools guru |
+| Modul SPMB | formulir pendaftaran **menyimpan ke database** + nomor otomatis (`SPMB-2026-0001`) dan halaman cek status (di WordPress dulu hanya membuka WhatsApp tanpa arsip) |
+| Modul kelulusan | cek NISN dari tabel sendiri (dulu menanyakan Google Apps Script/Sheet) |
+| Akun | registrasi alumni, login, profil; verifikasi alumni oleh admin |
+| Panel admin | Filament v5 di `/kelola` — postingan, halaman, kategori, galeri, pendaftaran SPMB, kelulusan (+impor CSV), tautan guru, pengguna |
+| Alamat lama | 17 alamat WordPress yang tidak dipakai lagi dialihkan permanen (301) — daftar di `config/smaita.php` → `alihkan` |
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Teknologi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- Laravel 12.69 + Filament 5.8, PHP 8.2, Tailwind CDN + Palet navy `#1f3a5f`
+- Basis data: SQLite (`database/database.sqlite`) — satu berkas, mudah dicadangkan
+- Media: berkas nyata di `public/media/unggahan` (15 MB, 46 berkas)
 
-## Learning Laravel
+## Menjalankan di komputer
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+```
+D:\smaita-web\JALANKAN.cmd          # menyalakan http://localhost:8070 + alamat HP
+```
+Panel admin: http://localhost:8070/kelola
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Perintah penting
 
-## Laravel Sponsors
+```bash
+php artisan smaita:impor "path/smaita-export.json" --media   # impor konten WordPress (idempoten, by wp_id)
+php artisan smaita:pengguna "path/smaita-export.json" --admin-email=...   # impor akun (sandi acak, sekali tampil)
+php artisan smaita:media-lokal [--jalan]                     # pindahkan gambar lama ke berkas lokal
+php artisan smaita:kelulusan "path/kelulusan.csv" --tahun=2025/2026 --jalan
+php artisan filament:assets                                  # publikasikan aset panel (wajib setelah pasang/perbarui)
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Peta produksi (Hostinger akun u8151173, ssh `nizhom`)
 
-### Premium Partners
+- Aplikasi: `~/smaita-web` (di LUAR docroot), basis data SQLite di `~/smaita-web/database/database.sqlite`
+- Docroot: `~/public_html/smaitarafah.sch.id` — berisi `index.php` pembungkus yang memanggil `~/smaita-web/public/index.php`, `.htaccess` (aset nyata dilayani langsung, sisanya ke Laravel), serta salinan nyata `css/`, `js/`, `fonts/`, `media/` (Hostinger tidak bisa menyajikan berkas dari luar docroot)
+- Arsip WordPress: `~/wordpress-arsip-smaita-20260916` + database `u8151173_wp91` (UTUH — jangan dihapus sebelum yakin)
+- Gambar lama untuk konten hasil impor diambil dari arsip dengan `php ~/salin-media-arsip.php`
+- Cron deploy WordPress (`deploy-masfahri.sh`) sudah DIMATIKAN agar tidak menimpa docroot baru; cadangan crontab: `~/crontab.bak-20260916`
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Setelah mengubah kode
 
-## Contributing
+```bash
+# dari PC
+cd D:\smaita-web\app && tar czf /d/smaita-web/smaita-laravel.tgz --exclude=./vendor --exclude=./node_modules --exclude=./.env --exclude=./database/database.sqlite .
+scp /d/smaita-web/smaita-laravel.tgz nizhom:'~/'
+ssh nizhom 'cd ~/smaita-web && tar xzf ~/smaita-laravel.tgz && php artisan config:clear && php artisan view:clear'
+# jika ada kelas/berkas baru atau dependensi baru:
+ssh nizhom 'cd ~/smaita-web && composer install --no-dev --no-interaction && php artisan migrate --force && php artisan config:cache && php artisan view:cache && php artisan filament:assets'
+# salin aset & media ke docroot bila berubah:
+ssh nizhom 'cp -R ~/smaita-web/public/css ~/smaita-web/public/js ~/smaita-web/public/fonts ~/smaita-web/public/media ~/public_html/smaitarafah.sch.id/'
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Data yang masih perlu diisi
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Data kelulusan** (ekspor Google Sheet → CSV → menu Kelulusan di panel, atau `smaita:kelulusan`)
+- Sandi pengguna: akun guru/musyrif/alumni dibuat dengan sandi acak, daftar ada di `storage/app/sandi-sementara.txt` (server) — minta pengguna menggantinya
