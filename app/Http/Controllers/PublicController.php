@@ -88,10 +88,48 @@ class PublicController extends Controller
 
     public function sitemap()
     {
-        $urls = collect([url('/'), route('berita'), route('spmb'), route('kelulusan'), route('alumni'), route('galeri'), route('toolsguru')])
-            ->merge(Page::terbit()->pluck('slug')->map(fn ($s) => route('halaman', $s)))
-            ->merge(Post::terbit()->pluck('slug')->map(fn ($s) => route('berita.show', $s)));
+        // Satu alamat = satu baris. Kunci array memakai alamat itu sendiri,
+        // jadi halaman yang juga ada di daftar tetap tidak tercatat dua kali.
+        $urls = [];
 
-        return response()->view('sitemap', ['urls' => $urls], 200, ['Content-Type' => 'application/xml']);
+        $tambah = function (string $lokasi, ?string $ubah, string $prioritas) use (&$urls) {
+            if ($lokasi === '') {
+                return;
+            }
+            if (isset($urls[$lokasi])) {
+                // Sudah ada: simpan tanggal yang lebih baru bila ada.
+                if ($ubah && (empty($urls[$lokasi]['ubah']) || $ubah > $urls[$lokasi]['ubah'])) {
+                    $urls[$lokasi]['ubah'] = $ubah;
+                }
+
+                return;
+            }
+            $urls[$lokasi] = ['loc' => $lokasi, 'ubah' => $ubah, 'prioritas' => $prioritas];
+        };
+
+        $tetap = [
+            url('/') => '1.0',
+            route('berita') => '0.9',
+            route('spmb') => '0.9',
+            route('kelulusan') => '0.8',
+            route('alumni') => '0.7',
+            route('galeri') => '0.7',
+            route('ekskul') => '0.7',
+            route('toolsguru') => '0.6',
+        ];
+        foreach ($tetap as $lokasi => $prioritas) {
+            $tambah($lokasi, null, $prioritas);
+        }
+
+        foreach (Page::terbit()->get() as $halaman) {
+            $tambah(route('halaman', $halaman->slug), optional($halaman->updated_at)->toAtomString(), '0.6');
+        }
+
+        foreach (Post::terbit()->orderByDesc('terbit_pada')->get() as $tulisan) {
+            $tanggal = $tulisan->terbit_pada ?: $tulisan->updated_at;
+            $tambah(route('berita.show', $tulisan->slug), optional($tanggal)->toAtomString(), '0.8');
+        }
+
+        return response()->view('sitemap', ['urls' => array_values($urls)], 200, ['Content-Type' => 'application/xml; charset=utf-8']);
     }
 }
