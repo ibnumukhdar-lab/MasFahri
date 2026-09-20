@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\BerandaBagian;
 use App\Models\GalleryAlbum;
 use App\Models\Page;
 use App\Models\Post;
@@ -17,17 +18,31 @@ class PublicController extends Controller
         $berita = Post::terbit()->with('categories')->latest('terbit_pada')->take(6)->get();
         $album = GalleryAlbum::with('photos')->where('terbit', true)->latest('tanggal')->first();
 
+        $galeri = $album ? $album->photos->take(6)->map(fn ($f) => $f->url) : [];
+        $gambarHero = $album && $album->photos->first() ? $album->photos->first()->url : null;
+
+        // Jalan mundur bila perlu: tambahkan ?lama pada alamat beranda.
+        if (request()->query('lama')) {
+            return view('beranda-lama', [
+                'berita' => $berita,
+                'galeri' => $galeri,
+                'gambarHero' => $gambarHero,
+                'tentang' => config('smaita.tentang'),
+                'visi' => config('smaita.visi'),
+                'misi' => config('smaita.misi'),
+                'kenapa' => config('smaita.kenapa'),
+                'program' => config('smaita.program'),
+                'kurikulum' => config('smaita.kurikulum'),
+                'kurikulumLead' => config('smaita.kurikulum_lead'),
+            ]);
+        }
+
+        // Beranda disusun dari bagian yang bisa diatur di panel: Konten → Halaman Beranda.
         return view('beranda', [
+            'bagian' => BerandaBagian::aktif()->orderBy('urutan')->get(),
             'berita' => $berita,
-            'tentang' => config('smaita.tentang'),
-            'visi' => config('smaita.visi'),
-            'misi' => config('smaita.misi'),
-            'kenapa' => config('smaita.kenapa'),
-            'program' => config('smaita.program'),
-            'kurikulum' => config('smaita.kurikulum'),
-            'kurikulumLead' => config('smaita.kurikulum_lead'),
-            'galeri' => $album ? $album->photos->take(6)->map(fn ($f) => $f->url) : [],
-            'gambarHero' => $album && $album->photos->first() ? $album->photos->first()->url : null,
+            'galeri' => $galeri,
+            'gambarHero' => $gambarHero,
         ]);
     }
 
