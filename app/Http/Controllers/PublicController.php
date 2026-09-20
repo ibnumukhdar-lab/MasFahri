@@ -81,9 +81,19 @@ class PublicController extends Controller
 
     public function robots()
     {
-        $isi = "User-agent: *\nAllow: /\n\nSitemap: " . url('/sitemap.xml') . "\n";
+        // Halaman publik boleh diindeks; panel admin dan proses pendaftaran tidak.
+        $baris = [
+            'User-agent: *',
+            'Allow: /',
+            'Disallow: /kelola',
+            'Disallow: /livewire',
+            'Disallow: /spmb/status',
+            '',
+            'Sitemap: ' . url('/sitemap.xml'),
+            '',
+        ];
 
-        return response($isi, 200, ['Content-Type' => 'text/plain']);
+        return response(implode("\n", $baris), 200, ['Content-Type' => 'text/plain; charset=utf-8']);
     }
 
     public function sitemap()
