@@ -10,6 +10,14 @@
     $tautanTombol = $punyaTombol
         ? (str_starts_with((string) $b->tombol_tautan, 'http') ? $b->tombol_tautan : url($b->tombol_tautan))
         : null;
+
+    // Teks boleh berisi beberapa paragraf (dipisah baris kosong) — dari halaman bisa lebih dari satu.
+    $paragrafTeks = filled($b->teks)
+        ? array_values(array_filter(array_map('trim', preg_split('~\n\s*\n~u', (string) $b->teks))))
+        : [];
+    $paragrafSub = filled($b->subjudul)
+        ? array_values(array_filter(array_map('trim', preg_split('~\n\s*\n~u', (string) $b->subjudul))))
+        : [];
 @endphp
 
 @auth
@@ -36,9 +44,9 @@
               @if (filled($b->judul))
                 <h1 class="text-white font-extrabold mt-4" style="font-size:27px;line-height:1.16;letter-spacing:-.02em">{{ $b->judul }}</h1>
               @endif
-              @if (filled($b->teks))
-                <p class="mt-4 leading-relaxed" style="color:rgba(255,255,255,.82);font-size:14.5px">{{ $b->teks }}</p>
-              @endif
+              @foreach ($paragrafTeks as $par)
+                <p class="mt-4 leading-relaxed" style="color:rgba(255,255,255,.82);font-size:14.5px">{{ $par }}</p>
+              @endforeach
 
               @if ($punyaTombol)
                 <div class="mt-7 flex flex-wrap items-center gap-3">
@@ -71,7 +79,7 @@
           <div class="p-7 md:p-10">
             <span class="chip">Tentang</span>
             <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-            @if (filled($b->teks))<p class="bg-lead">{{ $b->teks }}</p>@endif
+            @foreach ($paragrafTeks as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
             <div class="flex flex-wrap gap-2 mt-6">
               <a href="{{ $tautanTombol ?: route('halaman', 'tentang-sma-it-arafah') }}" class="text-[13px] font-semibold px-4 py-2.5 rounded-xl bg-navy text-white">{{ $b->tombol_teks ?: 'Profil lengkap' }}</a>
               <a href="{{ route('spmb') }}" class="text-[13px] font-semibold px-4 py-2.5 rounded-xl" style="border:1px solid #dbe7f4;color:#1f3a5f">Daftar SPMB</a>
@@ -94,7 +102,7 @@
         <div class="max-w-[720px] mb-9">
           <span class="chip">Keunggulan</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->subjudul))<p class="bg-lead">{{ $b->subjudul }}</p>@endif
+          @foreach ($paragrafSub as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
         </div>
         <ul class="grid sm:grid-cols-2 gap-x-10 gap-y-5">
           @foreach ($butir as $k)
@@ -119,9 +127,9 @@
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
         </div>
         <div class="bg-kartu p-7 md:p-10">
-          @if (filled($b->teks))
-            <p class="text-[16px] md:text-[18px] leading-relaxed text-navy" style="border-left:3px solid #c6d8ea;padding-left:16px">{{ $b->teks }}</p>
-          @endif
+          @foreach ($paragrafTeks as $par)
+            <p class="text-[16px] md:text-[18px] leading-relaxed text-navy" style="border-left:3px solid #c6d8ea;padding-left:16px">{{ $par }}</p>
+          @endforeach
           @if (count($butir))
             <p class="mt-8 mb-4"><span class="chip">Misi</span></p>
             <ul class="grid md:grid-cols-2 gap-x-10 gap-y-4">
@@ -148,7 +156,7 @@
         <div class="max-w-[720px] mb-9">
           <span class="chip">{{ $jenis === 'program' ? 'Program' : 'Kurikulum' }}</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->subjudul))<p class="bg-lead">{{ $b->subjudul }}</p>@endif
+          @foreach ($paragrafSub as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
         </div>
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           @foreach ($butir as $i => $p)
@@ -170,7 +178,7 @@
         <div class="max-w-[720px] mb-9">
           <span class="chip">Angka</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->subjudul))<p class="bg-lead">{{ $b->subjudul }}</p>@endif
+          @foreach ($paragrafSub as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
         </div>
         <div class="grid grid-cols-2 md:grid-cols-4 gap-5">
           @foreach ($butir as $s)
@@ -191,7 +199,7 @@
         <div class="max-w-[720px] mb-9">
           <span class="chip">Galeri</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->subjudul))<p class="bg-lead">{{ $b->subjudul }}</p>@endif
+          @foreach ($paragrafSub as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
         </div>
         @if (count($galeri ?? []))
           <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -216,7 +224,7 @@
         <div class="max-w-[720px] mb-9">
           <span class="chip">Berita</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->subjudul))<p class="bg-lead">{{ $b->subjudul }}</p>@endif
+          @foreach ($paragrafSub as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
         </div>
         @if (($berita ?? collect())->count())
           <div class="grid md:grid-cols-3 gap-5">
@@ -237,7 +245,7 @@
         <div>
           <span class="chip">SPMB {{ \App\Models\Setting::ambil('tahun_ajaran', '2026/2027') }}</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->teks))<p class="bg-lead">{{ $b->teks }}</p>@endif
+          @foreach ($paragrafTeks as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
           @if (count($butir))
             <ul class="mt-6 space-y-2.5">
               @foreach ($butir as $p)
@@ -275,7 +283,7 @@
         <div class="max-w-[720px] mb-9">
           <span class="chip">Tanya-jawab</span>
           <h2 class="bg-judul mt-3">{{ $b->judul }}</h2>
-          @if (filled($b->subjudul))<p class="bg-lead">{{ $b->subjudul }}</p>@endif
+          @foreach ($paragrafSub as $par)<p class="bg-lead">{{ $par }}</p>@endforeach
         </div>
         <div class="space-y-3 max-w-[860px]">
           @foreach ($butir as $t)
@@ -295,7 +303,7 @@
       <div class="wrap bg-bagian flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div class="max-w-[620px]">
           <h2 class="text-white font-extrabold" style="font-size:22px;line-height:1.25">{{ $b->judul }}</h2>
-          @if (filled($b->teks))<p class="mt-3 text-[14.5px] leading-relaxed" style="color:rgba(255,255,255,.82)">{{ $b->teks }}</p>@endif
+          @foreach ($paragrafTeks as $par)<p class="mt-3 text-[14.5px] leading-relaxed" style="color:rgba(255,255,255,.82)">{{ $par }}</p>@endforeach
         </div>
         @if ($punyaTombol)
           <a href="{{ $tautanTombol }}" class="bg-hero-tbl bg-white text-navy" style="white-space:nowrap">{{ $b->tombol_teks }} →</a>
