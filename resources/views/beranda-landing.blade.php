@@ -97,11 +97,11 @@
   @media (min-width:768px){.ld-percaya{grid-template-columns:repeat(4,1fr);gap:0}}
   .ld-percaya>div{text-align:center;padding:0 10px}
   @media (min-width:768px){.ld-percaya>div+div{border-left:1px solid rgba(255,255,255,.22)}}
+  .ld-percaya span{display:block;color:rgba(255,255,255,.75);font-size:11px;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase}
   .ld-percaya b{display:block;font-family:'Manrope',system-ui,sans-serif;color:#fff;font-weight:800;
-    font-size:22px;line-height:1.1}
-  @media (min-width:768px){.ld-percaya b{font-size:26px}}
-  .ld-percaya span{display:block;color:rgba(255,255,255,.72);font-size:11.5px;font-weight:600;
-    letter-spacing:.09em;text-transform:uppercase;margin-top:7px}
+    font-size:24px;line-height:1.05;margin-top:6px}
+  @media (min-width:768px){.ld-percaya b{font-size:28px}}
   /* ---------- berita ---------- */
   .ld-berita{display:grid;gap:20px;margin-top:38px}
   @media (min-width:768px){.ld-berita{grid-template-columns:repeat(3,1fr);gap:24px}}
@@ -174,7 +174,7 @@
       @if ($hero && $hero->butir)
         <div class="ld-percaya">
           @foreach (array_slice($hero->butir, 0, 4) as $b)
-            <div><b>{{ $b['judul'] ?? '' }}</b><span>{{ $b['teks'] ?? '' }}</span></div>
+            <div><span>{{ $b['teks'] ?? '' }}</span><b>{{ $b['judul'] ?? '' }}</b></div>
           @endforeach
         </div>
       @endif

@@ -37,7 +37,7 @@ class BerandaForm
         'statistik' => 'Judul = angka (mis. 300+), Teks = keterangannya (mis. Siswa aktif).',
         'faq' => 'Judul = pertanyaan, Teks = jawabannya.',
         'spmb' => 'Satu butir = satu poin penjelasan di samping formulir.',
-        'hero' => 'Satu butir = satu statistik di bawah tombol. Judul = angkanya (mis. 130), Teks = keterangannya (mis. Siswa aktif).',
+        'hero' => 'Satu butir = satu statistik di bawah tombol. Judul = angka/nilainya (mis. 130 atau A), Teks = keterangan yang tampil kecil di atas angka (mis. Siswa Aktif).',
     ];
 
     public static function configure(Schema $schema): Schema
@@ -135,13 +135,14 @@ class BerandaForm
                                     ->label('Lihat galeri')
                                     ->icon('heroicon-o-photo')
                                     ->modalHeading('Pilih gambar dari galeri')
-                                    ->modalDescription('Klik salah satu foto untuk memakainya di bagian beranda ini.')
+                                    ->modalDescription('Klik salah satu foto untuk memakainya sebagai gambar bagian ini.')
                                     ->modalSubmitAction(false)
                                     ->modalCancelActionLabel('Tutup')
                                     ->modalWidth('4xl')
                                     ->modalContent(fn () => view('filament.pilih-galeri', [
                                         'foto' => GalleryPhoto::query()->latest('id')->limit(120)->get(),
                                         'target' => 'data.gambar',
+                                        'bentuk' => 'berkas',
                                     ]))
                             ),
                     ])
