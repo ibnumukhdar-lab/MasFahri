@@ -8,9 +8,22 @@ use Illuminate\Http\Request;
 
 class SpmbController extends Controller
 {
+    /** Pilihan tahun ajaran pada formulir SPMB. */
+    public const TAHUN_AJARAN = ['2027/2028', '2028/2029', '2029/2030'];
+
     public function index()
     {
-        return view('spmb', ['tahunAjaran' => Setting::ambil('tahun_ajaran', '2026/2027')]);
+        $tahun = Setting::ambil('tahun_ajaran', '2027/2028');
+        $pilihan = self::TAHUN_AJARAN;
+
+        if (! in_array($tahun, $pilihan, true)) {
+            $tahun = $pilihan[0];
+        }
+
+        return view('spmb', [
+            'tahunAjaran' => $tahun,
+            'pilihanTahun' => $pilihan,
+        ]);
     }
 
     public function simpan(Request $request)
@@ -21,7 +34,7 @@ class SpmbController extends Controller
             'jenis_kelamin' => ['nullable', 'in:Laki-laki,Perempuan'],
             'sekolah_asal' => ['nullable', 'string', 'max:150'],
             'minat_program' => ['nullable', 'string', 'max:60'],
-            'tahun_ajaran' => ['required', 'string', 'max:20'],
+            'tahun_ajaran' => ['required', 'string', 'max:20', \Illuminate\Validation\Rule::in(self::TAHUN_AJARAN)],
             'whatsapp' => ['nullable', 'string', 'max:25'],
             'catatan' => ['nullable', 'string', 'max:800'],
         ]);

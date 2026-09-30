@@ -27,7 +27,14 @@
       </select>
       <p class="text-[12px] text-slate-500 mt-1.5">Semua murid <b>wajib boarding</b> (berasrama). Tidak ada pilihan non-boarding.</p>
     </div>
-    <div><label class="block mb-1.5 font-medium text-navy">Tahun Ajaran</label><input name="tahun_ajaran" value="{{ $tahunAjaran }}" readonly class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 bg-slate-50"></div>
+    <div><label class="block mb-1.5 font-medium text-navy">Tahun Ajaran</label>
+      <select name="tahun_ajaran" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-600">
+        @foreach ($pilihanTahun as $th)
+          <option value="{{ $th }}" @selected(old('tahun_ajaran', $tahunAjaran) === $th)>{{ $th }}</option>
+        @endforeach
+      </select>
+      <p class="text-[12px] text-slate-500 mt-1.5">Pilih tahun ajaran yang dituju.</p>
+    </div>
     <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Nomor WhatsApp Wali</label><input name="whatsapp" value="{{ old('whatsapp') }}" placeholder="08xxxxxxxxxx" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Catatan (opsional)</label><textarea name="catatan" rows="2" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5">{{ old('catatan') }}</textarea></div>
     <div class="md:col-span-2 flex flex-wrap gap-3 items-center">
