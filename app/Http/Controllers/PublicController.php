@@ -91,7 +91,19 @@ class PublicController extends Controller
     {
         $page = Page::terbit()->where('slug', 'ekskul')->first();
 
-        return view('halaman-ekskul', ['page' => $page, 'ekskul' => config('smaita.ekskul')]);
+        // Tulisan berkategori "Ekstrakurikuler" tampil di halaman ini (diatur dari panel → Tulisan).
+        $kategori = Category::where('slug', 'ekstrakurikuler')->first();
+        $postingan = $kategori
+            ? Post::terbit()->whereHas('categories', fn ($q) => $q->where('categories.id', $kategori->id))
+                ->latest('terbit_pada')->take(9)->get()
+            : collect();
+
+        return view('halaman-ekskul', [
+            'page' => $page,
+            'ekskul' => config('smaita.ekskul'),
+            'kategori' => $kategori,
+            'postingan' => $postingan,
+        ]);
     }
 
     public function berita(Request $request)
