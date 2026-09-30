@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\GalleryAlbums\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -50,6 +51,20 @@ class GalleryAlbumForm
                             ->label('Sampul (URL / path)')
                             ->maxLength(500)
                             ->helperText('Contoh: /media/unggahan/sampul.jpg')
+                            ->columnSpanFull(),
+
+                        Select::make('kategori')
+                            ->label('Kategori di beranda')
+                            ->options([
+                                'prestasi' => 'Prestasi',
+                                'pembelajaran' => 'Kegiatan Pembelajaran',
+                                'fasilitas-sekolah' => 'Fasilitas Sekolah',
+                                'fasilitas-asrama' => 'Fasilitas Asrama',
+                                'student-root' => 'Program Student Root',
+                                'diniyah' => 'Program Diniyah',
+                                'alumni' => 'Alumni',
+                            ])
+                            ->helperText('Menentukan seksi beranda mana yang menampilkan foto album ini.')
                             ->columnSpanFull(),
 
                         Textarea::make('keterangan')

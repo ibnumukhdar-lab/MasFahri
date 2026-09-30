@@ -37,12 +37,98 @@ class PublicController extends Controller
             ]);
         }
 
-        // Beranda disusun dari bagian yang bisa diatur di panel: Konten → Halaman Beranda.
-        return view('beranda', [
-            'bagian' => BerandaBagian::aktif()->orderBy('urutan')->get(),
-            'berita' => $berita,
-            'galeri' => $galeri,
-            'gambarHero' => $gambarHero,
+        // ---------- Beranda gaya LANDING PAGE ----------
+        // Foto diambil dari album galeri yang kategorinya dipilih di panel; tiap kategori = satu seksi.
+        $peta = GalleryAlbum::with('photos')
+            ->where('terbit', true)
+            ->whereNotNull('kategori')
+            ->orderByDesc('tanggal')
+            ->get()
+            ->groupBy(fn ($a) => (string) $a->kategori)
+            ->map(fn ($grup) => $grup->flatMap->photos->values());
+
+        // ?contoh=1 → seksi yang fotonya belum ada diisi foto yang sudah diunggah, supaya tampilan bisa ditinjau.
+        $contoh = request()->boolean('contoh');
+        $demo = $contoh ? GalleryAlbum::with('photos')->where('terbit', true)->latest('tanggal')->first() : null;
+        $demoFoto = $demo ? $demo->photos : collect();
+
+        $seksi = [
+            [
+                'id' => 'prestasi', 'kicker' => 'Prestasi', 'judul' => 'Prestasi Siswa',
+                'lead' => 'Siswa kami bertumbuh lewat kompetisi dan kegiatan — dari musabaqah, olimpiade bahasa Arab, sampai kegiatan kepemudaan masjid.',
+                'chips' => ['Juara Favorit The Raising Dai 2025', 'Olimpiade Bahasa Arab (OBA) ke-8', 'Penyerahan piagam apresiasi', 'Kemah Brigade Remaja Masjid Kotim'],
+                'kategori' => 'prestasi', 'kabut' => false,
+            ],
+            [
+                'id' => 'pembelajaran', 'kicker' => 'Kegiatan Pembelajaran', 'judul' => 'Belajar Aktif Setiap Hari',
+                'lead' => 'Bukan sekadar mencatat: diskusi, proyek, presentasi, dan kunjungan pembelajaran agar siswa paham, bukan sekadar hafal.',
+                'chips' => ['Diskusi & presentasi kelas', 'Kunjungan pembelajaran', 'Proyek siswa', 'Bimbingan guru mata pelajaran'],
+                'kategori' => 'pembelajaran', 'kabut' => true,
+            ],
+            [
+                'id' => 'fasilitas-sekolah', 'kicker' => 'Fasilitas Sekolah', 'judul' => 'Sekolah yang Nyaman untuk Belajar',
+                'lead' => 'Ruang kelas, perpustakaan, laboratorium, dan area bermain yang menunjang kegiatan belajar siswa.',
+                'chips' => ['Ruang kelas', 'Perpustakaan', 'Laboratorium', 'Lapangan & area bermain'],
+                'kategori' => 'fasilitas-sekolah', 'kabut' => false,
+            ],
+            [
+                'id' => 'fasilitas-asrama', 'kicker' => 'Fasilitas Asrama', 'judul' => 'Asrama dengan Pembinaan 24 Jam',
+                'lead' => 'Boarding school dengan pembinaan ibadah, kebersihan, dan kemandirian — didampingi musyrif setiap hari.',
+                'chips' => ['24 kamar putra & putri', 'Musyrif pendamping', 'Inspeksi kebersihan harian', 'Dapur & makan bersama'],
+                'kategori' => 'fasilitas-asrama', 'kabut' => true,
+            ],
+            [
+                'id' => 'student-root', 'kicker' => 'Program Student Root', 'judul' => 'Pembinaan Karakter Berbasis Data',
+                'lead' => 'Program unggulan sekolah: setiap siswa dibina dalam kelompok kecil dengan catatan perkembangan <b>intelektual, emosional, sosial, dan spiritual</b> — dipantau harian, dilaporkan ke wali.',
+                'chips' => ['🧠 Intelektual', '❤️ Emosional', '🤝 Sosial', '🕋 Spiritual', '12 kelompok binaan', '130 siswa aktif'],
+                'kategori' => 'student-root', 'kabut' => false,
+            ],
+            [
+                'id' => 'diniyah', 'kicker' => 'Program Diniyah', 'judul' => 'Kajian Kitab Kuning',
+                'lead' => 'Kurikulum diniyah khas pesantren, dibimbing guru lulusan pesantren: nahwu, shorf, fiqih, aqidah, akhlaq, dan siroh.',
+                'chips' => ['Nahwu', 'Shorf', 'Fiqih', 'Aqidah', 'Akhlaq', 'Siroh Nabawiyah', 'Qiroat Kutub'],
+                'kategori' => 'diniyah', 'kabut' => true,
+            ],
+        ];
+
+        // Alumni digabung ke daftar seksi, dengan chip nama lulusan yang ditampilkan di panel.
+        $alumni = \App\Models\Graduate::where('tampil', true)->orderByDesc('tahun_ajaran')->take(8)->get();
+        $chipAlumni = $alumni->map(fn ($a) => trim($a->nama.' — Angkatan '.$a->tahun_ajaran))->all();
+        if (empty($chipAlumni)) {
+            $chipAlumni = ['Data alumni belum ditambahkan — bisa diisi di panel → Alumni'];
+        }
+        $seksi[] = [
+            'id' => 'alumni', 'kicker' => 'Alumni', 'judul' => 'Jejak Lulusan Kami',
+            'lead' => 'Lulusan SMA IT Arafah melanjutkan ke kampus, pesantren, dan dunia kerja — sebagian kembali membangun daerah.',
+            'chips' => $chipAlumni,
+            'kategori' => 'alumni', 'kabut' => false,
+        ];
+
+        foreach ($seksi as $i => $sk) {
+            $foto = $peta[$sk['kategori']] ?? collect();
+            $catatan = null;
+            if ($foto->isEmpty() && $contoh && $demoFoto->isNotEmpty()) {
+                $foto = $demoFoto;
+                $catatan = 'Contoh tampilan — foto untuk kategori ini belum diunggah.';
+            }
+            $seksi[$i]['foto'] = $foto->take(12);
+            if ($catatan) {
+                $seksi[$i]['catatan'] = $catatan;
+            }
+        }
+
+        // Video profil dari pengaturan (tempel link YouTube di panel/pengaturan).
+        $videoUrl = (string) Setting::ambil('video_profil', '');
+        $videoId = preg_match('~(?:youtu\.be/|[?&]v=|/embed/|/shorts/)([A-Za-z0-9_-]{6,})~', $videoUrl, $m) ? $m[1] : null;
+        $jumlahSiswa = (string) Setting::ambil('jumlah_siswa', '130');
+
+        return view('beranda-landing', [
+            'seksi' => $seksi,
+            'heroFoto' => Setting::ambil('landing_hero', '') ?: $gambarHero,
+            'videoId' => $videoId,
+            'jumlahSiswa' => $jumlahSiswa,
+            'tahunAjaran' => Setting::ambil('tahun_ajaran', '2026/2027'),
+            'waAdmin' => Setting::ambil('wa_admin'),
         ]);
     }
 
