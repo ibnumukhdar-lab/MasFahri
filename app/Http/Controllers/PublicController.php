@@ -98,12 +98,40 @@ class PublicController extends Controller
                 ->latest('terbit_pada')->take(9)->get()
             : collect();
 
+        // Daftar ekstrakurikuler dikelola dari panel (Konten → Ekstrakurikuler) beserta foto kegiatannya.
+        $daftar = \App\Models\Ekskul::withCount('photos')->with('photos')->where('terbit', true)->orderBy('urut')->get();
+
+        // Bila tabelnya masih kosong, pakai daftar bawaan konfigurasi agar halaman tetap terisi.
+        if ($daftar->isEmpty()) {
+            $daftar = collect(config('smaita.ekskul'))->map(fn ($e, $i) => (new \App\Models\Ekskul([
+                'nama' => $e['judul'],
+                'slug' => \Illuminate\Support\Str::slug($e['judul']),
+                'keterangan' => $e['teks'],
+                'urut' => $i,
+                'terbit' => true,
+            ])));
+        }
+
         return view('halaman-ekskul', [
             'page' => $page,
-            'ekskul' => config('smaita.ekskul'),
+            'daftar' => $daftar,
             'kategori' => $kategori,
             'postingan' => $postingan,
         ]);
+    }
+
+    /** Halaman satu ekstrakurikuler: foto kegiatan + kabar terkait. */
+    public function ekskulShow(\App\Models\Ekskul $ekskul)
+    {
+        abort_unless($ekskul->terbit, 404);
+
+        $kategori = Category::where('slug', 'ekstrakurikuler')->first();
+        $postingan = $kategori
+            ? Post::terbit()->whereHas('categories', fn ($q) => $q->where('categories.id', $kategori->id))
+                ->latest('terbit_pada')->take(3)->get()
+            : collect();
+
+        return view('ekskul-detail', ['ekskul' => $ekskul, 'postingan' => $postingan]);
     }
 
     public function berita(Request $request)

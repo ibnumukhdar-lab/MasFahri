@@ -15,6 +15,7 @@ Route::get('/berita/{post:slug}', [PublicController::class, 'beritaShow'])->name
 Route::get('/galeri', [PublicController::class, 'galeri'])->name('galeri');
 Route::get('/toolsguru', [PublicController::class, 'toolsguru'])->name('toolsguru');
 Route::get('/ekskul', [PublicController::class, 'ekskul'])->name('ekskul');
+Route::get('/ekskul/{ekskul:slug}', [PublicController::class, 'ekskulShow'])->name('ekskul.show');
 Route::get('/sitemap.xml', [PublicController::class, 'sitemap'])->name('sitemap');
 Route::get('/robots.txt', [PublicController::class, 'robots']);
 
