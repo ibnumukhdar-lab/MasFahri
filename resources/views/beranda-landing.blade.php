@@ -5,96 +5,142 @@
 
 @section('isi')
 <style>
-  /* ================== BERANDA GAYA LANDING PAGE ================== */
-  .ld-wrap{max-width:1120px;margin:0 auto;padding:0 20px}
-  .ld-seksi{padding:52px 0;scroll-margin-top:84px}
-  .ld-hero{scroll-margin-top:0}
-  @media (min-width:768px){.ld-seksi{padding:74px 0}}
-  .ld-kabut{background:#f2f6fb}
-  .ld-dua{display:grid;gap:22px}
-  .ld-dua>*{min-width:0}
-  @media (min-width:900px){.ld-dua{grid-template-columns:.85fr 1.15fr;gap:38px;align-items:center}}
-  .ld-kicker{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#1f3a5f;background:#eef4fb;border:1px solid #dbe7f4;border-radius:999px;padding:5px 12px}
-  .ld-judul{font-size:23px;line-height:1.22;font-weight:800;color:#1f3a5f;margin:14px 0 0;letter-spacing:-.01em}
-  @media (min-width:768px){.ld-judul{font-size:31px}}
-  .ld-lead{font-size:14.5px;line-height:1.75;color:#55657a;margin:12px 0 0}
-  .ld-catatan{font-size:12.5px;line-height:1.7;color:#7b8ea6;margin:12px 0 0}
-  .ld-chips{display:flex;flex-wrap:nowrap;gap:8px;margin:16px 0 0;padding:0 0 4px;list-style:none;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=DM+Sans:wght@400;500;700&display=swap');
+
+  /* ========== BERANDA — gaya Thursina IIBS ==========
+     navy #234288 · kuning #fdd100 · biru muda #e9f7fe · teks #212529 / #667282
+     judul Manrope 800 (tracking rapat), kicker kapital, seksi berjudul di tengah. */
+  .ld-seksi{--navy:#234288;--emas:#fdd100;--muda:#e9f7fe;--tua:#212529;--lembut:#667282;--garis:#e6ecf5;
+    padding:58px 0;scroll-margin-top:84px;font-family:'DM Sans',system-ui,sans-serif;color:var(--lembut)}
+  @media (min-width:768px){.ld-seksi{padding:96px 0}}
+  .ld-wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+  .ld-kabut{background:#e9f7fe}
+  .ld-judul-blok{text-align:center;max-width:860px;margin:0 auto}
+  .ld-kicker{font-family:'Manrope',system-ui,sans-serif;font-size:13px;font-weight:800;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--tua);margin:0 0 16px}
+  @media (min-width:768px){.ld-kicker{font-size:15px}}
+  .ld-judul{font-family:'Manrope',system-ui,sans-serif;font-size:30px;line-height:1.12;font-weight:800;
+    letter-spacing:-.03em;color:var(--navy);margin:0}
+  @media (min-width:768px){.ld-judul{font-size:48px}}
+  .ld-lead{font-size:15px;line-height:1.75;color:var(--lembut);margin:22px auto 0;max-width:820px}
+  @media (min-width:768px){.ld-lead{font-size:16.5px}}
+  .ld-catatan{font-size:12.5px;line-height:1.7;color:#8b98a8;margin:12px 0 0}
+  /* chip: pil biru muda, satu baris bisa digeser di HP */
+  .ld-chips{display:flex;flex-wrap:nowrap;gap:10px;margin:26px 0 0;padding:0 0 4px;list-style:none;
+    overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;justify-content:flex-start}
   .ld-chips::-webkit-scrollbar{display:none}
-  .ld-chips li{flex:none;font-size:12px;font-weight:600;color:#3d5670;background:#fff;border:1px solid #e7eef6;border-radius:999px;padding:6px 12px;white-space:nowrap}
-  @media (min-width:768px){.ld-chips{flex-wrap:wrap;overflow:visible;padding:0}.ld-chips li{white-space:normal}}
-  .ld-tautan{display:inline-block;margin-top:18px;font-size:13.5px;font-weight:700;color:#1f3a5f;border-bottom:2px solid #c6d8ea;padding-bottom:2px}
-  .ld-slider{position:relative;min-width:0}
-  .ld-rel{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:4px 4px 10px;scrollbar-width:none;-ms-overflow-style:none}
+  .ld-chips li{flex:none;font-family:'Manrope',system-ui,sans-serif;font-size:12.5px;font-weight:700;
+    color:var(--navy);background:#fff;border:1px solid var(--garis);border-radius:999px;padding:8px 15px;white-space:nowrap}
+  @media (min-width:768px){.ld-chips{flex-wrap:wrap;justify-content:center;overflow:visible;padding:0}.ld-chips li{white-space:normal}}
+  /* slider */
+  .ld-slider{position:relative;min-width:0;margin-top:34px}
+  .ld-rel{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    padding:4px 4px 12px;scrollbar-width:none;-ms-overflow-style:none}
   .ld-rel::-webkit-scrollbar{display:none}
   .ld-slide{flex:0 0 86%;margin:0;scroll-snap-align:center}
-  @media (min-width:640px){.ld-slide{flex-basis:60%}}
-  @media (min-width:1024px){.ld-slide{flex-basis:47%}}
-  .ld-slide a{display:block;border-radius:18px;overflow:hidden;border:1px solid #e7eef6;background:#eef4fb;box-shadow:0 22px 44px -32px rgba(31,58,95,.55)}
-  .ld-slide img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block}
-  .ld-slide figcaption{background:#fff;padding:10px 13px;font-size:12.5px;font-weight:700;color:#1f3a5f;line-height:1.45}
-  .ld-panah{position:absolute;top:38%;width:38px;height:38px;border-radius:999px;border:1px solid #dbe7f4;background:rgba(255,255,255,.96);color:#1f3a5f;font-size:20px;font-weight:800;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 12px 26px -16px rgba(31,58,95,.7);z-index:2}
-  .ld-panah--mundur{left:-4px}.ld-panah--maju{right:-4px}
-  .ld-titik{display:flex;gap:6px;justify-content:center;margin-top:10px}
-  .ld-titik i{width:7px;height:7px;border-radius:999px;background:#c6d8ea;transition:.2s}
-  .ld-titik i.aktif{background:#1f3a5f;width:20px}
-  .ld-kosong{border:1px dashed #c6d8ea;border-radius:18px;background:#fff;padding:26px 20px;text-align:center;color:#55657a;font-size:13px;line-height:1.7}
+  @media (min-width:640px){.ld-slide{flex-basis:55%}}
+  @media (min-width:1024px){.ld-slide{flex-basis:39%}}
+  .ld-slide a{display:block}
+  .ld-gambar{display:block;border-radius:26px;overflow:hidden;background:var(--muda);border:1px solid var(--garis);
+    box-shadow:0 24px 50px -38px rgba(35,66,136,.65)}
+  .ld-slide img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .55s ease}
+  .ld-slide a:hover img{transform:scale(1.045)}
+  .ld-slide figcaption{font-family:'Manrope',system-ui,sans-serif;font-size:13.5px;font-weight:700;color:var(--navy);
+    margin-top:12px;line-height:1.45}
+  .ld-panah{position:absolute;top:36%;width:44px;height:44px;border-radius:999px;border:1px solid var(--garis);
+    background:#fff;color:var(--navy);font-size:21px;font-weight:800;line-height:1;display:grid;place-items:center;
+    cursor:pointer;box-shadow:0 14px 30px -18px rgba(35,66,136,.7);z-index:2}
+  .ld-panah--mundur{left:2px}.ld-panah--maju{right:2px}
+  .ld-titik{display:flex;gap:7px;justify-content:center;margin-top:16px}
+  .ld-titik i{width:8px;height:8px;border-radius:999px;background:#c9d6ea;transition:.2s}
+  .ld-titik i.aktif{background:var(--emas);width:24px}
+  .ld-kosong{border:1px dashed #c9d6ea;border-radius:26px;background:#fff;padding:34px 22px;text-align:center;
+    color:var(--lembut);font-size:13.5px;line-height:1.7;margin-top:34px}
   .ld-kosong-ikon{font-size:26px}
-  .ld-kosong-judul{font-weight:800;color:#1f3a5f;font-size:14px;margin:8px 0 4px}
-  /* hero */
-  .ld-hero{position:relative;min-height:76vh;display:flex;align-items:flex-end;overflow:hidden;background:#152c49}
+  .ld-kosong-judul{font-family:'Manrope',system-ui,sans-serif;font-weight:800;color:var(--navy);font-size:15px;margin:8px 0 4px}
+  .ld-tautan-baris{text-align:center;margin-top:26px}
+  .ld-tautan{display:inline-block;font-family:'Manrope',system-ui,sans-serif;font-size:14px;font-weight:800;
+    color:var(--navy);background:var(--emas);border-radius:12px;padding:14px 22px}
+  .ld-tautan:hover{filter:brightness(1.05)}
+  /* ---------- hero: foto dalam bingkai membulat ---------- */
+  .ld-hero{position:relative;padding:10px;font-family:'DM Sans',system-ui,sans-serif}
+  @media (min-width:768px){.ld-hero{padding:14px}}
+  .ld-hero-bingkai{position:relative;border-radius:28px;overflow:hidden;min-height:70vh;display:flex;
+    align-items:center;justify-content:center;background:#234288}
+  @media (min-width:768px){.ld-hero-bingkai{border-radius:36px;min-height:78vh}}
   .ld-hero .latar{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  .ld-hero-lapis{position:absolute;inset:0;background:linear-gradient(180deg,rgba(21,44,73,.20) 0%,rgba(21,44,73,.72) 58%,rgba(15,32,55,.95) 100%)}
-  .ld-hero-isi{position:relative;z-index:2;width:100%;padding:70px 20px 46px}
-  .ld-hero h1{color:#fff;font-size:27px;line-height:1.18;font-weight:800;max-width:22ch;letter-spacing:-.01em}
-  @media (min-width:768px){.ld-hero h1{font-size:44px}}
-  .ld-hero p{color:rgba(255,255,255,.88);font-size:14px;margin-top:12px;max-width:54ch;line-height:1.7}
-  .ld-kecil{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:6px 12px}
-  .ld-tombol-baris{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
-  .ld-tombol{font-size:13.5px;font-weight:700;padding:12px 20px;border-radius:999px;border:1px solid transparent;cursor:pointer;display:inline-block}
-  .ld-tombol--putih{background:#fff;color:#1f3a5f}
-  .ld-tombol--garis{background:transparent;color:#fff;border-color:rgba(255,255,255,.6)}
-  .ld-percaya{display:flex;flex-wrap:wrap;gap:16px;margin-top:22px;color:rgba(255,255,255,.85);font-size:12.5px;font-weight:600}
-  .ld-percaya b{color:#fff}
-  /* spmb */
-  .ld-biru{background:#152c49;color:#fff}
-  .ld-langkah{display:grid;gap:12px;margin-top:24px}
+  .ld-hero-lapis{position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(18,34,72,.5) 0%,rgba(18,34,72,.72) 52%,rgba(12,24,52,.95) 100%)}
+  .ld-hero-isi{position:relative;z-index:2;width:100%;text-align:center;padding:70px 22px 58px;color:#fff}
+  @media (min-width:768px){.ld-hero-isi{padding:96px 26px 74px}}
+  .ld-kecil{display:inline-block;font-family:'Manrope',system-ui,sans-serif;font-size:11.5px;font-weight:800;
+    letter-spacing:.16em;text-transform:uppercase;color:#fdd100}
+  @media (min-width:768px){.ld-kecil{font-size:13px}}
+  .ld-hero h1{font-family:'Manrope',system-ui,sans-serif;color:#fff;font-size:29px;line-height:1.12;font-weight:800;
+    letter-spacing:-.03em;margin:14px auto 0;max-width:22ch}
+  @media (min-width:768px){.ld-hero h1{font-size:52px;max-width:26ch}}
+  .ld-hero p{color:rgba(255,255,255,.88);font-size:14.5px;margin:16px auto 0;max-width:60ch;line-height:1.75}
+  @media (min-width:768px){.ld-hero p{font-size:16px}}
+  .ld-tombol-baris{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px;justify-content:center}
+  .ld-tombol{font-family:'Manrope',system-ui,sans-serif;font-size:14.5px;font-weight:800;padding:16px 26px;
+    border-radius:12px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+  .ld-tombol--emas{background:#fdd100;color:#234288}
+  .ld-tombol--emas:hover{filter:brightness(1.06)}
+  .ld-tombol--garis{background:transparent;color:#fff;border-color:rgba(255,255,255,.55)}
+  .ld-tombol--garis:hover{background:rgba(255,255,255,.12)}
+  .ld-percaya{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 12px;justify-content:center;
+    margin:38px auto 0;max-width:760px}
+  @media (min-width:768px){.ld-percaya{grid-template-columns:repeat(4,1fr);gap:0}}
+  .ld-percaya>div{text-align:center;padding:0 10px}
+  @media (min-width:768px){.ld-percaya>div+div{border-left:1px solid rgba(255,255,255,.22)}}
+  .ld-percaya b{display:block;font-family:'Manrope',system-ui,sans-serif;color:#fff;font-weight:800;
+    font-size:22px;line-height:1.1}
+  @media (min-width:768px){.ld-percaya b{font-size:26px}}
+  .ld-percaya span{display:block;color:rgba(255,255,255,.72);font-size:11.5px;font-weight:600;
+    letter-spacing:.09em;text-transform:uppercase;margin-top:7px}
+  /* ---------- SPMB ---------- */
+  .ld-biru{background:#234288;color:#fff}
+  .ld-biru .ld-kicker{color:#fdd100}
+  .ld-biru .ld-judul{color:#fff}
+  .ld-biru .ld-lead{color:rgba(255,255,255,.85)}
+  .ld-langkah{display:grid;gap:14px;margin-top:38px}
   @media (min-width:768px){.ld-langkah{grid-template-columns:repeat(4,1fr)}}
-  .ld-langkah>div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:14px}
-  .ld-langkah b{display:block;color:#fff;font-size:13px}
-  .ld-langkah span{display:block;color:rgba(255,255,255,.8);font-size:12px;margin-top:6px;line-height:1.6}
-  /* modal video */
-  .ld-modal{position:fixed;inset:0;background:rgba(10,20,35,.88);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
+  .ld-langkah>div{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:22px;padding:22px 20px}
+  .ld-langkah b{display:block;font-family:'Manrope',system-ui,sans-serif;color:#fff;font-size:14.5px}
+  .ld-langkah span{display:block;color:rgba(255,255,255,.8);font-size:13px;margin-top:8px;line-height:1.65}
+  /* ---------- modal video ---------- */
+  .ld-modal{position:fixed;inset:0;background:rgba(10,20,35,.9);z-index:60;display:none;align-items:center;justify-content:center;padding:16px}
   .ld-modal.buka{display:flex}
-  .ld-modal-kotak{width:100%;max-width:860px;background:#000;border-radius:16px;overflow:hidden;position:relative}
+  .ld-modal-kotak{width:100%;max-width:900px;background:#000;border-radius:22px;overflow:hidden;position:relative}
   .ld-modal-kotak iframe{width:100%;aspect-ratio:16/9;display:block;border:0}
-  .ld-modal-tutup{position:absolute;top:-40px;right:0;background:transparent;border:0;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+  .ld-modal-tutup{position:absolute;top:-42px;right:0;background:transparent;border:0;color:#fff;
+    font-family:'Manrope',system-ui,sans-serif;font-size:14px;font-weight:800;cursor:pointer}
 </style>
 
 @php $fotoHero = $heroFoto ?: ($seksi[0]['foto'][0]->url ?? null); @endphp
 
 {{-- ============ 1. HERO ============ --}}
 <section class="ld-hero">
-  @if ($fotoHero)
-    <img class="latar" src="{{ $fotoHero }}" alt="Dokumentasi {{ \App\Models\Setting::ambil('nama_sekolah', 'SMA IT Arafah') }}">
-  @endif
-  <div class="ld-hero-lapis"></div>
-  <div class="ld-hero-isi">
-    <div class="ld-wrap" style="padding:0">
+  <div class="ld-hero-bingkai">
+    @if ($fotoHero)
+      <img class="latar" src="{{ $fotoHero }}" alt="Dokumentasi {{ \App\Models\Setting::ambil('nama_sekolah', 'SMA IT Arafah') }}">
+    @endif
+    <div class="ld-hero-lapis"></div>
+    <div class="ld-hero-isi">
       <span class="ld-kecil">Boarding School · Sampit, Kotawaringin Timur</span>
       <h1>Membentuk Generasi Modern yang Beriman, Berakhlak, dan Cerdas</h1>
-      <p>SMA Islam Terpadu Arafah Boarding School — belajar akademik, diniyah, dan karakter dalam satu asrama.</p>
+      <p>SMA Islam Terpadu Arafah Boarding School — akademik, diniyah, dan pembinaan karakter dalam satu asrama.</p>
       <div class="ld-tombol-baris">
         @if ($videoId)
-          <button type="button" class="ld-tombol ld-tombol--putih" data-buka-video>▶ Tonton Video Profil</button>
+          <button type="button" class="ld-tombol ld-tombol--emas" data-buka-video>▶ Tonton Video Profil</button>
         @endif
         <a class="ld-tombol ld-tombol--garis" href="#spmb">Info SPMB</a>
       </div>
       <div class="ld-percaya">
-        <span><b>Terakreditasi A</b></span>
-        <span>Berdiri <b>2019</b></span>
-        <span><b>{{ $jumlahSiswa }}</b> siswa aktif</span>
-        <span><b>24</b> kamar asrama</span>
+        <div><b>A</b><span>Akreditasi</span></div>
+        <div><b>2019</b><span>Berdiri</span></div>
+        <div><b>{{ $jumlahSiswa }}</b><span>Siswa aktif</span></div>
+        <div><b>24</b><span>Kamar asrama</span></div>
       </div>
     </div>
   </div>
@@ -108,12 +154,14 @@
 {{-- ============ 9. INFO SPMB ============ --}}
 <section class="ld-seksi ld-biru" id="spmb">
   <div class="ld-wrap">
-    <span class="ld-kecil">Penerimaan Murid Baru {{ $tahunAjaran }}</span>
-    <h2 class="ld-judul" style="color:#fff">Daftarkan Putra/Putri Anda</h2>
-    <p class="ld-lead" style="color:rgba(255,255,255,.85)">
-      Pendaftaran dibuka sepanjang tahun dengan sistem waiting list, tersedia jalur prestasi.
-      Isi formulir dari HP, tim kami menghubungi lewat WhatsApp.
-    </p>
+    <div class="ld-judul-blok">
+      <h3 class="ld-kicker">Penerimaan Murid Baru {{ $tahunAjaran }}</h3>
+      <h2 class="ld-judul">Daftarkan Putra/Putri Anda</h2>
+      <p class="ld-lead">
+        Pendaftaran dibuka sepanjang tahun dengan sistem waiting list, tersedia jalur prestasi.
+        Isi formulir dari HP, tim kami menghubungi lewat WhatsApp.
+      </p>
+    </div>
 
     <div class="ld-langkah">
       <div><b>1. Isi formulir</b><span>Data wali &amp; calon murid — dari HP maupun komputer.</span></div>
@@ -122,8 +170,8 @@
       <div><b>4. Pengumuman</b><span>Hasil seleksi diumumkan lewat sistem dan WhatsApp.</span></div>
     </div>
 
-    <div class="ld-tombol-baris" style="margin-top:26px">
-      <a class="ld-tombol ld-tombol--putih" href="{{ url('/spmb') }}">Isi Formulir SPMB</a>
+    <div class="ld-tombol-baris" style="margin-top:34px">
+      <a class="ld-tombol ld-tombol--emas" href="{{ url('/spmb') }}">Isi Formulir SPMB</a>
       <a class="ld-tombol ld-tombol--garis" href="{{ url('/spmb/status') }}">Cek Status Pendaftaran</a>
       @if ($waAdmin)
         <a class="ld-tombol ld-tombol--garis" href="https://wa.me/{{ preg_replace('/\D/', '', $waAdmin) }}" target="_blank" rel="noopener">Tanya lewat WhatsApp</a>
@@ -144,7 +192,7 @@
 
 <script>
 (function () {
-  // ---------- slider foto ----------
+  // ---------- slider foto: panah + titik ----------
   document.querySelectorAll('[data-slider]').forEach(function (kotak) {
     var rel = kotak.querySelector('[data-rel]');
     if (!rel) return;
@@ -153,7 +201,7 @@
     var titik = kotak.querySelector('[data-titik]');
     var slide = rel.querySelectorAll('.ld-slide');
 
-    function lebar() { return slide.length ? slide[0].getBoundingClientRect().width + 12 : 0; }
+    function lebar() { return slide.length ? slide[0].getBoundingClientRect().width + 18 : 0; }
     if (maju) maju.addEventListener('click', function () { rel.scrollBy({ left: lebar(), behavior: 'smooth' }); });
     if (mundur) mundur.addEventListener('click', function () { rel.scrollBy({ left: -lebar(), behavior: 'smooth' }); });
 
@@ -171,7 +219,7 @@
     }
   });
 
-  // ---------- video profil (dimuat hanya saat diketuk) ----------
+  // ---------- video profil: dimuat hanya saat diketuk ----------
   var modal = document.getElementById('ldModal');
   var isi = document.getElementById('ldModalIsi');
   var id = '{{ $videoId }}';
