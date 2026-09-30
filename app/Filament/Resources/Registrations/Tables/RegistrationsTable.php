@@ -42,7 +42,7 @@ class RegistrationsTable
                     ->copyable(),
 
                 TextColumn::make('minat_program')
-                    ->label('Program')
+                    ->label('Jalur pendaftaran')
                     ->toggleable(),
 
                 TextColumn::make('tahun_ajaran')

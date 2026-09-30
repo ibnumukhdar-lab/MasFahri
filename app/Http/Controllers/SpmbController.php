@@ -32,7 +32,7 @@ class SpmbController extends Controller
 
         // Notifikasi WhatsApp ke admin (tautan siap klik) — tercatat juga di log.
         $wa = Setting::ambil('wa_admin');
-        $pesan = rawurlencode("Pendaftaran SPMB baru {$registrasi->nomor}\nNama siswa: {$registrasi->nama_siswa}\nWali: {$registrasi->nama_wali}\nSekolah asal: {$registrasi->sekolah_asal}\nProgram: {$registrasi->minat_program}");
+        $pesan = rawurlencode("Pendaftaran SPMB baru {$registrasi->nomor}\nNama siswa: {$registrasi->nama_siswa}\nWali: {$registrasi->nama_wali}\nSekolah asal: {$registrasi->sekolah_asal}\nJalur: {$registrasi->minat_program}");
         $tautan = $wa ? "https://wa.me/{$wa}?text={$pesan}" : null;
 
         return redirect()->route('spmb.status', ['nomor' => $registrasi->nomor])

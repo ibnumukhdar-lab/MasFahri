@@ -23,7 +23,7 @@ class RegistrationInfolist
                             ->formatStateUsing(fn (?string $state): string => Registration::STATUS[$state] ?? (string) $state)
                             ->color(fn (?string $state): string => static::warnaStatus($state)),
                         TextEntry::make('tahun_ajaran')->label('Tahun ajaran'),
-                        TextEntry::make('minat_program')->label('Program diminati')->placeholder('-'),
+                        TextEntry::make('minat_program')->label('Jalur pendaftaran')->placeholder('-'),
                         TextEntry::make('nama_siswa')->label('Nama siswa'),
                         TextEntry::make('jenis_kelamin')->label('Jenis kelamin'),
                         TextEntry::make('sekolah_asal')->label('Sekolah asal')->placeholder('-'),

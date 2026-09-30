@@ -1,7 +1,7 @@
 @extends('layouts.publik')
 @section('judul', 'SPMB — Penerimaan Murid Baru SMA IT Arafah')
 @section('isi')
-@include('partials.hero', ['kecil' => 'Penerimaan ' . $tahunAjaran, 'judul' => 'Sistem Penerimaan Murid Baru', 'sub' => 'Dibuka sepanjang tahun dengan sistem waiting list, tersedia jalur prestasi.'])
+@include('partials.hero', ['kecil' => 'Penerimaan ' . $tahunAjaran, 'judul' => 'Sistem Penerimaan Murid Baru', 'sub' => 'Dibuka sepanjang tahun dengan sistem waiting list. Seluruh murid wajib boarding — pilih salah satu jalur pendaftaran.'])
 <x-seksi judul="Formulir Pendaftaran">
   @if ($errors->any())
     <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl px-4 py-3 text-[13px] mb-5">
@@ -17,10 +17,16 @@
         <option value="">— Pilih —</option><option @selected(old('jenis_kelamin') === 'Laki-laki')>Laki-laki</option><option @selected(old('jenis_kelamin') === 'Perempuan')>Perempuan</option>
       </select></div>
     <div><label class="block mb-1.5 font-medium text-navy">Sekolah Asal</label><input name="sekolah_asal" value="{{ old('sekolah_asal') }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Minat Program</label>
+    <div><label class="block mb-1.5 font-medium text-navy">Jalur Pendaftaran</label>
       <select name="minat_program" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-slate-600">
-        <option>Reguler — Boarding</option><option>Reguler — Non Boarding</option><option>Jalur Prestasi</option>
-      </select></div>
+        <option value="">— Pilih jalur —</option>
+        <option value="Jalur Reguler" @selected(old('minat_program') === 'Jalur Reguler')>Jalur Reguler</option>
+        <option value="Jalur Prestasi" @selected(old('minat_program') === 'Jalur Prestasi')>Jalur Prestasi</option>
+        <option value="Jalur Penghafal Al-Quran" @selected(old('minat_program') === 'Jalur Penghafal Al-Quran')>Jalur Penghafal Al-Quran</option>
+        <option value="Jalur Tes Bahasa Arab dan Baca Kitab" @selected(old('minat_program') === 'Jalur Tes Bahasa Arab dan Baca Kitab')>Jalur Tes Bahasa Arab dan Baca Kitab</option>
+      </select>
+      <p class="text-[12px] text-slate-500 mt-1.5">Semua murid <b>wajib boarding</b> (berasrama). Tidak ada pilihan non-boarding.</p>
+    </div>
     <div><label class="block mb-1.5 font-medium text-navy">Tahun Ajaran</label><input name="tahun_ajaran" value="{{ $tahunAjaran }}" readonly class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 bg-slate-50"></div>
     <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Nomor WhatsApp Wali</label><input name="whatsapp" value="{{ old('whatsapp') }}" placeholder="08xxxxxxxxxx" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Catatan (opsional)</label><textarea name="catatan" rows="2" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5">{{ old('catatan') }}</textarea></div>
