@@ -7,11 +7,10 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=DM+Sans:wght@400;500;700&display=swap');
 
-  /* ========== BERANDA — gaya Thursina IIBS ==========
-     navy #234288 · kuning #fdd100 · biru muda #e9f7fe · teks #212529 / #667282
-     judul Manrope 800 (tracking rapat), kicker kapital, seksi berjudul di tengah. */
-  .ld-seksi{--navy:#234288;--emas:#fdd100;--muda:#e9f7fe;--tua:#212529;--lembut:#667282;--garis:#e6ecf5;
-    padding:58px 0;scroll-margin-top:84px;font-family:'DM Sans',system-ui,sans-serif;color:var(--lembut)}
+  /* ========== BERANDA — gaya Thursina IIBS, isi dari panel (Konten → Halaman Beranda) ==========
+     navy #234288 · kuning #fdd100 · biru muda #e9f7fe · teks #212529 / #667282 */
+  .ld-seksi,.ld-hero{--navy:#234288;--emas:#fdd100;--muda:#e9f7fe;--tua:#212529;--lembut:#667282;--garis:#e6ecf5}
+  .ld-seksi{padding:58px 0;scroll-margin-top:84px;font-family:'DM Sans',system-ui,sans-serif;color:var(--lembut)}
   @media (min-width:768px){.ld-seksi{padding:96px 0}}
   .ld-wrap{max-width:1160px;margin:0 auto;padding:0 20px}
   .ld-kabut{background:#e9f7fe}
@@ -25,14 +24,7 @@
   .ld-lead{font-size:15px;line-height:1.75;color:var(--lembut);margin:22px auto 0;max-width:820px}
   @media (min-width:768px){.ld-lead{font-size:16.5px}}
   .ld-catatan{font-size:12.5px;line-height:1.7;color:#8b98a8;margin:12px 0 0}
-  /* chip: pil biru muda, satu baris bisa digeser di HP */
-  .ld-chips{display:flex;flex-wrap:nowrap;gap:10px;margin:26px 0 0;padding:0 0 4px;list-style:none;
-    overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;justify-content:flex-start}
-  .ld-chips::-webkit-scrollbar{display:none}
-  .ld-chips li{flex:none;font-family:'Manrope',system-ui,sans-serif;font-size:12.5px;font-weight:700;
-    color:var(--navy);background:#fff;border:1px solid var(--garis);border-radius:999px;padding:8px 15px;white-space:nowrap}
-  @media (min-width:768px){.ld-chips{flex-wrap:wrap;justify-content:center;overflow:visible;padding:0}.ld-chips li{white-space:normal}}
-  /* slider */
+  /* ---------- slider tulisan ---------- */
   .ld-slider{position:relative;min-width:0;margin-top:34px}
   .ld-rel{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
     padding:4px 4px 12px;scrollbar-width:none;-ms-overflow-style:none}
@@ -40,13 +32,25 @@
   .ld-slide{flex:0 0 86%;margin:0;scroll-snap-align:center}
   @media (min-width:640px){.ld-slide{flex-basis:55%}}
   @media (min-width:1024px){.ld-slide{flex-basis:39%}}
-  .ld-slide a{display:block}
-  .ld-gambar{display:block;border-radius:26px;overflow:hidden;background:var(--muda);border:1px solid var(--garis);
-    box-shadow:0 24px 50px -38px rgba(35,66,136,.65)}
-  .ld-slide img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .55s ease}
-  .ld-slide a:hover img{transform:scale(1.045)}
+  .ld-tanpa-gambar{display:grid;place-items:center;aspect-ratio:4/3;padding:26px;text-align:center;
+    font-family:'Manrope',system-ui,sans-serif;font-weight:800;font-size:16px;line-height:1.35;color:#234288;background:#e9f7fe}
+  .ld-kartu{display:block}
+  .ld-gambar{position:relative;display:block;border-radius:26px;overflow:hidden;background:var(--muda);
+    border:1px solid var(--garis);box-shadow:0 24px 50px -38px rgba(35,66,136,.65)}
+  .ld-gambar img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;transition:transform .55s ease}
+  .ld-kartu:hover .ld-gambar img,.ld-kartu:focus-visible .ld-gambar img{transform:scale(1.045)}
+  /* lapisan info: muncul saat kursor diarahkan / kartu difokus */
+  .ld-lapisan{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;gap:7px;
+    padding:20px 18px;opacity:0;transition:opacity .28s ease;
+    background:linear-gradient(180deg,rgba(18,34,72,0) 34%,rgba(15,30,62,.86) 76%,rgba(12,24,52,.95) 100%)}
+  .ld-kartu:hover .ld-lapisan,.ld-kartu:focus-visible .ld-lapisan,.ld-kartu:active .ld-lapisan{opacity:1}
+  .ld-lapisan-kategori{font-family:'Manrope',system-ui,sans-serif;font-size:10.5px;font-weight:800;
+    letter-spacing:.15em;text-transform:uppercase;color:#fdd100}
+  .ld-lapisan-judul{font-family:'Manrope',system-ui,sans-serif;font-size:15.5px;font-weight:800;color:#fff;line-height:1.32}
+  .ld-lapisan-tanggal{font-size:11.5px;color:rgba(255,255,255,.75)}
   .ld-slide figcaption{font-family:'Manrope',system-ui,sans-serif;font-size:13.5px;font-weight:700;color:var(--navy);
     margin-top:12px;line-height:1.45}
+  @media (hover:hover){.ld-slide figcaption{display:none}}
   .ld-panah{position:absolute;top:36%;width:44px;height:44px;border-radius:999px;border:1px solid var(--garis);
     background:#fff;color:var(--navy);font-size:21px;font-weight:800;line-height:1;display:grid;place-items:center;
     cursor:pointer;box-shadow:0 14px 30px -18px rgba(35,66,136,.7);z-index:2}
@@ -62,7 +66,7 @@
   .ld-tautan{display:inline-block;font-family:'Manrope',system-ui,sans-serif;font-size:14px;font-weight:800;
     color:var(--navy);background:var(--emas);border-radius:12px;padding:14px 22px}
   .ld-tautan:hover{filter:brightness(1.05)}
-  /* ---------- hero: foto dalam bingkai membulat ---------- */
+  /* ---------- hero ---------- */
   .ld-hero{position:relative;padding:10px;font-family:'DM Sans',system-ui,sans-serif}
   @media (min-width:768px){.ld-hero{padding:14px}}
   .ld-hero-bingkai{position:relative;border-radius:28px;overflow:hidden;min-height:70vh;display:flex;
@@ -98,6 +102,22 @@
   @media (min-width:768px){.ld-percaya b{font-size:26px}}
   .ld-percaya span{display:block;color:rgba(255,255,255,.72);font-size:11.5px;font-weight:600;
     letter-spacing:.09em;text-transform:uppercase;margin-top:7px}
+  /* ---------- berita ---------- */
+  .ld-berita{display:grid;gap:20px;margin-top:38px}
+  @media (min-width:768px){.ld-berita{grid-template-columns:repeat(3,1fr);gap:24px}}
+  .ld-berita-kartu{display:block;background:#fff;border:1px solid var(--garis);border-radius:24px;overflow:hidden;
+    transition:transform .2s ease,box-shadow .2s ease}
+  .ld-berita-kartu:hover{transform:translateY(-3px);box-shadow:0 26px 50px -38px rgba(35,66,136,.6)}
+  .ld-berita-kartu img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--muda)}
+  .ld-berita-isi{padding:18px 20px 22px}
+  .ld-berita-tanggal{font-size:11.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8b98a8}
+  .ld-berita-judul{font-family:'Manrope',system-ui,sans-serif;font-size:17px;font-weight:800;color:var(--navy);
+    line-height:1.35;margin:9px 0 8px}
+  .ld-berita-ringkas{font-size:13.5px;line-height:1.7;color:var(--lembut)}
+  .ld-berita-baca{display:inline-block;margin-top:14px;font-family:'Manrope',system-ui,sans-serif;font-size:12.5px;
+    font-weight:800;color:var(--navy)}
+  .ld-berita-baca i{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:999px;
+    background:var(--emas);color:var(--navy);font-style:normal;font-size:12px;margin-left:7px}
   /* ---------- SPMB ---------- */
   .ld-biru{background:#234288;color:#fff}
   .ld-biru .ld-kicker{color:#fdd100}
@@ -117,68 +137,120 @@
     font-family:'Manrope',system-ui,sans-serif;font-size:14px;font-weight:800;cursor:pointer}
 </style>
 
-@php $fotoHero = $heroFoto ?: ($seksi[0]['foto'][0]->url ?? null); @endphp
+{{-- ============ 1. HERO — isinya diatur di panel: Konten → Halaman Beranda → bagian "Hero" ============ --}}
+@php
+    $fotoHero = $hero && $hero->gambar_url ? $hero->gambar_url : ($postingan->first()->tulisan->first()->gambar_url ?? null);
+    $videoId = null;
+    if ($hero && filled($hero->video) && preg_match('~(?:youtu\.be/|[?&]v=|/embed/|/shorts/)([A-Za-z0-9_-]{6,})~', (string) $hero->video, $m)) {
+        $videoId = $m[1];
+    }
+    $tautanHero = $hero && filled($hero->tombol_tautan)
+        ? (str_starts_with((string) $hero->tombol_tautan, 'http') ? $hero->tombol_tautan : url($hero->tombol_tautan))
+        : '#spmb';
+@endphp
 
-{{-- ============ 1. HERO ============ --}}
 <section class="ld-hero">
   <div class="ld-hero-bingkai">
     @if ($fotoHero)
-      <img class="latar" src="{{ $fotoHero }}" alt="Dokumentasi {{ \App\Models\Setting::ambil('nama_sekolah', 'SMA IT Arafah') }}">
+      <img class="latar" src="{{ $fotoHero }}" alt="{{ \App\Models\Setting::ambil('nama_sekolah', 'SMA IT Arafah') }}">
     @endif
     <div class="ld-hero-lapis"></div>
     <div class="ld-hero-isi">
-      <span class="ld-kecil">Boarding School · Sampit, Kotawaringin Timur</span>
-      <h1>Membentuk Generasi Modern yang Beriman, Berakhlak, dan Cerdas</h1>
-      <p>SMA Islam Terpadu Arafah Boarding School — akademik, diniyah, dan pembinaan karakter dalam satu asrama.</p>
+      @if ($hero && filled($hero->subjudul))
+        <span class="ld-kecil">{{ $hero->subjudul }}</span>
+      @endif
+      <h1>{{ $hero->judul ?? 'Membentuk Generasi Modern yang Beriman, Berakhlak, dan Cerdas' }}</h1>
+      @if ($hero && filled($hero->teks))
+        <p>{!! $hero->teks !!}</p>
+      @endif
       <div class="ld-tombol-baris">
         @if ($videoId)
           <button type="button" class="ld-tombol ld-tombol--emas" data-buka-video>▶ Tonton Video Profil</button>
         @endif
-        <a class="ld-tombol ld-tombol--garis" href="#spmb">Info SPMB</a>
+        @if ($hero && filled($hero->tombol_teks))
+          <a class="ld-tombol ld-tombol--garis" href="{{ $tautanHero }}">{{ $hero->tombol_teks }}</a>
+        @endif
       </div>
-      <div class="ld-percaya">
-        <div><b>A</b><span>Akreditasi</span></div>
-        <div><b>2019</b><span>Berdiri</span></div>
-        <div><b>{{ $jumlahSiswa }}</b><span>Siswa aktif</span></div>
-        <div><b>24</b><span>Kamar asrama</span></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-{{-- ============ 2-8. SEKSI BERGALERI ============ --}}
-@foreach ($seksi as $s)
-  @include('landing.seksi', $s)
-@endforeach
-
-{{-- ============ 9. INFO SPMB ============ --}}
-<section class="ld-seksi ld-biru" id="spmb">
-  <div class="ld-wrap">
-    <div class="ld-judul-blok">
-      <h3 class="ld-kicker">Penerimaan Murid Baru {{ $tahunAjaran }}</h3>
-      <h2 class="ld-judul">Daftarkan Putra/Putri Anda</h2>
-      <p class="ld-lead">
-        Pendaftaran dibuka sepanjang tahun dengan sistem waiting list, tersedia jalur prestasi.
-        Isi formulir dari HP, tim kami menghubungi lewat WhatsApp.
-      </p>
-    </div>
-
-    <div class="ld-langkah">
-      <div><b>1. Isi formulir</b><span>Data wali &amp; calon murid — dari HP maupun komputer.</span></div>
-      <div><b>2. Verifikasi admin</b><span>Admin sekolah menghubungi lewat WhatsApp.</span></div>
-      <div><b>3. Tes &amp; wawancara</b><span>Tes baca Al-Qur'an, akademik dasar, wawancara wali.</span></div>
-      <div><b>4. Pengumuman</b><span>Hasil seleksi diumumkan lewat sistem dan WhatsApp.</span></div>
-    </div>
-
-    <div class="ld-tombol-baris" style="margin-top:34px">
-      <a class="ld-tombol ld-tombol--emas" href="{{ url('/spmb') }}">Isi Formulir SPMB</a>
-      <a class="ld-tombol ld-tombol--garis" href="{{ url('/spmb/status') }}">Cek Status Pendaftaran</a>
-      @if ($waAdmin)
-        <a class="ld-tombol ld-tombol--garis" href="https://wa.me/{{ preg_replace('/\D/', '', $waAdmin) }}" target="_blank" rel="noopener">Tanya lewat WhatsApp</a>
+      @if ($hero && $hero->butir)
+        <div class="ld-percaya">
+          @foreach (array_slice($hero->butir, 0, 4) as $b)
+            <div><b>{{ $b['judul'] ?? '' }}</b><span>{{ $b['teks'] ?? '' }}</span></div>
+          @endforeach
+        </div>
       @endif
     </div>
   </div>
 </section>
+
+{{-- ============ 2-8. SEKSI SLIDER TULISAN BERKATEGORI ============ --}}
+@foreach ($postingan as $i => $b)
+  @include('landing.seksi', ['b' => $b, 'tulisan' => $b->tulisan, 'kabut' => $i % 2 === 1, 'contoh' => $b->contoh ?? false])
+@endforeach
+
+{{-- ============ 9. BERITA TERBARU ============ --}}
+@if ($beritaRow && $berita->count())
+  <section class="ld-seksi ld-kabut" id="seksi-{{ $beritaRow->id }}">
+    <div class="ld-wrap">
+      <div class="ld-judul-blok">
+        @if (filled($beritaRow->subjudul))<h3 class="ld-kicker">{{ $beritaRow->subjudul }}</h3>@endif
+        <h2 class="ld-judul">{{ $beritaRow->judul ?: 'Berita Terbaru' }}</h2>
+        @if (filled($beritaRow->teks))<p class="ld-lead">{!! $beritaRow->teks !!}</p>@endif
+      </div>
+      <div class="ld-berita">
+        @foreach ($berita as $t)
+          <a class="ld-berita-kartu" href="{{ url('/berita/' . $t->slug) }}">
+            @if ($t->gambar_url)<img src="{{ $t->gambar_url }}" alt="{{ $t->judul }}" loading="lazy">@endif
+            <div class="ld-berita-isi">
+              <div class="ld-berita-tanggal">{{ $t->tanggal_indonesia }}</div>
+              <div class="ld-berita-judul">{{ $t->judul }}</div>
+              <div class="ld-berita-ringkas">{{ $t->ringkas }}</div>
+              <span class="ld-berita-baca">Baca tulisan <i>→</i></span>
+            </div>
+          </a>
+        @endforeach
+      </div>
+      <div class="ld-tautan-baris">
+        <a class="ld-tautan" href="{{ url('/berita') }}">Lihat semua berita <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+@endif
+
+{{-- ============ 10. INFO SPMB ============ --}}
+@if ($spmb)
+  <section class="ld-seksi ld-biru" id="spmb">
+    <div class="ld-wrap">
+      <div class="ld-judul-blok">
+        @if (filled($spmb->subjudul))<h3 class="ld-kicker">{{ $spmb->subjudul }}</h3>@endif
+        <h2 class="ld-judul">{{ $spmb->judul ?: 'Daftarkan Putra/Putri Anda' }}</h2>
+        @if (filled($spmb->teks))<p class="ld-lead">{!! $spmb->teks !!}</p>@endif
+      </div>
+
+      @if ($spmb->butir)
+        <div class="ld-langkah">
+          @foreach (array_slice($spmb->butir, 0, 4) as $b)
+            <div><b>{{ $b['judul'] ?? '' }}</b><span>{{ $b['teks'] ?? '' }}</span></div>
+          @endforeach
+        </div>
+      @endif
+
+      <div class="ld-tombol-baris" style="margin-top:34px">
+        <a class="ld-tombol ld-tombol--emas" href="{{ $spmb->tombol_tautan ? url($spmb->tombol_tautan) : url('/spmb') }}">
+          {{ $spmb->tombol_teks ?: 'Isi Formulir SPMB' }}
+        </a>
+        <a class="ld-tombol ld-tombol--garis" href="{{ url('/spmb/status') }}">Cek Status Pendaftaran</a>
+        @if ($waAdmin)
+          <a class="ld-tombol ld-tombol--garis" href="https://wa.me/{{ preg_replace('/\D/', '', $waAdmin) }}" target="_blank" rel="noopener">Tanya lewat WhatsApp</a>
+        @endif
+      </div>
+    </div>
+  </section>
+@endif
+
+{{-- ============ bagian lain yang masih aktif (bentuk lama) ============ --}}
+@foreach ($lain as $b)
+  @include('beranda.bagian', ['b' => $b])
+@endforeach
 
 {{-- ============ MODAL VIDEO PROFIL ============ --}}
 @if ($videoId)
@@ -192,7 +264,7 @@
 
 <script>
 (function () {
-  // ---------- slider foto: panah + titik ----------
+  // ---------- slider tulisan: panah + titik ----------
   document.querySelectorAll('[data-slider]').forEach(function (kotak) {
     var rel = kotak.querySelector('[data-rel]');
     if (!rel) return;

@@ -12,7 +12,7 @@ class BerandaBagian extends Model
 {
     protected $fillable = [
         'jenis', 'urutan', 'aktif', 'judul', 'subjudul', 'teks',
-        'gambar', 'tombol_teks', 'tombol_tautan', 'data',
+        'gambar', 'video', 'tombol_teks', 'tombol_tautan', 'data', 'kategori_id',
     ];
 
     protected $casts = [
@@ -46,6 +46,12 @@ class BerandaBagian extends Model
         return is_array($data) ? array_values(array_filter($data, fn ($b) => is_array($b))) : [];
     }
 
+    /** Kategori tulisan yang ditampilkan seksi ini (jenis 'postingan'). */
+    public function kategori()
+    {
+        return $this->belongsTo(\App\Models\Category::class, 'kategori_id');
+    }
+
     public static function jenisDaftar(): array
     {
         return [
@@ -57,6 +63,7 @@ class BerandaBagian extends Model
             'kurikulum' => 'Kurikulum — kartu berisi judul & teks',
             'statistik' => 'Statistik — angka besar + label',
             'galeri' => 'Galeri — foto dari album terbaru',
+            'postingan' => 'Postingan berkategori — foto utama + judul tulisan jadi slider',
             'berita' => 'Berita terbaru — 3 tulisan terakhir',
             'spmb' => 'Ajakan SPMB — teks + formulir pendaftaran',
             'faq' => 'Tanya-jawab (buka-tutup)',
@@ -83,6 +90,7 @@ class BerandaBagian extends Model
             'kurikulum' => ['judul' => 'Kurikulum', 'data' => [['judul' => 'Poin kurikulum', 'teks' => 'Penjelasan singkat.']]],
             'statistik' => ['judul' => 'Sekolah dalam Angka', 'data' => [['judul' => '300+', 'teks' => 'Siswa aktif']]],
             'galeri' => ['judul' => 'Prestasi & Kegiatan', 'subjudul' => 'Cuplikan kegiatan siswa.'],
+            'postingan' => ['judul' => 'Judul seksi', 'subjudul' => 'KICKER KECIL', 'teks' => 'Kalimat pengantar singkat untuk seksi ini.'],
             'berita' => ['judul' => 'Berita Terbaru'],
             'spmb' => ['judul' => 'Daftarkan Putra/Putri Anda', 'teks' => 'SPMB dibuka sepanjang tahun dengan sistem waiting list.'],
             'faq' => ['judul' => 'Pertanyaan yang Sering Diajukan', 'data' => [['judul' => 'Pertanyaan?', 'teks' => 'Jawabannya…']]],

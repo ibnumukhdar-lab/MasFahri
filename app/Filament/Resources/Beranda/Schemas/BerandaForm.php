@@ -23,11 +23,11 @@ class BerandaForm
 
     private const PAKAI_TOMBOL = ['hero', 'tentang', 'spmb', 'cta'];
 
-    private const PAKAI_TEKS = ['hero', 'tentang', 'visi_misi', 'spmb', 'cta'];
+    private const PAKAI_TEKS = ['hero', 'tentang', 'visi_misi', 'postingan', 'spmb', 'cta'];
 
-    private const PAKAI_SUBJUDUL = ['hero', 'keunggulan', 'program', 'kurikulum', 'galeri', 'spmb', 'statistik', 'cta'];
+    private const PAKAI_SUBJUDUL = ['hero', 'keunggulan', 'program', 'kurikulum', 'galeri', 'postingan', 'spmb', 'statistik', 'cta'];
 
-    private const PAKAI_DATA = ['keunggulan', 'visi_misi', 'program', 'kurikulum', 'statistik', 'faq', 'spmb'];
+    private const PAKAI_DATA = ['hero', 'keunggulan', 'visi_misi', 'program', 'kurikulum', 'statistik', 'faq', 'spmb'];
 
     private const BANTUAN_DATA = [
         'keunggulan' => 'Satu butir = satu centang. Isi kolom "Teks" saja.',
@@ -37,6 +37,7 @@ class BerandaForm
         'statistik' => 'Judul = angka (mis. 300+), Teks = keterangannya (mis. Siswa aktif).',
         'faq' => 'Judul = pertanyaan, Teks = jawabannya.',
         'spmb' => 'Satu butir = satu poin penjelasan di samping formulir.',
+        'hero' => 'Satu butir = satu statistik di bawah tombol. Judul = angkanya (mis. 130), Teks = keterangannya (mis. Siswa aktif).',
     ];
 
     public static function configure(Schema $schema): Schema
@@ -70,6 +71,24 @@ class BerandaForm
                             ->default(true)
                             ->inline(false)
                             ->helperText('Matikan untuk menyembunyikan tanpa menghapus.'),
+                    ]),
+
+                Section::make('Kategori tulisan & video')
+                    ->columns(2)
+                    ->schema([
+                        Select::make('kategori_id')
+                            ->label('Kategori tulisan')
+                            ->options(fn () => \App\Models\Category::orderBy('nama')->pluck('nama', 'id'))
+                            ->searchable()
+                            ->native(false)
+                            ->helperText('Slider seksi ini menampilkan TULISAN berkategori tersebut: foto utama + judulnya, dan bisa diklik menuju tulisannya.')
+                            ->visible(fn (Get $get) => $jenis($get) === 'postingan'),
+
+                        TextInput::make('video')
+                            ->label('Tautan video profil (YouTube)')
+                            ->maxLength(255)
+                            ->helperText('Khusus bagian Hero: bila diisi, muncul tombol "▶ Tonton Video Profil".')
+                            ->visible(fn (Get $get) => $jenis($get) === 'hero'),
                     ]),
 
                 Section::make('Teks')
