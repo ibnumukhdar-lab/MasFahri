@@ -5,6 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>@yield('judul', 'SMA IT Arafah Boarding School')</title>
 <meta name="description" content="@yield('deskripsi', 'Website resmi SMA Islam Terpadu Arafah Boarding School Sampit — Beriman, Berakhlak, Cerdas.')">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/media/logo/logo-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/media/logo/logo-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1f3a5f">
+<meta name="msapplication-TileColor" content="#1f3a5f">
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SMA IT Arafah Boarding School">
+<meta property="og:title" content="@yield('judul', 'SMA IT Arafah Boarding School')">
+<meta property="og:description" content="@yield('deskripsi', 'Website resmi SMA Islam Terpadu Arafah Boarding School Sampit — Beriman, Berakhlak, Cerdas.')">
+<meta property="og:url" content="{{ url()->current() }}">
+<meta property="og:image" content="{{ url('/media/logo/og-image.jpg') }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{{ url('/media/logo/og-image.jpg') }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
@@ -43,7 +61,7 @@
 <div class="mask fixed inset-0 bg-black/40 z-40" onclick="document.getElementById('menu-tutup').checked=false"></div>
 <aside class="drawer fixed top-0 left-0 h-full w-72 bg-white z-50 shadow-2xl p-5 overflow-y-auto">
   <div class="flex items-center justify-between mb-6">
-    <span class="font-extrabold text-navy">SMA IT Arafah</span>
+    <span class="flex items-center gap-2 font-extrabold text-navy"><img src="/media/logo/logo-64.png" alt="Logo SMA IT Arafah" width="32" height="32" class="w-8 h-8 rounded-full object-contain">SMA IT Arafah</span>
     <label for="menu-tutup" class="cursor-pointer text-slate-400 text-2xl leading-none">&times;</label>
   </div>
   <nav class="space-y-1 text-[15px]">
@@ -60,7 +78,7 @@
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </label>
     <a href="{{ url('/') }}" class="flex items-center gap-2.5 mr-auto">
-      <span class="w-9 h-9 rounded-xl bg-navy text-white grid place-items-center font-bold text-[13px]">SA</span>
+      <img src="/media/logo/logo-96.png" alt="Logo SMA IT Arafah" width="36" height="36" class="w-9 h-9 rounded-full shrink-0 object-contain">
       <span class="leading-tight">
         <span class="block font-extrabold text-navy text-[15px]">{{ \App\Models\Setting::ambil('nama_singkat', 'SMA IT Arafah') }}</span>
         <span class="block text-[11px] text-slate-500 -mt-0.5">Boarding School · Sampit</span>
@@ -85,6 +103,7 @@
 <footer class="bg-navy text-white mt-16">
   <div class="wrap py-12 grid gap-8 md:grid-cols-3">
     <div>
+      <img src="/media/logo/logo-96.png" alt="Logo SMA IT Arafah" width="52" height="52" class="mb-3 object-contain" style="width:52px;height:52px">
       <p class="font-extrabold mb-2">{{ \App\Models\Setting::ambil('nama_sekolah', 'SMA IT Arafah Boarding School') }}</p>
       <p class="text-[13px] leading-relaxed text-white/85">{{ \App\Models\Setting::ambil('alamat', 'Jalan Setia Usaha No. 4, Sampit — Kabupaten Kotawaringin Timur') }}</p>
       <p class="text-[13px] mt-3 text-white/85">Berdiri 2019 · Terakreditasi A</p>

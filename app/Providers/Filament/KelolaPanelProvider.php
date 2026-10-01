@@ -32,6 +32,9 @@ class KelolaPanelProvider extends PanelProvider
             ->path('kelola')
             ->login()
             ->brandName('Kelola · smaitarafah.sch.id')
+            ->brandLogo('/media/logo/logo-192.png')
+            ->brandLogoHeight('2rem')
+            ->favicon('/media/logo/favicon-32x32.png')
             ->colors([
                 'primary' => Color::Hex('#1f3a5f'),
             ])
