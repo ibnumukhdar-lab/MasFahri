@@ -95,6 +95,18 @@ class PostForm
                                         $set('body', rtrim((string) $get('body')) . $gambar);
                                     }),
                             ]),
+                        FileUpload::make('foto_baru')
+                            ->label('Unggah foto dari HP/komputer')
+                            ->helperText('Pilih satu atau beberapa foto sekaligus — foto otomatis disisipkan ke dalam isi tulisan (di bagian bawah) dan masuk galeri.')
+                            ->multiple()
+                            ->image()
+                            ->disk('media')
+                            ->directory('unggahan')
+                            ->visibility('public')
+                            ->maxSize(8192)
+                            ->automaticallyResizeImagesToWidth(1600)
+                            ->columnSpanFull(),
+
 
                     ]),
 
@@ -117,14 +129,14 @@ class PostForm
                             ->default(now()),
 
                         FileUpload::make('gambar_sampul')
-                            ->label('Gambar sampul')
+                            ->label('Foto utama (sampul postingan)')
                             ->image()
                             ->disk('media')
                             ->directory('unggahan')
                             ->visibility('public')
                             ->maxSize(8192)
                             ->automaticallyResizeImagesToWidth(1600)
-                            ->helperText('Unggah dari komputer/HP. Gambar yang diunggah otomatis masuk galeri.'),
+                            ->helperText('Ketuk kotak di bawah untuk memilih foto dari HP/komputer (boleh juga seret berkas). Foto otomatis masuk galeri.'),
 
                         Select::make('pilih_galeri')
                             ->label('Atau pilih gambar dari galeri')

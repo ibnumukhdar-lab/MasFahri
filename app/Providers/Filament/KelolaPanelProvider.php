@@ -45,7 +45,7 @@ class KelolaPanelProvider extends PanelProvider
                 . '--primary-50:#f2f6fb;--primary-100:#e4ecf6;--primary-200:#c6d8ea;--primary-300:#9dbcd8;'
                 . '--primary-400:#6c96bd;--primary-500:#487a9f;--primary-600:#2f5c80;--primary-700:#264a67;'
                 . '--primary-800:#1f3a5f;--primary-900:#182c47;--primary-950:#101d30;'
-                . '}</style>'
+                . '}' . '.fi-fo-file-upload .filepond--root{min-height:96px}' . '.fi-fo-file-upload .filepond--drop-label{font-size:13.5px;font-weight:600;color:#1f3a5f;text-align:center}' . '.fi-fo-file-upload .filepond--drop-label label::after{content:" \\1F4F7"}' . '</style>'
             ))
             ->navigationGroups([
                 'Konten',

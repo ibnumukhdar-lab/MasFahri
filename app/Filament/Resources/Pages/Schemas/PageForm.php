@@ -77,6 +77,18 @@ class PageForm
                                         $set('body', rtrim((string) $get('body')) . '<p><img src="' . asset('media/' . $berkas) . '" alt=""></p>');
                                     }),
                             ]),
+                        FileUpload::make('foto_baru')
+                            ->label('Unggah foto dari HP/komputer')
+                            ->helperText('Pilih satu atau beberapa foto sekaligus — foto otomatis disisipkan ke dalam isi tulisan (di bagian bawah) dan masuk galeri.')
+                            ->multiple()
+                            ->image()
+                            ->disk('media')
+                            ->directory('unggahan')
+                            ->visibility('public')
+                            ->maxSize(8192)
+                            ->automaticallyResizeImagesToWidth(1600)
+                            ->columnSpanFull(),
+
 
                     ]),
 
