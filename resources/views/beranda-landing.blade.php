@@ -139,7 +139,9 @@
 
 {{-- ============ 1. HERO — isinya diatur di panel: Konten → Halaman Beranda → bagian "Hero" ============ --}}
 @php
-    $fotoHero = $hero && $hero->gambar_url ? $hero->gambar_url : ($postingan->first()->tulisan->first()->gambar_url ?? null);
+    // Prioritas latar hero: gambar yang DICENTANG di Galeri → gambar seksi hero → foto tulisan terbaru.
+    $fotoHero = ($heroPilihan ?? null)
+        ?: ($hero && $hero->gambar_url ? $hero->gambar_url : ($postingan->first()->tulisan->first()->gambar_url ?? null));
     $videoId = null;
     if ($hero && filled($hero->video) && preg_match('~(?:youtu\.be/|[?&]v=|/embed/|/shorts/)([A-Za-z0-9_-]{6,})~', (string) $hero->video, $m)) {
         $videoId = $m[1];
