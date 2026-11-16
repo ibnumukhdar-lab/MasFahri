@@ -7,6 +7,18 @@ class GalleryPhoto extends Model
 {
     protected $fillable = ['gallery_album_id', 'berkas', 'judul', 'urut', 'layar_utama'];
 
+    protected static function booted(): void
+    {
+        // Hanya satu gambar yang boleh menjadi latar halaman utama.
+        static::saving(function (self $foto) {
+            if ($foto->layar_utama) {
+                static::query()
+                    ->when($foto->getKey(), fn ($q, $id) => $q->whereKeyNot($id))
+                    ->update(['layar_utama' => false]);
+            }
+        });
+    }
+
     protected function casts(): array
     {
         return ['layar_utama' => 'boolean'];

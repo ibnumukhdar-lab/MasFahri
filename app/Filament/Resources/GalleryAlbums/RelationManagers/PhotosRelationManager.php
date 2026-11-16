@@ -10,6 +10,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
@@ -49,6 +50,11 @@ class PhotosRelationManager extends RelationManager
                     ->label('Urutan')
                     ->numeric()
                     ->default(0),
+
+                Toggle::make('layar_utama')
+                    ->label('Jadikan gambar layar utama')
+                    ->helperText('Latar belakang halaman depan di belakang teks sambutan. Hanya satu gambar yang bisa aktif — mencentang ini otomatis melepas yang lain.')
+                    ->columnSpanFull(),
             ]);
     }
 
