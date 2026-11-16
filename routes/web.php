@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\KelulusanController;
 use App\Http\Controllers\PublicController;
 use App\Http\Controllers\SpmbController;
@@ -39,6 +40,9 @@ Route::get('/profil', [AuthController::class, 'profil'])->middleware('auth')->na
 // ---------- template unduhan untuk admin ----------
 Route::get('/template/kelulusan.csv', [TemplateController::class, 'kelulusan'])
     ->middleware('auth')->name('template.kelulusan');
+
+// ---------- display TV (layar informasi sekolah) ----------
+Route::get('/display', [DisplayController::class, 'index'])->name('display');
 
 // ---------- alamat lama WordPress: dialihkan permanen (301) ----------
 foreach (config('smaita.alihkan', []) as $lama => $tujuan) {
