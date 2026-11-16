@@ -28,7 +28,7 @@
 
   {{-- ===================== HERO ===================== --}}
   @case('hero')
-    @php $foto = $gambar ?: ($gambarHero ?? null); @endphp
+    @php $foto = ($heroPilihan ?? null) ?: ($gambar ?: ($gambarHero ?? null)); @endphp
     <section class="bg-bagian" style="padding-top:24px">
       <div class="wrap">
         <div class="relative overflow-hidden rounded-[26px] bg-navy" style="min-height:320px">

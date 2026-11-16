@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\BerandaBagian;
 use App\Models\GalleryAlbum;
+use App\Models\GalleryPhoto;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\Setting;
@@ -21,12 +22,16 @@ class PublicController extends Controller
         $galeri = $album ? $album->photos->take(6)->map(fn ($f) => $f->url) : [];
         $gambarHero = $album && $album->photos->first() ? $album->photos->first()->url : null;
 
+        // Gambar yang DICENTANG admin di Galeri (album → foto) menjadi latar halaman utama.
+        $heroPilihan = GalleryPhoto::layarUtama()->latest('updated_at')->first()?->url;
+
         // Jalan mundur bila perlu: tambahkan ?lama pada alamat beranda.
         if (request()->query('lama')) {
             return view('beranda-lama', [
                 'berita' => $berita,
                 'galeri' => $galeri,
                 'gambarHero' => $gambarHero,
+                'heroPilihan' => $heroPilihan,
                 'tentang' => config('smaita.tentang'),
                 'visi' => config('smaita.visi'),
                 'misi' => config('smaita.misi'),
@@ -68,6 +73,8 @@ class PublicController extends Controller
 
         return view('beranda-landing', [
             'hero' => $bagian->firstWhere('jenis', 'hero'),
+            'gambarHero' => $gambarHero,
+            'heroPilihan' => $heroPilihan,
             'postingan' => $postingan,
             'beritaRow' => $bagian->firstWhere('jenis', 'berita'),
             'berita' => $berita->take(3),

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\GalleryAlbums\RelationManagers;
 
+use App\Models\GalleryPhoto;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -75,8 +77,31 @@ class PhotosRelationManager extends RelationManager
                     ->label('Urut')
                     ->numeric()
                     ->sortable(),
+
+                IconColumn::make('layar_utama')
+                    ->label('Layar utama')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-photo')
+                    ->falseIcon('heroicon-o-minus-small')
+                    ->trueColor('success')
+                    ->falseColor('gray')
+                    ->tooltip('Gambar yang tampil di latar halaman utama'),
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('layarUtama')
+                    ->label(fn (GalleryPhoto $record): string => $record->layar_utama ? 'Batalkan layar utama' : 'Jadikan layar utama')
+                    ->icon('heroicon-o-photo')
+                    ->color(fn (GalleryPhoto $record): string => $record->layar_utama ? 'gray' : 'success')
+                    ->action(function (GalleryPhoto $record): void {
+                        $record->jadikanLayarUtama(!$record->layar_utama);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title($record->fresh()->layar_utama
+                                ? 'Gambar ini sekarang menjadi latar halaman utama'
+                                : 'Gambar dilepas dari layar utama')
+                            ->success()
+                            ->send();
+                    }),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
