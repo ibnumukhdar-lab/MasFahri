@@ -75,6 +75,10 @@
         document.getElementById('jam').textContent = j + ':' + m;
     }
     setInterval(jam, 5000); jam();
+
+    // Segarkan halaman tiap 10 menit supaya slide baru/pindah urutan ikut tampil di TV
+    // tanpa perlu menyentuh perangkat layar.
+    setTimeout(function () { location.reload(); }, 10 * 60 * 1000);
 })();
 </script>
 </body>
