@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlumniCeritaController;
 use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DisplayController;
@@ -44,6 +45,13 @@ Route::get('/template/kelulusan.csv', [TemplateController::class, 'kelulusan'])
 // ---------- display TV (layar informasi sekolah) ----------
 Route::get('/display', [DisplayController::class, 'index'])->name('display');
 
+// ---------- cerita alumni (form publik tanpa akun) ----------
+Route::get('/alumni-cerita', [AlumniCeritaController::class, 'index'])->name('alumni.cerita');
+Route::get('/alumni-cerita/isi', [AlumniCeritaController::class, 'form'])->name('alumni.cerita.form');
+Route::post('/alumni-cerita', [AlumniCeritaController::class, 'simpan'])->name('alumni.cerita.simpan')->middleware('throttle:6,1');
+Route::get('/alumni-cerita/sukses/{token}', [AlumniCeritaController::class, 'sukses'])->name('alumni.cerita.sukses');
+Route::get('/alumni-cerita/sunting/{token}', [AlumniCeritaController::class, 'sunting'])->name('alumni.cerita.sunting');
+Route::post('/alumni-cerita/sunting/{token}', [AlumniCeritaController::class, 'perbarui'])->name('alumni.cerita.perbarui');
 // ---------- alamat lama WordPress: dialihkan permanen (301) ----------
 foreach (config('smaita.alihkan', []) as $lama => $tujuan) {
     Route::permanentRedirect('/' . $lama, $tujuan);
