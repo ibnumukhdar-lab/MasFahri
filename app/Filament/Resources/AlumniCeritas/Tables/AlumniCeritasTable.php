@@ -22,6 +22,12 @@ class AlumniCeritasTable
         return $table
             ->defaultSort('id', 'desc')
             ->columns([
+                \Filament\Tables\Columns\TextColumn::make('nama')
+                    ->label('Halaman publik')
+                    ->formatStateUsing(fn ($state) => 'Buka halaman cerita →')
+                    ->url(fn ($record) => url('/alumni-cerita/' . $record->slug), shouldOpenInNewTab: true)
+                    ->color('primary')
+                    ->toggleable(),
                 ImageColumn::make('foto')
                     ->label('Foto')
                     ->disk('media')
@@ -85,6 +91,32 @@ class AlumniCeritasTable
                         ->all()),
             ])
             ->recordActions([
+                \Filament\Actions\Action::make('setujui')
+                    ->label('Setujui')
+                    ->icon('heroicon-o-check-circle')
+                    ->color('success')
+                    ->visible(fn (AlumniCerita $r): bool => ! ($r->tampil && $r->diverifikasi_pada))
+                    ->action(function (AlumniCerita $r): void {
+                        $r->update(['tampil' => true, 'diverifikasi_pada' => now()]);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Cerita ' . $r->nama . ' kini tampil publik')
+                            ->success()
+                            ->send();
+                    }),
+
+                \Filament\Actions\Action::make('sembunyikan')
+                    ->label('Sembunyikan')
+                    ->icon('heroicon-o-eye-slash')
+                    ->color('gray')
+                    ->visible(fn (AlumniCerita $r): bool => $r->tampil && $r->diverifikasi_pada)
+                    ->requiresConfirmation()
+                    ->action(function (AlumniCerita $r): void {
+                        $r->update(['tampil' => false, 'diverifikasi_pada' => null]);
+                        \Filament\Notifications\Notification::make()
+                            ->title('Cerita ' . $r->nama . ' disembunyikan')
+                            ->send();
+                    }),
+
                 EditAction::make(),
                 DeleteAction::make()
                     ->after(function (AlumniCerita $record): void {

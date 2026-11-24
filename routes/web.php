@@ -50,7 +50,9 @@ Route::get('/alumni-cerita', [AlumniCeritaController::class, 'index'])->name('al
 Route::get('/alumni-cerita/isi', [AlumniCeritaController::class, 'form'])->name('alumni.cerita.form');
 Route::post('/alumni-cerita', [AlumniCeritaController::class, 'simpan'])->name('alumni.cerita.simpan')->middleware('throttle:6,1');
 Route::get('/alumni-cerita/sukses/{token}', [AlumniCeritaController::class, 'sukses'])->name('alumni.cerita.sukses');
-Route::get('/alumni-cerita/sunting/{token}', [AlumniCeritaController::class, 'sunting'])->name('alumni.cerita.sunting');
+Route::get('/alumni-cerita/{slug}', [AlumniCeritaController::class, 'show'])->name('alumni.cerita.show');
+
+    Route::get('/alumni-cerita/sunting/{token}', [AlumniCeritaController::class, 'sunting'])->name('alumni.cerita.sunting');
 Route::post('/alumni-cerita/sunting/{token}', [AlumniCeritaController::class, 'perbarui'])->name('alumni.cerita.perbarui');
 // ---------- alamat lama WordPress: dialihkan permanen (301) ----------
 foreach (config('smaita.alihkan', []) as $lama => $tujuan) {

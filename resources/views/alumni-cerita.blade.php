@@ -64,7 +64,7 @@
     @if ($alumni->count())
         <div class="al-grid">
             @foreach ($alumni as $a)
-                <article class="al-kartu">
+                <a class="al-kartu" href="{{ url($a->url_halaman) }}" style="display:flex;flex-direction:column;text-decoration:none;color:inherit">
                     <img src="{{ $a->foto_url }}" alt="{{ $a->nama }}" loading="lazy">
                     <div class="al-isi">
                         <h3 class="al-nama">{{ $a->nama }}</h3>
@@ -82,7 +82,7 @@
                             <a class="al-ig" href="https://instagram.com/{{ trim($a->instagram, '@') }}" target="_blank" rel="noopener">Instagram ↗</a>
                         @endif
                     </div>
-                </article>
+                </a>
             @endforeach
         </div>
     @else

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Formulir cerita alumni (tanpa akun) + daftar publik + verifikasi admin.
+ * Formulir cerita alumni (tanpa akun) + daftar publik + halaman cerita + verifikasi admin.
  */
 class AlumniCeritaController extends Controller
 {
@@ -21,6 +21,17 @@ class AlumniCeritaController extends Controller
         return view('alumni-cerita', [
             'alumni' => $alumni,
             'angkatan' => AlumniCerita::tampil()->whereNotNull('tahun_lulus')->distinct()->orderByDesc('tahun_lulus')->pluck('tahun_lulus'),
+        ]);
+    }
+
+    public function show(string $slug)
+    {
+        $cerita = AlumniCerita::tampil()->where('slug', $slug)->firstOrFail();
+        $cerita->increment('dilihat');
+
+        return view('alumni-cerita-show', [
+            'cerita' => $cerita,
+            'lainnya' => AlumniCerita::tampil()->whereKeyNot($cerita->id)->orderBy('nama')->take(6)->get(),
         ]);
     }
 
@@ -62,6 +73,7 @@ class AlumniCeritaController extends Controller
         $token = Str::random(32);
         AlumniCerita::create([
             'nama' => $data['nama'],
+            'slug' => AlumniCerita::slugUnik($data['nama']),
             'wa' => preg_replace('/[^0-9+]/', '', $data['wa']),
             'tahun_lulus' => $data['tahun_lulus'] ?? null,
             'kelas_akhir' => $data['kelas_akhir'] ?? null,
@@ -75,11 +87,12 @@ class AlumniCeritaController extends Controller
         ]);
 
         // notifikasi WA ke admin (setting wa_admin)
-        $nomor = \Illuminate\Support\Facades\DB::table('settings')->where('kunci', 'wa_admin')->value('nilai');
+        $nomor = DB::table('settings')->where('kunci', 'wa_admin')->value('nilai');
         $nomor = preg_replace('/[^0-9]/', '', (string) $nomor) ?: '6285356002524';
+
         $teks = "Isian alumni baru: {$data['nama']}" . ($data['tahun_lulus'] ? " ({$data['tahun_lulus']})" : '')
-            . "\nCek di /kelola → Alumni → Cerita alumni untuk memverifikasi.";
-        if ($nomor && function_exists('curl_init')) {
+            . "\nCek di /kelola → SPMB & Alumni → Cerita Alumni untuk memverifikasi.";
+        if (function_exists('curl_init')) {
             $ch = curl_init("https://wa.me/{$nomor}?text=" . rawurlencode($teks));
             curl_setopt_array($ch, [CURLOPT_NOBODY => true, CURLOPT_TIMEOUT => 5]);
             curl_exec($ch);
