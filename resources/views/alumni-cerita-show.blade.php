@@ -19,7 +19,9 @@
         box-shadow:0 8px 24px -18px rgba(16,24,40,.3);margin-bottom:14px}
     .ak-kotak h2{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;
         color:#8a94a4;margin:0 0 10px}
-    .ak-prestasi li{font-size:13.5px;color:#42506a;line-height:1.7}
+    .ak-prestasi ul{list-style:none;margin:0;padding:0}
+    .ak-prestasi li{font-size:13.5px;color:#42506a;line-height:1.7;padding-left:18px;position:relative;overflow-wrap:anywhere}
+    .ak-prestasi li::before{content:"";position:absolute;left:2px;top:.62em;width:7px;height:7px;border-radius:50%;background:#9c2f4f}
     .ak-cerita p{font-size:15px;line-height:1.85;color:#2b3444;margin:0 0 1em}
     .ak-cerita p:last-child{margin-bottom:0}
     .ak-sisi{background:#f4f7fb;border:1px solid #e5eaf1;border-radius:16px;padding:16px 18px;margin-bottom:14px}
@@ -60,9 +62,15 @@
     </div>
 
     @if ($cerita->prestasi)
-        <div class="ak-sisi">
+        <div class="ak-sisi ak-prestasi">
             <h2>Prestasi selama di Arafah</h2>
-            <p>{{ $cerita->prestasi }}</p>
+            <ul>
+                @foreach (preg_split('/\\r?\\n|•/', trim((string) $cerita->prestasi)) as $poin)
+                    @if (trim($poin) !== '')
+                        <li>{{ trim($poin) }}</li>
+                    @endif
+                @endforeach
+            </ul>
         </div>
     @endif
 
