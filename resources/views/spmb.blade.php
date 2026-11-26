@@ -47,8 +47,36 @@
       <p class="text-slate-600 text-[13.5px] leading-relaxed">Wawancara bersama wali murid: kesiapan anak menjalani kehidupan boarding, harapan keluarga, dan komitmen orang tua menjadi <b>mitra pendidik</b> — mendampingi hafalan, ibadah, dan belajar anak baik di sekolah maupun di rumah.</p>
     </div>
   </div>
+  <div class="grid md:grid-cols-3 gap-4 mb-4">
+    <div class="kartu p-5">
+      <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Jalur 1</p>
+      <p class="font-bold text-navy mb-1.5">Jalur Reguler</p>
+      <p class="text-slate-600 text-[13.5px] leading-relaxed">Jalur umum tanpa syarat khusus: calon murid mengikuti rangkaian tes penerimaan (potensi akademik, minat bakat, baca tulis Al-Qur'an, praktik ibadah, dan wawancara) lalu hasilnya menentukan kelulusan.</p>
+    </div>
+    <div class="kartu p-5">
+      <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Jalur 2 — potongan uang masuk</p>
+      <p class="font-bold text-navy mb-1.5">Jalur Prestasi</p>
+      <p class="text-slate-600 text-[13.5px] leading-relaxed mb-2.5">Untuk calon murid dengan prestasi akademik atau non-akademik yang terbukti. Potongan biaya masuk sesuai tingkat juara:</p>
+      <ul class="text-slate-600 text-[13.5px] leading-relaxed list-disc pl-5 space-y-1">
+        <li>Juara 1 tingkat <b>kabupaten/kota</b> — potongan <b>Rp 250.000</b></li>
+        <li>Juara 1–2 tingkat <b>provinsi</b> — potongan <b>Rp 500.000</b></li>
+        <li>Juara 1–3 tingkat <b>nasional</b> — potongan <b>Rp 1.000.000</b></li>
+      </ul>
+    </div>
+    <div class="kartu p-5">
+      <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Jalur 3 — potongan uang masuk</p>
+      <p class="font-bold text-navy mb-1.5">Jalur Penghafal Al-Qur'an</p>
+      <p class="text-slate-600 text-[13.5px] leading-relaxed mb-2.5">Untuk calon murid yang sudah hafal Al-Qur'an — hafalan akan <b>dites langsung</b> saat tes penerimaan. Potongan sesuai jumlah hafalan:</p>
+      <ul class="text-slate-600 text-[13.5px] leading-relaxed list-disc pl-5 space-y-1">
+        <li>Hafalan <b>3–5 juz</b> — potongan <b>Rp 1.000.000</b></li>
+        <li>Hafalan <b>5–10 juz</b> — potongan <b>Rp 1.500.000</b></li>
+        <li>Hafalan <b>10–30 juz</b> — potongan <b>Rp 2.000.000</b></li>
+      </ul>
+    </div>
+  </div>
   <div class="bg-navy-soft border border-navy-soft rounded-xl px-5 py-4 text-[13.5px] text-slate-700 leading-relaxed max-w-3xl">
     <p class="mb-1"><b>Catatan:</b> setelah 14 Desember, tes berikutnya dijadwalkan berkelanjutan sampai kuota Gelombang 1 terisi — ikuti arahan panitia yang dikirim lewat WhatsApp.</p>
+    <p><b>Wajib sertifikat:</b> pendaftar <b>Jalur Prestasi</b> dan <b>Jalur Penghafal Al-Qur'an</b> wajib menunjukkan sertifikat/piagam sebagai bukti saat verifikasi — potongan berlaku setelah bukti diperiksa panitia.</p>
     <p><b>Belum siap di Gelombang 1?</b> Gelombang 2 dibuka <b>Maret s/d Juni 2027</b> — kursi tinggal mengikuti sisa kuota, jadi daftar lebih awal tetap lebih menguntungkan.</p>
   </div>
 </x-seksi>
