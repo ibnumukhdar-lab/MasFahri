@@ -101,6 +101,14 @@ class RegistrationsTable
                                 ->send();
                         }),
 
+                    Action::make('kirim_akses_wa')
+                        ->label('Kirim Akses Login')
+                        ->icon('heroicon-m-chat-bubble-left-ellipsis')
+                        ->color('success')
+                        ->visible(fn (Registration $record): bool => filled($record->whatsapp))
+                        ->url(fn (Registration $record): ?string => \App\Http\Controllers\SpmbController::tautanAksesWa($record))
+                        ->openUrlInNewTab(),
+
                     Action::make('tandai_dihubungi')
                         ->label('Tandai dihubungi')
                         ->icon('heroicon-o-phone')

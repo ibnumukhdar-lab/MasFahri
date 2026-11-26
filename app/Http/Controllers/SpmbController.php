@@ -104,6 +104,36 @@ class SpmbController extends Controller
             ."\n\nMohon konfirmasi pendaftaran ini beserta informasi tahap selanjutnya. Terima kasih.";
     }
 
+    /**
+     * Tautan WhatsApp (wa.me) berisi pesan siap-kirim dari PANITIA ke pendaftar:
+     * kode akun pendaftar, sandi (= nomor WA terdaftar), dan tautan masuk area pendaftar.
+     * Dipakai tombol "Kirim Akses Login" di panel /kelola/pendaftaran-spmb.
+     */
+    public static function tautanAksesWa(Registration $r): ?string
+    {
+        $nomorWa = preg_replace('/\D+/', '', (string) $r->whatsapp);
+
+        if ($nomorWa === '') {
+            return null;
+        }
+
+        // 08xx → 628xx agar valid untuk wa.me.
+        if (str_starts_with($nomorWa, '0')) {
+            $nomorWa = '62' . substr($nomorWa, 1);
+        }
+
+        $pesan = "Assalamu'alaikum, Bapak/Ibu wali murid a.n. {$r->nama_siswa}.\n\n"
+            ."Pendaftaran SPMB SMA IT Arafah dengan nomor {$r->nomor} sudah kami terima. "
+            ."Berikut akses login Area Pendaftar untuk melengkapi biodata siswa:\n\n"
+            ."Kode akun: {$r->nomor}\n"
+            ."Kata sandi: {$r->whatsapp} (nomor WhatsApp yang didaftarkan)\n"
+            ."Tautan masuk: ".route('spmb.pendaftar.masuk')."\n\n"
+            ."Silakan masuk dengan kode akun dan kata sandi di atas. "
+            ."Jika ada kendala, hubungi kembali nomor ini. Terima kasih.";
+
+        return 'https://wa.me/' . $nomorWa . '?text=' . rawurlencode($pesan);
+    }
+
     public function status(Request $request)
     {
         $nomor = trim((string) $request->query('nomor'));
