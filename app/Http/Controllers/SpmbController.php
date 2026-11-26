@@ -54,12 +54,13 @@ class SpmbController extends Controller
         $data['ip'] = $request->ip();
 
         // Bukti transfer biaya formulir (opsional di formulir; panitia memeriksa dari panel).
+        // Disimpan lewat disk 'media' — di produksi root-nya di docroot sehingga langsung tersaji.
         if ($request->hasFile('bukti_transfer')) {
             $berkas = $request->file('bukti_transfer');
-            $nama = date('Ymd') . '-' . \Illuminate\Support\Str::random(8) . '.'
+            $nama = 'spmb-bukti/' . date('Ymd') . '-' . \Illuminate\Support\Str::random(8) . '.'
                 . strtolower($berkas->getClientOriginalExtension() ?: 'jpg');
-            $berkas->move(public_path('media/spmb-bukti'), $nama);
-            $data['bukti_transfer'] = 'spmb-bukti/' . $nama;
+            \Illuminate\Support\Facades\Storage::disk('media')->put($nama, file_get_contents($berkas->getRealPath()));
+            $data['bukti_transfer'] = $nama;
         } else {
             $data['bukti_transfer'] = null;
         }
