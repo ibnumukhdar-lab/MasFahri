@@ -26,8 +26,25 @@
       <div>
         <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-1">Tes penerimaan pertama</p>
         <p class="font-extrabold text-navy text-[17px] leading-snug mb-1.5">14 Desember 2026 — Potensi Akademik &amp; Minat Bakat</p>
-        <p class="text-slate-600 text-[13.5px] leading-relaxed">Tes penerimaan pertama dilaksanakan pada <b>Senin, 14 Desember 2026</b>, mencakup tes <b>Potensi Akademik</b> dan <b>Minat Bakat</b>. Peserta akan dihubungi panitia lewat WhatsApp setelah pendaftaran terverifikasi.</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">Tes penerimaan pertama dilaksanakan pada <b>Senin, 14 Desember 2026</b>. Peserta akan dihubungi panitia lewat WhatsApp setelah pendaftaran terverifikasi.</p>
       </div>
+    </div>
+  </div>
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div class="kartu p-5">
+      <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Tertulis</p>
+      <p class="font-bold text-navy mb-1.5">Potensi Akademik &amp; Minat Bakat</p>
+      <p class="text-slate-600 text-[13.5px] leading-relaxed">Mengukur kemampuan dasar calon murid — literasi, numerasi, dan pola pikir logis — sekaligus memetakan minat dan bakatnya agar sekolah bisa membimbing pengembangannya sejak awal.</p>
+    </div>
+    <div class="kartu p-5">
+      <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Praktik</p>
+      <p class="font-bold text-navy mb-1.5">Baca Tulis Al-Qur'an &amp; Praktik Ibadah</p>
+      <p class="text-slate-600 text-[13.5px] leading-relaxed">Membaca dan menulis Al-Qur'an (termasuk tajwid dasar) serta praktik ibadah harian — shalat, wudhu, dan amalan lainnya — sesuai pembiasaan di sekolah Islam terpadu.</p>
+    </div>
+    <div class="kartu p-5 md:col-span-2">
+      <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Wawancara</p>
+      <p class="font-bold text-navy mb-1.5">Kesiapan Kerja Sama Orang Tua &amp; Sekolah</p>
+      <p class="text-slate-600 text-[13.5px] leading-relaxed">Wawancara bersama wali murid: kesiapan anak menjalani kehidupan boarding, harapan keluarga, dan komitmen orang tua menjadi <b>mitra pendidik</b> — mendampingi hafalan, ibadah, dan belajar anak baik di sekolah maupun di rumah.</p>
     </div>
   </div>
   <div class="bg-navy-soft border border-navy-soft rounded-xl px-5 py-4 text-[13.5px] text-slate-700 leading-relaxed max-w-3xl">
