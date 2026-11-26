@@ -90,7 +90,7 @@ class AlumniCeritaController extends Controller
         $nomor = DB::table('settings')->where('kunci', 'wa_admin')->value('nilai');
         $nomor = preg_replace('/[^0-9]/', '', (string) $nomor) ?: '6285356002524';
 
-        $teks = "Isian alumni baru: {$data['nama']}" . ($data['tahun_lulus'] ? " ({$data['tahun_lulus']})" : '')
+        $teks = "Isian alumni baru: {$data['nama']}" . (($data['tahun_lulus'] ?? null) ? " ({$data['tahun_lulus']})" : '')
             . "\nCek di /kelola → SPMB & Alumni → Cerita Alumni untuk memverifikasi.";
         if (function_exists('curl_init')) {
             $ch = curl_init("https://wa.me/{$nomor}?text=" . rawurlencode($teks));

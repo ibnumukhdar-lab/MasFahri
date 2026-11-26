@@ -44,6 +44,26 @@
     .af-unggah b{display:block;font-size:13px;color:#1f3a5f}
     .af-unggah small{font-size:11.5px;color:#8a94a4}
 
+    /* ---------- PANGKAS FOTO (crop) ---------- */
+    .af-crop{display:none;margin-top:12px;border:1px solid #e7ecf3;border-radius:14px;
+        background:#f8fafd;padding:14px}
+    .af-crop.buka{display:block}
+    .af-crop-papan{position:relative;width:100%;aspect-ratio:1/1;border-radius:12px;overflow:hidden;
+        background:#dde5ef;touch-action:none;cursor:grab}
+    .af-crop-papan.geser{cursor:grabbing}
+    .af-crop-papan img{position:absolute;top:0;left:0;transform-origin:0 0;user-select:none;
+        -webkit-user-drag:none;max-width:none;pointer-events:none}
+    .af-crop-bantuan{display:flex;align-items:center;gap:10px;margin-top:12px}
+    .af-crop-bantuan label{margin:0;font-weight:600;flex:none}
+    .af-crop-bantuan input[type=range]{flex:1;accent-color:#1f3a5f}
+    .af-crop-aksi{display:flex;gap:10px;margin-top:12px}
+    .af-crop-aksi button{flex:1;border:0;border-radius:10px;padding:10px 12px;font:inherit;
+        font-size:13px;font-weight:700;cursor:pointer}
+    .af-crop-aksi .pas{background:#eef2f8;color:#1f3a5f}
+    .af-crop-aksi .pas:hover{background:#e2e9f3}
+    .af-crop-aksi .ulang{background:#fdecee;color:#8c2430}
+    .af-crop-hint{margin:8px 0 0;font-size:11.5px;color:#8a94a4}
+
     /* persetujuan */
     .af-setuju{display:flex;gap:10px;align-items:flex-start;background:#f4f7fb;border:1px solid #e5eaf1;
         border-radius:14px;padding:13px 14px;margin:18px 0 16px}
@@ -144,6 +164,20 @@
                     <small>JPG/PNG maksimal 4 MB — tampil di kartu ceritamu</small>
                 </div>
             </div>
+            <div class="af-crop" id="af-crop">
+                <div class="af-crop-papan" id="af-crop-papan">
+                    <img id="af-crop-img" alt="Pratinjau foto yang akan dipangkas">
+                </div>
+                <div class="af-crop-bantuan">
+                    <label for="af-crop-zoom">Zoom</label>
+                    <input type="range" id="af-crop-zoom" min="1" max="3" step="0.01" value="1">
+                </div>
+                <div class="af-crop-aksi">
+                    <button type="button" class="pas" id="af-crop-pas">Pas di kotak</button>
+                    <button type="button" class="ulang" id="af-crop-ulang">Ganti foto</button>
+                </div>
+                <p class="af-crop-hint">Geser foto di kotak sampai wajahmu pas di tengah, lalu kirim. Kotak ini bentuknya sama dengan foto di halaman alumni (persegi).</p>
+            </div>
         </div>
 
         @unless ($cerita)
@@ -158,12 +192,130 @@
 </div>
 
 <script>
+    // ---------- Pangkas foto: geser + zoom, hasil ditempel ke input file saat submit ----------
     document.addEventListener('DOMContentLoaded', () => {
         const f = document.getElementById('foto');
         const l = document.getElementById('af-nama-berkas');
-        if (f) f.addEventListener('change', () => {
-            l.textContent = f.files.length ? f.files[0].name : 'Tekan untuk memilih foto';
+        const kotak = document.getElementById('af-crop');
+        const papan = document.getElementById('af-crop-papan');
+        const img = document.getElementById('af-crop-img');
+        const zoom = document.getElementById('af-crop-zoom');
+        const tombolPas = document.getElementById('af-crop-pas');
+        const tombolUlang = document.getElementById('af-crop-ulang');
+        const formulir = document.querySelector('form.af-kartu');
+
+        if (!f || !kotak) return;
+
+        let berkasAsli = null;      // File yang dipilih pengguna
+        let gambar = null;          // HTMLImageElement hasil decode
+        let skalaDasar = 1;         // skala agar gambar memenuhi sisi terpanjang papan
+        let geserX = 0, geserY = 0; // posisi geser dalam piksel papan
+        let sedangGeser = false, sebelumX = 0, sebelumY = 0;
+
+        const bacaPapan = () => {
+            const r = papan.getBoundingClientRect();
+            return { w: r.width, h: r.height };
+        };
+
+        const gambarUlang = () => {
+            if (!gambar) return;
+            const { w: pw, h: ph } = bacaPapan();
+            const s = skalaDasar * parseFloat(zoom.value);
+            img.style.width = (gambar.naturalWidth * s) + 'px';
+            img.style.height = (gambar.naturalHeight * s) + 'px';
+            img.src = gambar.src;
+
+            // kunci geser agar gambar selalu menutupi papan
+            const gw = gambar.naturalWidth * s, gh = gambar.naturalHeight * s;
+            geserX = Math.min(0, Math.max(pw - gw, geserX));
+            geserY = Math.min(0, Math.max(ph - gh, geserY));
+            img.style.left = geserX + 'px';
+            img.style.top = geserY + 'px';
+        };
+
+        const pasKotak = () => {
+            if (!gambar) return;
+            const { w: pw, h: ph } = bacaPapan();
+            skalaDasar = Math.max(pw / gambar.naturalWidth, ph / gambar.naturalHeight);
+            zoom.value = '1';
+            const s = skalaDasar;
+            geserX = (pw - gambar.naturalWidth * s) / 2;
+            geserY = (ph - gambar.naturalHeight * s) / 2;
+            gambarUlang();
+        };
+
+        const mulai = (berkas) => {
+            berkasAsli = berkas;
+            l.textContent = berkas.name;
+            const url = URL.createObjectURL(berkas);
+            gambar = new Image();
+            gambar.onload = () => {
+                kotak.classList.add('buka');
+                requestAnimationFrame(pasKotak);
+                gambar.src = url;
+            };
+            gambar.src = url;
+        };
+
+        f.addEventListener('change', () => {
+            if (f.files && f.files[0]) mulai(f.files[0]);
         });
+
+        // geser dengan mouse + sentuhan
+        const turun = (x, y) => {
+            if (!gambar) return;
+            sedangGeser = true; sebelumX = x; sebelumY = y;
+            papan.classList.add('geser');
+        };
+        const gerak = (x, y) => {
+            if (!sedangGeser || !gambar) return;
+            const { w: pw, h: ph } = bacaPapan();
+            const s = skalaDasar * parseFloat(zoom.value);
+            const gw = gambar.naturalWidth * s, gh = gambar.naturalHeight * s;
+            geserX = Math.min(0, Math.max(pw - gw, geserX + (x - sebelumX)));
+            geserY = Math.min(0, Math.max(ph - gh, geserY + (y - sebelumY)));
+            sebelumX = x; sebelumY = y;
+            img.style.left = geserX + 'px';
+            img.style.top = geserY + 'px';
+        };
+        papan.addEventListener('mousedown', e => { turun(e.clientX, e.clientY); e.preventDefault(); });
+        window.addEventListener('mousemove', e => gerak(e.clientX, e.clientY));
+        window.addEventListener('mouseup', () => { sedangGeser = false; papan.classList.remove('geser'); });
+        papan.addEventListener('touchstart', e => { turun(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+        papan.addEventListener('touchmove', e => { e.preventDefault(); gerak(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
+        papan.addEventListener('touchend', () => { sedangGeser = false; papan.classList.remove('geser'); });
+
+        zoom.addEventListener('input', gambarUlang);
+        window.addEventListener('resize', () => { if (gambar) pasKotak(); });
+
+        tombolPas.addEventListener('click', pasKotak);
+        tombolUlang.addEventListener('click', () => {
+            berkasAsli = null; gambar = null;
+            kotak.classList.remove('buka');
+            f.value = '';
+            l.textContent = 'Tekan untuk memilih foto';
+        });
+
+        // pangkas + tempel hasil ke input file tepat sebelum submit
+        if (formulir) formulir.addEventListener('submit', (e) => {
+            if (!gambar || !berkasAsli) return; // tanpa foto (mis. edit tanpa ganti)
+            e.preventDefault();
+            const { w: pw, h: ph } = bacaPapan();
+            const s = skalaDasar * parseFloat(zoom.value);
+            const kanvas = document.createElement('canvas');
+            kanvas.width = Math.round(pw); kanvas.height = Math.round(ph);
+            const g = kanvas.getContext('2d');
+            g.imageSmoothingQuality = 'high';
+            g.drawImage(gambar, -geserX / s, -geserY / s, gambar.naturalWidth, gambar.naturalHeight);
+            kanvas.toBlob((blob) => {
+                const baru = new File([blob], berkasAsli.name.replace(/\.[^.]+$/, '') + '-pangkas.jpg',
+                    { type: 'image/jpeg', lastModified: Date.now() });
+                const dt = new DataTransfer();
+                dt.items.add(baru);
+                f.files = dt.files;
+                formulir.submit();
+            }, 'image/jpeg', 0.9);
+        }, true);
     });
 </script>
 @endsection

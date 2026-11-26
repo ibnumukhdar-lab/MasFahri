@@ -53,12 +53,15 @@ class AlumniCeritaForm
                             ->placeholder('@nama'),
 
                         FileUpload::make('foto')
-                            ->label('Foto alumni')
+                            ->label('Foto alumni (pangkas jadi persegi)')
                             ->image()
                             ->directory('unggahan')
                             ->disk('media')
                             ->maxSize(4096)
                             ->imageEditor()
+                            ->imageEditorMode(2)
+                            ->imageEditorViewport(400, 400)
+                            ->avatar()
                             ->columnSpanFull(),
 
                         Textarea::make('prestasi')
