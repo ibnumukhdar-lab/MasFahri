@@ -88,6 +88,39 @@
     <p><b>Belum siap di Gelombang 1?</b> Gelombang 2 dibuka <b>Maret s/d Juni 2027</b> — kursi tinggal mengikuti sisa kuota, jadi daftar lebih awal tetap lebih menguntungkan.</p>
   </div>
 </x-seksi>
+<x-seksi judul="Syarat Administrasi">
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="kartu p-5 flex gap-3.5 items-start">
+      <span aria-hidden="true" class="flex-none grid place-items-center w-9 h-9 rounded-lg bg-navy text-white text-[15px] font-bold">1</span>
+      <div>
+        <p class="font-bold text-navy mb-1">Biaya formulir pendaftaran</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">Dibayarkan saat pendaftaran — <b class="text-navy">khusus bulan Desember: GRATIS</b>. Daftar dan lunasi di Desember untuk mendapatkan cashback Rp 1.000.000.</p>
+      </div>
+    </div>
+    <div class="kartu p-5 flex gap-3.5 items-start">
+      <span aria-hidden="true" class="flex-none grid place-items-center w-9 h-9 rounded-lg bg-navy text-white text-[15px] font-bold">2</span>
+      <div>
+        <p class="font-bold text-navy mb-1">Fotokopi (FC) Akta Kelahiran</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">Akta kelahiran calon murid — siapkan sebelum verifikasi berkas di sekolah.</p>
+      </div>
+    </div>
+    <div class="kartu p-5 flex gap-3.5 items-start">
+      <span aria-hidden="true" class="flex-none grid place-items-center w-9 h-9 rounded-lg bg-navy text-white text-[15px] font-bold">3</span>
+      <div>
+        <p class="font-bold text-navy mb-1">Fotokopi Kartu Keluarga (KK)</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">KK yang masih berlaku dan memuat nama calon murid.</p>
+      </div>
+    </div>
+    <div class="kartu p-5 flex gap-3.5 items-start">
+      <span aria-hidden="true" class="flex-none grid place-items-center w-9 h-9 rounded-lg bg-navy text-white text-[15px] font-bold">4</span>
+      <div>
+        <p class="font-bold text-navy mb-1">Rapor, surat keterangan, &amp; pas foto</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">FC rapor terakhir <b>Semester 1 kelas 9</b>, <b>surat keterangan berkelakuan baik</b>, dan <b>pas foto 3×4 sebanyak 2 lembar</b>.</p>
+      </div>
+    </div>
+  </div>
+  <p class="text-[12.5px] text-slate-500 mt-3">Berkas diserahkan saat verifikasi dan tes penerimaan di sekolah — panitia akan mengonfirmasi lewat WhatsApp setelah formulir online Anda kirim.</p>
+</x-seksi>
 <x-seksi judul="Formulir Pendaftaran">
   @if ($errors->any())
     <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl px-4 py-3 text-[13px] mb-5">
