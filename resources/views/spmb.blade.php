@@ -73,7 +73,6 @@
         <option value="Jalur Reguler" @selected(old('minat_program') === 'Jalur Reguler')>Jalur Reguler</option>
         <option value="Jalur Prestasi" @selected(old('minat_program') === 'Jalur Prestasi')>Jalur Prestasi</option>
         <option value="Jalur Penghafal Al-Quran" @selected(old('minat_program') === 'Jalur Penghafal Al-Quran')>Jalur Penghafal Al-Quran</option>
-        <option value="Jalur Tes Bahasa Arab dan Baca Kitab" @selected(old('minat_program') === 'Jalur Tes Bahasa Arab dan Baca Kitab')>Jalur Tes Bahasa Arab dan Baca Kitab</option>
       </select>
       <p class="text-[12px] text-slate-500 mt-1.5">Semua murid <b>wajib boarding</b> (berasrama). Tidak ada pilihan non-boarding.</p>
     </div>
