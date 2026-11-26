@@ -3,6 +3,15 @@
 @section('isi')
 @include('partials.hero', ['kecil' => 'Penerimaan ' . $tahunAjaran, 'judul' => 'Sistem Penerimaan Murid Baru', 'sub' => 'Dibuka sepanjang tahun dengan sistem waiting list. Seluruh murid wajib boarding — pilih salah satu jalur pendaftaran.'])
 <x-seksi judul="Jadwal SPMB Gelombang 1">
+  <div class="mb-5">
+    <p class="text-slate-600 text-[14.5px] md:text-[15.5px] leading-relaxed max-w-3xl mb-2.5">
+      Persiapkan langkah terbaik untuk buah hati Anda: <b class="text-navy">Pendaftaran Siswa Baru SMA IT Arafah Tahun Ajaran {{ $tahunAjaran }}</b> resmi dibuka lewat Gelombang 1.
+      Ini kesempatan pertama — dan terbaik — untuk mengamankan kursi di sekolah Islam terpadu yang membina iman, hafalan Al-Qur'an, dan prestasi akademik sekaligus.
+    </p>
+    <p class="text-slate-600 text-[14.5px] md:text-[15.5px] leading-relaxed max-w-3xl">
+      Calon pendaftar Gelombang 1 mendapat kepastian lebih cepat: tes dilaksanakan lebih awal, hasil seleksi lebih cepat diketahui, dan kursi boarding tidak perlu diperebutkan dengan antrean Gelombang 2. Dua tanggal penting di bawah ini adalah kuncinya —
+    </p>
+  </div>
   <div class="grid md:grid-cols-2 gap-4 mb-5">
     <div class="kartu p-6 flex gap-4 items-start">
       <span aria-hidden="true" class="flex-none grid place-items-center w-12 h-12 rounded-xl bg-navy text-white text-xl">🗓️</span>
