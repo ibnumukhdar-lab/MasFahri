@@ -2,6 +2,29 @@
 @section('judul', 'SPMB — Penerimaan Murid Baru SMA IT Arafah')
 @section('isi')
 @include('partials.hero', ['kecil' => 'Penerimaan ' . $tahunAjaran, 'judul' => 'Sistem Penerimaan Murid Baru', 'sub' => 'Dibuka sepanjang tahun dengan sistem waiting list. Seluruh murid wajib boarding — pilih salah satu jalur pendaftaran.'])
+<x-seksi judul="Jadwal SPMB Gelombang 1">
+  <div class="grid md:grid-cols-2 gap-4 mb-5">
+    <div class="kartu p-6 flex gap-4 items-start">
+      <span aria-hidden="true" class="flex-none grid place-items-center w-12 h-12 rounded-xl bg-navy text-white text-xl">🗓️</span>
+      <div>
+        <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-1">Pembukaan pendaftaran</p>
+        <p class="font-extrabold text-navy text-[17px] leading-snug mb-1.5">SPMB Gelombang 1: 1 Desember 2026 s/d Februari 2027</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">Pendaftaran dibuka mulai <b>1 Desember 2026</b> sampai <b>Februari 2027</b>. Isi formulir di bawah kapan saja dalam periode ini — semakin awal mendaftar, semakin cepat masuk proses seleksi.</p>
+      </div>
+    </div>
+    <div class="kartu p-6 flex gap-4 items-start">
+      <span aria-hidden="true" class="flex-none grid place-items-center w-12 h-12 rounded-xl bg-navy text-white text-xl">📝</span>
+      <div>
+        <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-1">Tes penerimaan pertama</p>
+        <p class="font-extrabold text-navy text-[17px] leading-snug mb-1.5">14 Desember 2026 — Potensi Akademik &amp; Minat Bakat</p>
+        <p class="text-slate-600 text-[13.5px] leading-relaxed">Tes penerimaan pertama dilaksanakan pada <b>Senin, 14 Desember 2026</b>, mencakup tes <b>Potensi Akademik</b> dan <b>Minat Bakat</b>. Peserta akan dihubungi panitia lewat WhatsApp setelah pendaftaran terverifikasi.</p>
+      </div>
+    </div>
+  </div>
+  <div class="bg-navy-soft border border-navy-soft rounded-xl px-5 py-4 text-[13.5px] text-slate-700 leading-relaxed max-w-3xl">
+    <b>Catatan:</b> setelah 14 Desember, tes berikutnya dijadwalkan berkelanjutan sampai kuota Gelombang 1 terisi — ikuti arahan panitia yang dikirim lewat WhatsApp.
+  </div>
+</x-seksi>
 <x-seksi judul="Formulir Pendaftaran">
   @if ($errors->any())
     <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl px-4 py-3 text-[13px] mb-5">
