@@ -30,6 +30,14 @@
       </div>
     </div>
   </div>
+  <div class="bg-navy text-white rounded-2xl px-6 py-5 mb-4 flex gap-4 items-start">
+    <span aria-hidden="true" class="flex-none grid place-items-center w-12 h-12 rounded-xl text-xl" style="background:#fdd100;color:#1f3a5f">💰</span>
+    <div>
+      <p class="text-[12px] font-bold tracking-wide uppercase mb-1" style="color:#fdd100">Promo khusus Desember</p>
+      <p class="font-extrabold text-[17px] leading-snug mb-1.5">Cashback Rp 1.000.000 untuk pendaftar yang melunasi uang pendaftaran di bulan Desember</p>
+      <p class="text-[13.5px] leading-relaxed" style="color:rgba(255,255,255,.88)">Berlaku untuk <b>semua jalur</b> — dan bisa <b>menumpuk</b>: pendaftar <b>Jalur Prestasi</b> atau <b>Jalur Penghafal Al-Qur'an</b> tetap mendapat potongan jalurnya, jadi total penghematan Anda makin besar (contoh: hafalan 10–30 juz hemat <b>Rp 3.000.000</b> — potongan Rp 2 juta + cashback Rp 1 juta).</p>
+    </div>
+  </div>
   <div class="grid md:grid-cols-2 gap-4 mb-4">
     <div class="kartu p-5">
       <p class="text-[12px] font-bold tracking-wide uppercase text-slate-500 mb-2.5">Tertulis</p>
