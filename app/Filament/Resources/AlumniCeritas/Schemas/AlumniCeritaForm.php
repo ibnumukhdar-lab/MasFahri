@@ -60,7 +60,8 @@ class AlumniCeritaForm
                             ->maxSize(4096)
                             ->imageEditor()
                             ->imageEditorMode(2)
-                            ->imageEditorViewport(400, 400)
+                            ->imageEditorViewportWidth(400)
+                            ->imageEditorViewportHeight(400)
                             ->avatar()
                             ->columnSpanFull(),
 
