@@ -86,10 +86,11 @@ class SpmbPaketSoalResource extends Resource
                         TextInput::make('opsi_b')->label('Pilihan B')->required()->maxLength(255),
                         TextInput::make('opsi_c')->label('Pilihan C')->maxLength(255),
                         TextInput::make('opsi_d')->label('Pilihan D')->maxLength(255),
+                        TextInput::make('opsi_e')->label('Pilihan E')->maxLength(255),
 
                         Select::make('kunci')
                             ->label('Kunci jawaban')
-                            ->options(['A' => 'A', 'B' => 'B', 'C' => 'C', 'D' => 'D'])
+                            ->options(['A' => 'A', 'B' => 'B', 'C' => 'C', 'D' => 'D', 'E' => 'E'])
                             ->required()
                             ->default('A'),
                     ])

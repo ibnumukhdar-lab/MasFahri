@@ -9,7 +9,7 @@ class SpmbSoal extends Model
 {
     protected $table = 'spmb_soal';
 
-    protected $fillable = ['paket_id', 'urut', 'teks', 'opsi_a', 'opsi_b', 'opsi_c', 'opsi_d', 'kunci'];
+    protected $fillable = ['paket_id', 'urut', 'teks', 'opsi_a', 'opsi_b', 'opsi_c', 'opsi_d', 'opsi_e', 'kunci'];
 
     public function paket(): BelongsTo
     {
@@ -21,7 +21,7 @@ class SpmbSoal extends Model
     {
         $hasil = [];
 
-        foreach (['A' => $this->opsi_a, 'B' => $this->opsi_b, 'C' => $this->opsi_c, 'D' => $this->opsi_d] as $huruf => $teks) {
+        foreach (['A' => $this->opsi_a, 'B' => $this->opsi_b, 'C' => $this->opsi_c, 'D' => $this->opsi_d, 'E' => $this->opsi_e] as $huruf => $teks) {
             if (filled($teks)) {
                 $hasil[$huruf] = $teks;
             }
