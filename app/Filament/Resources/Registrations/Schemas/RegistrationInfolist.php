@@ -32,6 +32,33 @@ class RegistrationInfolist
                         TextEntry::make('email')->label('Email')->placeholder('-')->copyable(),
                     ]),
 
+                Section::make('Kartu tes & hasil CBT')
+                    ->columns(2)
+                    ->schema([
+                        TextEntry::make('kode_tes')
+                            ->label('Kode login tes (CBT)')
+                            ->copyable()
+                            ->placeholder('belum terbit — muncul saat status jadi Tahap tes'),
+                        TextEntry::make('ujian.status')
+                            ->label('Pengerjaan CBT')
+                            ->badge()
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                'sedang' => 'Sedang mengerjakan',
+                                'selesai' => 'Selesai',
+                                default => 'Belum dikerjakan',
+                            })
+                            ->color(fn (?string $state): string => match ($state) {
+                                'sedang' => 'warning',
+                                'selesai' => 'success',
+                                default => 'gray',
+                            }),
+                        TextEntry::make('ujian.skor')->label('Skor CBT')->placeholder('—'),
+                        TextEntry::make('ujian.pelanggaran')->label('Pelanggaran')->placeholder('—'),
+                        TextEntry::make('ujian.selesai_pada')->label('Selesai pada')->dateTime('d M Y H:i')->placeholder('—'),
+                        TextEntry::make('nilaiQuran.nilai_baca')->label('Nilai baca Al-Qur\'an')->placeholder('—'),
+                        TextEntry::make('nilaiQuran.nilai_tulis')->label('Nilai tulis Al-Qur\'an')->placeholder('—'),
+                    ]),
+
                 Section::make('Biodata siswa (diisi pendaftar)')
                     ->schema([
                         TextEntry::make('biodata.nik')->label('NIK')->placeholder('-'),

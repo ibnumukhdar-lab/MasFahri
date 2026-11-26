@@ -81,9 +81,15 @@ class SpmbPendaftarController extends Controller
             return redirect()->route('spmb.pendaftar.kena');
         }
 
+        if ($registrasi->status === 'tes') {
+            $registrasi->pastikanKodeTes();
+        }
+        $registrasi->load('ujian');
+
         return view('spmb-dasbor', [
             'registrasi' => $registrasi,
             'biodata' => $registrasi->biodata()->firstOrCreate([]),
+            'ujian' => $registrasi->ujian,
         ]);
     }
 
@@ -96,7 +102,6 @@ class SpmbPendaftarController extends Controller
         if (! $this->terverifikasi($registrasi)) {
             return redirect()->route('spmb.pendaftar.kena');
         }
-
         $data = $request->validate([
             'nik' => ['nullable', 'digits:16'],
             'nisn' => ['nullable', 'digits_between:8,12'],
@@ -133,6 +138,190 @@ class SpmbPendaftarController extends Controller
         $registrasi->biodata()->updateOrCreate([], $data);
 
         return back()->with('sukses', 'Biodata tersimpan. Terima kasih!');
+    }
+
+    // ---------- kartu tes & CBT ----------
+
+    /** Kartu tes (halaman cetak) — kode tes jadi gerbang masuk CBT. */
+    public function kartu(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+        if ($registrasi->status !== 'tes' && ! $registrasi->ujian()->exists()) {
+            return redirect()->route('spmb.pendaftar.dasbor');
+        }
+
+        $kode = $registrasi->pastikanKodeTes();
+
+        return view('spmb-kartu', [
+            'registrasi' => $registrasi,
+            'kode' => $kode,
+            'paket' => \App\Models\SpmbPaketSoal::terbuka(),
+        ]);
+    }
+
+    /** Pintu masuk CBT: hasil bila sudah selesai, atau form kode tes. */
+    public function tes(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+
+        $ujian = $registrasi->ujian()->with('paket')->first();
+
+        return view('spmb-tes', [
+            'registrasi' => $registrasi,
+            'ujian' => $ujian,
+            'paket' => $ujian?->paket ?: \App\Models\SpmbPaketSoal::terbuka(),
+        ]);
+    }
+
+    /** Cocokkan kode tes → buat/lanjutkan percobaan ujian. */
+    public function tesMulai(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+
+        $data = $request->validate(
+            ['kode' => ['required', 'string', 'max:12']],
+            ['kode.required' => 'Kode tes wajib diisi — lihat kartu tes Anda.']
+        );
+
+        $paket = \App\Models\SpmbPaketSoal::terbuka();
+        if (! $paket) {
+            return back()->withErrors(['kode' => 'Tes belum dibuka oleh panitia. Coba lagi sesuai jadwal di kartu tes.']);
+        }
+        if ($paket->soal()->count() === 0) {
+            return back()->withErrors(['kode' => 'Soal tes belum disiapkan panitia.']);
+        }
+        if ($registrasi->status !== 'tes' && ! $registrasi->ujian()->exists()) {
+            return back()->withErrors(['kode' => 'Akun Anda belum masuk tahap tes. Hubungi panitia.']);
+        }
+        if (strtoupper(trim($data['kode'])) !== strtoupper((string) $registrasi->kode_tes)) {
+            return back()->withErrors(['kode' => 'Kode tes tidak cocok. Periksa kembali kartu tes Anda.']);
+        }
+
+        $ujian = \App\Models\SpmbUjian::firstOrCreate(
+            ['registration_id' => $registrasi->id, 'paket_id' => $paket->id],
+            ['status' => 'sedang', 'mulai_pada' => now()]
+        );
+
+        if ($ujian->status === 'selesai') {
+            return redirect()->route('spmb.pendaftar.tes');
+        }
+
+        if ($ujian->sisa_detik <= 0) {
+            $this->akhiriDanNilai($ujian);
+
+            return redirect()->route('spmb.pendaftar.tes')
+                ->withErrors(['kode' => 'Waktu tes sudah habis.']);
+        }
+
+        return redirect()->route('spmb.pendaftar.kerjakan');
+    }
+
+    /** Halaman pengerjaan CBT (penuh layar). */
+    public function kerjakan(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+
+        $ujian = $registrasi->ujian()->with('paket.soal')->first();
+        if (! $ujian || $ujian->status !== 'sedang') {
+            return redirect()->route('spmb.pendaftar.tes');
+        }
+
+        if ($ujian->sisa_detik <= 0) {
+            $this->akhiriDanNilai($ujian);
+
+            return redirect()->route('spmb.pendaftar.tes');
+        }
+
+        // Kunci jawaban TIDAK pernah dikirim ke browser.
+        $soal = $ujian->paket->soal->values()->map(fn ($s) => [
+            'id' => $s->id,
+            'teks' => $s->teks,
+            'pilihan' => $s->pilihan,
+        ]);
+
+        return view('spmb-cbt', [
+            'registrasi' => $registrasi,
+            'paket' => $ujian->paket,
+            'ujian' => $ujian,
+            'sisaDetik' => $ujian->sisa_detik,
+            'soal' => $soal,
+        ]);
+    }
+
+    /** Terima jawaban dari browser → nilai di server, simpan hasil. */
+    public function simpanTes(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return response()->json(['galat' => 'Sesi berakhir.'], 401);
+        }
+
+        $ujian = $registrasi->ujian()->with('paket.soal')->first();
+        if (! $ujian) {
+            return response()->json(['galat' => 'Ujian tidak ditemukan.'], 404);
+        }
+        if ($ujian->status === 'selesai') {
+            return response()->json([
+                'galat' => 'Ujian sudah selesai.',
+                'skor' => $ujian->skor,
+                'benar' => $ujian->benar,
+                'total' => $ujian->total,
+            ], 409);
+        }
+
+        $jawaban = $request->input('jawaban', []);
+        if (! is_array($jawaban)) {
+            $jawaban = [];
+        }
+
+        $ujian->pelanggaran = max((int) $ujian->pelanggaran, (int) $request->input('pelanggaran', 0));
+        $this->akhiriDanNilai($ujian, $jawaban);
+
+        return response()->json([
+            'skor' => $ujian->skor,
+            'benar' => $ujian->benar,
+            'total' => $ujian->total,
+            'pelanggaran' => $ujian->pelanggaran,
+        ]);
+    }
+
+    /** Nilai di server: bandingkan kunci, tandai selesai, catat lewat waktu. */
+    private function akhiriDanNilai(\App\Models\SpmbUjian $ujian, array $jawaban = []): void
+    {
+        $soal = $ujian->paket->soal;
+        $benar = 0;
+
+        foreach ($soal as $s) {
+            $dipilih = strtoupper(trim((string) ($jawaban[$s->id] ?? '')));
+            if ($dipilih !== '' && $dipilih === strtoupper((string) $s->kunci)) {
+                $benar++;
+            }
+        }
+
+        $total = $soal->count();
+        $lewat = now()->gt($ujian->mulai_pada->copy()->addMinutes((int) $ujian->paket->durasi_menit)->addMinutes(2));
+
+        $ujian->forceFill([
+            'status' => 'selesai',
+            'jawaban' => array_map(fn ($v) => (string) $v, $jawaban ?: (array) $ujian->jawaban),
+            'benar' => $benar,
+            'total' => $total,
+            'skor' => $total > 0 ? (int) round($benar / $total * 100) : 0,
+            'selesai_pada' => now(),
+            'pelanggaran' => (int) $ujian->pelanggaran + ($lewat ? 1 : 0),
+        ])->save();
     }
 
     // ---------- pembantu ----------

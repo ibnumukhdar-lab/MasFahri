@@ -10,3 +10,10 @@ Route::post('/spmb/keluar', [SpmbPendaftarController::class, 'logout'])->name('s
 Route::get('/spmb/kena', [SpmbPendaftarController::class, 'belumVerifikasi'])->name('spmb.pendaftar.kena');
 Route::get('/spmb/dasbor', [SpmbPendaftarController::class, 'dasbor'])->name('spmb.pendaftar.dasbor');
 Route::post('/spmb/dasbor/biodata', [SpmbPendaftarController::class, 'simpanBiodata'])->middleware('throttle:10,1')->name('spmb.pendaftar.biodata');
+
+// ---------- kartu tes & CBT (gerbang kode tes) ----------
+Route::get('/spmb/kartu', [SpmbPendaftarController::class, 'kartu'])->name('spmb.pendaftar.kartu');
+Route::get('/spmb/tes', [SpmbPendaftarController::class, 'tes'])->name('spmb.pendaftar.tes');
+Route::post('/spmb/tes/mulai', [SpmbPendaftarController::class, 'tesMulai'])->middleware('throttle:10,1')->name('spmb.pendaftar.tes.mulai');
+Route::get('/spmb/tes/kerjakan', [SpmbPendaftarController::class, 'kerjakan'])->name('spmb.pendaftar.kerjakan');
+Route::post('/spmb/tes/simpan', [SpmbPendaftarController::class, 'simpanTes'])->middleware('throttle:20,1')->name('spmb.pendaftar.tes.simpan');

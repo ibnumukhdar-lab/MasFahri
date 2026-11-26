@@ -94,6 +94,11 @@ class RegistrationsTable
                                 'pesan_admin' => $data['pesan_admin'] ?? null,
                             ]);
 
+                            // Tahap tes: terbitkan kode tes untuk kartu tes & gerbang CBT.
+                            if ($data['status'] === 'tes') {
+                                $record->pastikanKodeTes();
+                            }
+
                             Notification::make()
                                 ->title('Status diperbarui')
                                 ->body($record->nomor . ' → ' . (Registration::STATUS[$data['status']] ?? $data['status']))

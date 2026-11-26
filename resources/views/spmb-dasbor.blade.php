@@ -2,6 +2,25 @@
 @section('judul', 'Dashboard Pendaftar — SPMB SMA IT Arafah')
 @section('isi')
 @include('partials.hero', ['kecil' => 'Area Pendaftar SPMB', 'judul' => 'Halo, ' . $registrasi->nama_siswa . ' 👋', 'sub' => 'Nomor pendaftaran '.$registrasi->nomor.' — status: '.(\App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status).'. Lengkapi biodata di bawah ini.'])
+@if ($registrasi->status === 'tes' || $ujian)
+<x-seksi judul="Kartu Tes & Tes CBT">
+  <div class="kartu p-6 md:p-7 max-w-2xl">
+    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div>
+        <p class="text-[12px] font-bold uppercase tracking-wide text-slate-500 mb-1">Kode login tes (CBT)</p>
+        <p class="text-[26px] font-black text-navy" style="font-family:'Courier New',monospace;letter-spacing:.3em">{{ $registrasi->kode_tes ?: '—' }}</p>
+      </div>
+      <span class="chip">{{ $ujian ? ($ujian->status === 'selesai' ? 'Tes: selesai — skor '.$ujian->skor : 'Tes: sedang berjalan') : 'Tes: belum dikerjakan' }}</span>
+    </div>
+    <p class="text-[13px] text-slate-600 mb-4">Kode ini juga tercetak di kartu tes. Simpan baik-baik — tanpa kode ini tes tidak bisa dibuka.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="{{ route('spmb.pendaftar.kartu') }}" class="bg-navy text-white rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">Lihat Kartu Tes (Cetak)</a>
+      <a href="{{ route('spmb.pendaftar.tes') }}" class="bg-emerald-600 text-white rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">{{ $ujian?->status === 'selesai' ? 'Lihat Hasil Tes' : 'Buka Tes CBT' }}</a>
+    </div>
+  </div>
+</x-seksi>
+@endif
+
 <x-seksi judul="Biodata Lengkap Siswa">
   @if (session('sukses'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-[13.5px] mb-5">{{ session('sukses') }}</div>
