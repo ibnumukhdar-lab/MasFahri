@@ -14,6 +14,11 @@ class Registration extends Model
         return $this->bukti_transfer ? asset('media/' . $this->bukti_transfer) : null;
     }
 
+    public function biodata()
+    {
+        return $this->hasOne(\App\Models\SpmbBiodata::class);
+    }
+
     /** Nomor pendaftaran berurut per tahun ajaran: SPMB-2026-0001 */
     public static function nomorBaru(string $tahunAjaran): string
     {

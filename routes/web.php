@@ -10,6 +10,9 @@ use App\Http\Controllers\SpmbController;
 use App\Http\Controllers\TemplateController;
 use Illuminate\Support\Facades\Route;
 
+// ---------- area pendaftar SPMB (login nomor + WA) ----------
+require __DIR__ . '/spmb-pendaftar.php';
+
 // ---------- halaman utama ----------
 Route::get('/', [PublicController::class, 'beranda'])->name('beranda');
 Route::get('/berita', [PublicController::class, 'berita'])->name('berita');

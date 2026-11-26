@@ -32,6 +32,27 @@ class RegistrationInfolist
                         TextEntry::make('email')->label('Email')->placeholder('-')->copyable(),
                     ]),
 
+                Section::make('Biodata siswa (diisi pendaftar)')
+                    ->schema([
+                        TextEntry::make('biodata.nik')->label('NIK')->placeholder('-'),
+                        TextEntry::make('biodata.nisn')->label('NISN')->placeholder('-'),
+                        TextEntry::make('biodata.tempat_lahir')->label('Tempat lahir')->placeholder('-'),
+                        TextEntry::make('biodata.tanggal_lahir')->label('Tanggal lahir')->date('d M Y')->placeholder('-'),
+                        TextEntry::make('biodata.alamat')->label('Alamat')->placeholder('-')->columnSpanFull(),
+                        TextEntry::make('biodata.anak_ke')->label('Anak ke-')->placeholder('-'),
+                        TextEntry::make('biodata.jumlah_saudara')->label('Jumlah saudara')->placeholder('-'),
+                        TextEntry::make('biodata.nama_ayah')->label('Nama ayah')->placeholder('-'),
+                        TextEntry::make('biodata.pekerjaan_ayah')->label('Pekerjaan ayah')->placeholder('-'),
+                        TextEntry::make('biodata.nama_ibu')->label('Nama ibu')->placeholder('-'),
+                        TextEntry::make('biodata.pekerjaan_ibu')->label('Pekerjaan ibu')->placeholder('-'),
+                        TextEntry::make('biodata.telepon_rumah')->label('Telepon rumah')->placeholder('-'),
+                        TextEntry::make('biodata.hobi')->label('Hobi')->placeholder('-'),
+                        TextEntry::make('biodata.persen')->label('Kelengkapan')->badge()
+                            ->color(fn ($state): string => $state >= 80 ? 'success' : ($state >= 40 ? 'warning' : 'gray')),
+                    ])
+                    ->columns(2)
+                    ->visible(fn ($record): bool => $record->biodata()->exists()),
+
                 Section::make('Bukti transfer biaya formulir')
                     ->schema([
                         TextEntry::make('bukti_transfer')

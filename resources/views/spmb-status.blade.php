@@ -13,8 +13,10 @@
       <p class="text-[13.5px] text-slate-600 mb-4">Langkah terakhir: kirim pesan konfirmasi ke WhatsApp admin sekolah{{ $waNomor ? ' ('.$waNomor.')' : '' }}. Isi pesannya sudah otomatis memuat data pendaftaran Anda — Anda cukup menekan tombol kirim.</p>
       <div class="flex flex-wrap items-center gap-3">
         <a id="wa-tombol" href="{{ $waTautan }}" target="_blank" rel="noopener" class="bg-emerald-600 text-white rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">Kirim Konfirmasi ke WhatsApp</a>
+        <a href="{{ route('spmb.pendaftar.masuk') }}" class="bg-navy text-white rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">Masuk Area Pendaftar</a>
         <span class="text-[12.5px] text-slate-500">Mengarahkan otomatis dalam <b id="wa-hitung">3</b> detik · <a href="#" id="wa-batal" class="underline">saya nanti saja</a></span>
       </div>
+      <p class="text-[12.5px] text-slate-500 mt-3">Setelah verifikasi panitia, masuk ke <b>Area Pendaftar</b> dengan nomor pendaftaran di atas dan sandi = nomor WhatsApp Anda.</p>
       @if (session('pesan_wa'))
         <details class="mt-4">
           <summary class="cursor-pointer text-[12.5px] font-semibold text-navy">Lihat isi pesan yang akan dikirim</summary>
