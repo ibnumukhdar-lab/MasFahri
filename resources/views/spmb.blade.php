@@ -2,14 +2,14 @@
 @section('judul', 'SPMB — Penerimaan Murid Baru SMA IT Arafah')
 @section('isi')
 @include('partials.hero', ['kecil' => 'Penerimaan Murid Baru ' . $tahunAjaran, 'judul' => 'SPMB Gelombang 1 Telah Dibuka', 'sub' => 'Mulai <b>1 Desember 2026 s/d Februari 2027</b> — kesempatan pertama masuk SMA IT Arafah tahun ajaran ' . $tahunAjaran . '. Tes penerimaan pertama: <b>Senin, 14 Desember 2026</b>. Seluruh murid wajib boarding.'])
-<x-seksi judul="Jadwal SPMB Gelombang 1">
+<x-seksi judul="Jadwal SPMB {{ $tahunAjaran }}">
   <div class="mb-5">
     <p class="text-slate-600 text-[14.5px] md:text-[15.5px] leading-relaxed max-w-3xl mb-2.5">
       Persiapkan langkah terbaik untuk buah hati Anda: <b class="text-navy">Pendaftaran Siswa Baru SMA IT Arafah Tahun Ajaran {{ $tahunAjaran }}</b> resmi dibuka lewat Gelombang 1.
       Ini kesempatan pertama — dan terbaik — untuk mengamankan kursi di sekolah Islam terpadu yang membina iman, hafalan Al-Qur'an, dan prestasi akademik sekaligus.
     </p>
     <p class="text-slate-600 text-[14.5px] md:text-[15.5px] leading-relaxed max-w-3xl">
-      Calon pendaftar Gelombang 1 mendapat kepastian lebih cepat: tes dilaksanakan lebih awal, hasil seleksi lebih cepat diketahui, dan kursi boarding tidak perlu diperebutkan dengan antrean Gelombang 2. Dua tanggal penting di bawah ini adalah kuncinya —
+      Calon pendaftar Gelombang 1 mendapat kepastian lebih cepat: tes dilaksanakan lebih awal, hasil seleksi lebih cepat diketahui, dan kursi boarding tidak perlu diperebutkan dengan antrean gelombang berikutnya. Dua tanggal penting di bawah ini adalah kuncinya —
     </p>
   </div>
   <div class="grid md:grid-cols-2 gap-4 mb-5">
@@ -31,7 +31,8 @@
     </div>
   </div>
   <div class="bg-navy-soft border border-navy-soft rounded-xl px-5 py-4 text-[13.5px] text-slate-700 leading-relaxed max-w-3xl">
-    <b>Catatan:</b> setelah 14 Desember, tes berikutnya dijadwalkan berkelanjutan sampai kuota Gelombang 1 terisi — ikuti arahan panitia yang dikirim lewat WhatsApp.
+    <p class="mb-1"><b>Catatan:</b> setelah 14 Desember, tes berikutnya dijadwalkan berkelanjutan sampai kuota Gelombang 1 terisi — ikuti arahan panitia yang dikirim lewat WhatsApp.</p>
+    <p><b>Belum siap di Gelombang 1?</b> Gelombang 2 dibuka <b>Maret s/d Juni 2027</b> — kursi tinggal mengikuti sisa kuota, jadi daftar lebih awal tetap lebih menguntungkan.</p>
   </div>
 </x-seksi>
 <x-seksi judul="Formulir Pendaftaran">
