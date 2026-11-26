@@ -6,7 +6,7 @@
 @php
     $kategori = $b->kategori;
     $namaKategori = $kategori ? $kategori->nama : 'Tulisan';
-    $lebih = $kategori ? url('/berita?kategori=' . $kategori->slug) : url('/berita');
+    $lebih = $b->tautan_lebih ?? ($kategori ? url('/berita?kategori=' . $kategori->slug) : url('/berita'));
 @endphp
 <section class="ld-seksi {{ !empty($kabut) ? 'ld-kabut' : '' }}" id="seksi-{{ $b->id }}">
   <div class="ld-wrap">
@@ -28,7 +28,7 @@
         <div class="ld-rel" data-rel>
           @foreach ($tulisan as $t)
             <figure class="ld-slide">
-              <a class="ld-kartu" href="{{ url('/berita/' . $t->slug) }}">
+              <a class="ld-kartu" href="{{ $t->tautan ?? url('/berita/' . $t->slug) }}">
                 <span class="ld-gambar">
                   @if ($t->gambar_url)
                     <img src="{{ $t->gambar_url }}" alt="{{ $t->judul }}" loading="lazy">
@@ -55,16 +55,22 @@
       </div>
     @else
       <div class="ld-kosong">
-        <div class="ld-kosong-ikon" aria-hidden="true">📝</div>
-        <div class="ld-kosong-judul">Belum ada tulisan berkategori {{ $namaKategori }}</div>
-        <p>Seksi ini terisi otomatis dari <b>tulisan + gambar utama</b> yang kategorinya
-           <b>{{ $namaKategori }}</b>. Tambah tulisan di panel → Berita/Tulisan, pilih kategorinya,
-           lalu foto utamanya akan tampil di sini.</p>
+        <div class="ld-kosong-ikon" aria-hidden="true">@if ($kategori && $kategori->slug === 'alumni')🎓@else📝@endif</div>
+        @if ($kategori && $kategori->slug === 'alumni')
+          <div class="ld-kosong-judul">Belum ada cerita alumni yang ditampilkan</div>
+          <p>Cerita alumni muncul di sini setelah alumni mengisi formulir <b>{{ url('/alumni-cerita/isi') }}</b>
+             dan admin menyetujuinya dari panel → <b>Cerita Alumni</b>.</p>
+        @else
+          <div class="ld-kosong-judul">Belum ada tulisan berkategori {{ $namaKategori }}</div>
+          <p>Seksi ini terisi otomatis dari <b>tulisan + gambar utama</b> yang kategorinya
+             <b>{{ $namaKategori }}</b>. Tambah tulisan di panel → Berita/Tulisan, pilih kategorinya,
+             lalu foto utamanya akan tampil di sini.</p>
+        @endif
       </div>
     @endif
 
     <div class="ld-tautan-baris">
-      <a class="ld-tautan" href="{{ $lebih }}">Lihat semua tulisan {{ $namaKategori }} <span aria-hidden="true">→</span></a>
+      <a class="ld-tautan" href="{{ $lebih }}">Lihat semua {{ ($kategori && $kategori->slug === 'alumni') ? 'cerita alumni' : 'tulisan ' . $namaKategori }} <span aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>

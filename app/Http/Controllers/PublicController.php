@@ -55,6 +55,29 @@ class PublicController extends Controller
             : collect();
 
         $postingan = $bagian->where('jenis', 'postingan')->values()->map(function ($b) use ($contoh, $demo) {
+            // Seksi berkategori ALUMNI menampilkan cerita alumni terverifikasi (modul /alumni-cerita),
+            // bukan tulisan berkategori Alumni — kartunya diklik menuju halaman ceritinya.
+            if ($b->kategori && $b->kategori->slug === 'alumni') {
+                $b->tulisan = \App\Models\AlumniCerita::tampil()
+                    ->orderByDesc('tahun_lulus')->orderBy('nama')
+                    ->get()
+                    ->map(function ($cerita) {
+                        $label = trim($cerita->status_rangkum);
+
+                        return (object) [
+                            'slug' => $cerita->slug,
+                            'judul' => $cerita->nama,
+                            'gambar_url' => $cerita->foto_url,
+                            'tanggal_indonesia' => ($cerita->tahun_lulus ? 'Lulus ' . $cerita->tahun_lulus : '') . ($label ? ' · ' . $label : ''),
+                            'tautan' => url('/alumni-cerita/' . $cerita->slug),
+                            'dari_alumni' => true,
+                        ];
+                    });
+                $b->tautan_lebih = url('/alumni-cerita');
+
+                return $b;
+            }
+
             $tulisan = Post::terbit()
                 ->when($b->kategori_id, fn ($q) => $q->whereHas('categories', fn ($c) => $c->where('categories.id', $b->kategori_id)))
                 ->latest('terbit_pada')
