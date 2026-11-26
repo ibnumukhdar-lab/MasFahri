@@ -265,7 +265,7 @@
         <ul class="list-disc pl-5">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
       </div>
     @endif
-    <form action="{{ route('spmb.simpan') }}" method="post" class="kartu p-6 md:p-8 grid md:grid-cols-2 gap-4 text-[13.5px]" style="box-shadow:0 30px 60px -30px rgba(6,16,34,.65)">
+    <form action="{{ route('spmb.simpan') }}" method="post" enctype="multipart/form-data" class="kartu p-6 md:p-8 grid md:grid-cols-2 gap-4 text-[13.5px]" style="box-shadow:0 30px 60px -30px rgba(6,16,34,.65)">
       @csrf
       <div><label class="block mb-1.5 font-medium text-navy">Nama Wali</label><input name="nama_wali" value="{{ old('nama_wali') }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
       <div><label class="block mb-1.5 font-medium text-navy">Nama Siswa</label><input name="nama_siswa" value="{{ old('nama_siswa') }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
@@ -291,6 +291,22 @@
         </select>
         <p class="text-[12px] text-slate-500 mt-1.5">Pilih tahun ajaran yang dituju.</p>
       </div>
+      <div class="md:col-span-2">
+        <div class="rounded-xl p-5 mb-1" style="background:#fffbe8;border:1px solid #f2e3ac">
+          <p class="font-bold text-navy text-[14.5px] mb-2">Transfer biaya formulir — Rp 200.000</p>
+          <div class="flex flex-wrap items-center gap-x-7 gap-y-2.5 text-[13.5px]">
+            <span><span class="text-slate-500">Bank</span> <b class="text-navy">BRI</b></span>
+            <span><span class="text-slate-500">No. rekening</span> <b class="text-navy tracking-wide" id="sp-rek">760001007929533</b></span>
+            <span><span class="text-slate-500">a.n.</span> <b class="text-navy">Retno Dwi Astuti</b></span>
+            <button type="button" data-salin="#sp-rek" class="rounded-lg px-3.5 py-1.5 text-[12.5px] font-bold" style="background:#1f3a5f;color:#fff">Salin no. rekening</button>
+          </div>
+          <p class="text-[12px] mt-2.5" style="color:#7a5b00">Khusus pendaftaran bulan Desember biaya formulir <b>GRATIS</b> — tidak perlu transfer. Luar Desember, transfer Rp 200.000 lalu unggah buktinya di bawah.</p>
+        </div>
+      </div>
+      <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Bukti transfer (opsional bila daftar bulan Desember)</label>
+        <input type="file" name="bukti_transfer" accept="image/*,.pdf" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13px] text-slate-600" style="background:#f8fafd">
+        <p class="text-[12px] text-slate-500 mt-1.5">JPG/PNG/PDF maks 4 MB — foto/screenshot bukti transfer Rp 200.000.</p>
+      </div>
       <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Nomor WhatsApp Wali</label><input name="whatsapp" value="{{ old('whatsapp') }}" placeholder="08xxxxxxxxxx" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
       <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Catatan (opsional)</label><textarea name="catatan" rows="2" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5">{{ old('catatan') }}</textarea></div>
       <div class="md:col-span-2 flex flex-wrap gap-3 items-center">
@@ -305,25 +321,29 @@
 <section class="sp-band" style="background:#fff">
   <div class="wrap">
     <div class="sp-h2-baris">
-      <p class="sp-kicker">Sesudah formulir dikirim</p>
+      <p class="sp-kicker">Dari formulir sampai menjadi murid</p>
       <h2 class="sp-h2">Alur Pendaftaran</h2>
     </div>
-    <div class="grid md:grid-cols-4 gap-4">
+    <div class="grid md:grid-cols-5 gap-4">
       <div class="kartu p-5">
-        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">1</span><p class="font-bold text-navy text-[14.5px]">Isi formulir</p></div>
-        <p class="text-slate-600 text-[13px] leading-relaxed">Data wali &amp; calon murid, dari HP maupun komputer.</p>
+        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">1</span><p class="font-bold text-navy text-[14.5px]">Formulir &amp; transfer</p></div>
+        <p class="text-slate-600 text-[13px] leading-relaxed">Isi formulir online, transfer biaya formulir <b>Rp 200.000</b> ke <b>BRI 760001007929533</b> a.n. <b>Retno Dwi Astuti</b>, lalu unggah buktinya di formulir. <b>Desember: gratis</b>, tanpa transfer.</p>
       </div>
       <div class="kartu p-5">
-        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">2</span><p class="font-bold text-navy text-[14.5px]">Verifikasi admin</p></div>
-        <p class="text-slate-600 text-[13px] leading-relaxed">Admin sekolah menghubungi lewat WhatsApp.</p>
+        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">2</span><p class="font-bold text-navy text-[14.5px]">Verifikasi panitia</p></div>
+        <p class="text-slate-600 text-[13px] leading-relaxed">Setelah verifikasi berhasil, pendaftar menerima <b>akun akses</b> ke halaman lengkapi biodata siswa.</p>
       </div>
       <div class="kartu p-5">
-        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">3</span><p class="font-bold text-navy text-[14.5px]">Tes &amp; wawancara</p></div>
-        <p class="text-slate-600 text-[13px] leading-relaxed">Tes baca Al-Qur'an, akademik dasar, wawancara wali.</p>
+        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">3</span><p class="font-bold text-navy text-[14.5px]">Kartu tes</p></div>
+        <p class="text-slate-600 text-[13px] leading-relaxed">Pendaftar menerima <b>kartu tes</b> yang wajib dibawa saat hadir — dikuasai <b>1 orang tua + 1 anak</b>.</p>
       </div>
       <div class="kartu p-5">
         <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">4</span><p class="font-bold text-navy text-[14.5px]">Pengumuman</p></div>
-        <p class="text-slate-600 text-[13px] leading-relaxed">Hasil seleksi diumumkan lewat sistem dan WhatsApp.</p>
+        <p class="text-slate-600 text-[13px] leading-relaxed">Hasil tes diumumkan lewat sistem dan WhatsApp.</p>
+      </div>
+      <div class="kartu p-5">
+        <div class="flex items-center gap-3 mb-2.5"><span class="sp-titik">5</span><p class="font-bold text-navy text-[14.5px]">Daftar ulang</p></div>
+        <p class="text-slate-600 text-[13px] leading-relaxed">Murid yang diterima melakukan <b>daftar ulang</b> untuk mengunci kursinya.</p>
       </div>
     </div>
   </div>
@@ -345,4 +365,28 @@
     </form>
   </div>
 </section>
+
+<script>
+  (function () {
+    document.querySelectorAll('[data-salin]').forEach(function (tombol) {
+      tombol.addEventListener('click', function () {
+        var sumber = document.querySelector(tombol.getAttribute('data-salin'));
+        if (!sumber) return;
+        var teks = sumber.textContent.trim();
+        var selesai = function () {
+          var lama = tombol.textContent;
+          tombol.textContent = 'Tersalin';
+          setTimeout(function () { tombol.textContent = lama; }, 1600);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(teks).then(selesai).catch(function () {
+            window.prompt('Salin nomor rekening ini:', teks);
+          });
+        } else {
+          window.prompt('Salin nomor rekening ini:', teks);
+        }
+      });
+    });
+  })();
+</script>
 @endsection

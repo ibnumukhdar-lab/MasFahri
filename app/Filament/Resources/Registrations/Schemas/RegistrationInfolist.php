@@ -32,6 +32,19 @@ class RegistrationInfolist
                         TextEntry::make('email')->label('Email')->placeholder('-')->copyable(),
                     ]),
 
+                Section::make('Bukti transfer biaya formulir')
+                    ->schema([
+                        TextEntry::make('bukti_transfer')
+                            ->label('Bukti transfer')
+                            ->state(fn ($record): ?string => $record->bukti_transfer ? $record->bukti_transfer_url : null)
+                            ->formatStateUsing(fn (?string $state): string => $state ? 'Lihat bukti transfer' : 'Belum ada')
+                            ->url(fn (?string $state): ?string => $state)
+                            ->openUrlInNewTab()
+                            ->color(fn (?string $state): string => $state ? 'primary' : 'gray')
+                            ->columnSpanFull(),
+                    ])
+                    ->visible(fn ($record): bool => (bool) $record->bukti_transfer),
+
                 Section::make('Catatan & tindak lanjut')
                     ->schema([
                         TextEntry::make('catatan')->label('Catatan pendaftar')->placeholder('-')->columnSpanFull(),

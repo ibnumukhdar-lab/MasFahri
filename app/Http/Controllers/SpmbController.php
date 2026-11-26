@@ -43,10 +43,26 @@ class SpmbController extends Controller
             'tahun_ajaran' => ['required', 'string', 'max:20', \Illuminate\Validation\Rule::in(self::TAHUN_AJARAN)],
             'whatsapp' => ['nullable', 'string', 'max:25'],
             'catatan' => ['nullable', 'string', 'max:800'],
+            'bukti_transfer' => ['nullable', 'file', 'mimes:jpg,jpeg,png,webp,pdf', 'max:4096'],
+        ], [
+            'bukti_transfer.file' => 'Bukti transfer harus berupa berkas.',
+            'bukti_transfer.mimes' => 'Bukti transfer harus JPG, PNG, WEBP, atau PDF.',
+            'bukti_transfer.max' => 'Ukuran bukti transfer maksimal 4 MB.',
         ]);
 
         $data['nomor'] = Registration::nomorBaru($data['tahun_ajaran']);
         $data['ip'] = $request->ip();
+
+        // Bukti transfer biaya formulir (opsional di formulir; panitia memeriksa dari panel).
+        if ($request->hasFile('bukti_transfer')) {
+            $berkas = $request->file('bukti_transfer');
+            $nama = date('Ymd') . '-' . \Illuminate\Support\Str::random(8) . '.'
+                . strtolower($berkas->getClientOriginalExtension() ?: 'jpg');
+            $berkas->move(public_path('media/spmb-bukti'), $nama);
+            $data['bukti_transfer'] = 'spmb-bukti/' . $nama;
+        } else {
+            $data['bukti_transfer'] = null;
+        }
         $registrasi = Registration::create($data);
 
         // Pesan konfirmasi dari PENDAFTAR ke WhatsApp sekolah: setelah formulir terkirim,
