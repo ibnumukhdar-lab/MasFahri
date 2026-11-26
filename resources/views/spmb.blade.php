@@ -194,6 +194,9 @@
             <div class="sp-harga"><span>Hafalan <b>5–10 juz</b></span><b>Rp 1.500.000</b></div>
             <div class="sp-harga" style="background:#fff7d6"><span>Hafalan <b>10–30 juz</b></span><b>Rp 2.000.000</b></div>
           </div>
+          <div class="mt-3.5 rounded-xl px-4 py-3 text-[12.5px] leading-relaxed" style="background:#eef4fb;border:1px dashed #c6d8ea;color:#3d4a5c">
+            <b class="text-navy">Bonus hafalan 10–30 juz:</b> selain potongan uang masuk, juga mendapat <b>potongan biaya SPP bulanan</b> — rinciannya dijelaskan panitia saat siswa resmi diterima.
+          </div>
         </div>
       </div>
     </div>
