@@ -1,7 +1,7 @@
 @extends('layouts.publik')
 @section('judul', 'SPMB — Penerimaan Murid Baru SMA IT Arafah')
 @section('isi')
-@include('partials.hero', ['kecil' => 'Penerimaan ' . $tahunAjaran, 'judul' => 'Sistem Penerimaan Murid Baru', 'sub' => 'Dibuka sepanjang tahun dengan sistem waiting list. Seluruh murid wajib boarding — pilih salah satu jalur pendaftaran.'])
+@include('partials.hero', ['kecil' => 'Penerimaan Murid Baru ' . $tahunAjaran, 'judul' => 'SPMB Gelombang 1 Telah Dibuka', 'sub' => 'Mulai <b>1 Desember 2026 s/d Februari 2027</b> — kesempatan pertama masuk SMA IT Arafah tahun ajaran ' . $tahunAjaran . '. Tes penerimaan pertama: <b>Senin, 14 Desember 2026</b>. Seluruh murid wajib boarding.'])
 <x-seksi judul="Jadwal SPMB Gelombang 1">
   <div class="mb-5">
     <p class="text-slate-600 text-[14.5px] md:text-[15.5px] leading-relaxed max-w-3xl mb-2.5">
