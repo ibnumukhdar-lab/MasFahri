@@ -35,7 +35,7 @@
             <span>⚠️</span><span x-text="violations + ' Pelanggaran'"></span>
           </div>
         </template>
-        <button type="button" @click="selesai()" x-show="!isFinished"
+        <button type="button" @click="bukaKonfirmasi()" x-show="!isFinished"
                 class="bg-slate-900 hover:bg-black text-white font-bold px-3 py-1.5 rounded-lg text-[11px] transition cursor-pointer">
           Selesai &rarr;
         </button>
@@ -49,11 +49,20 @@
     {{-- Kartu soal --}}
     <div class="lg:col-span-3 flex flex-col min-h-0 gap-2">
       <div class="bg-white rounded-2xl p-3 sm:p-4 border border-slate-200 shadow-sm flex-1 min-h-0 flex flex-col" x-show="!isFinished">
-        <div class="shrink-0 flex justify-between items-center pb-2 mb-2 border-b border-slate-100">
+        <div class="shrink-0 flex justify-between items-center gap-2 pb-2 mb-2 border-b border-slate-100">
           <span class="bg-indigo-50 text-indigo-700 text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-lg">
             Soal No. <span x-text="currentIndex + 1"></span> dari <span x-text="questions.length"></span>
           </span>
-          <span class="text-[10px] sm:text-[11px] font-bold text-slate-400">Pilihan Ganda</span>
+
+          {{-- Tandai dulu (bendera) --}}
+          <button type="button" @click="toggleTanda()"
+                  class="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] sm:text-[11px] font-bold border transition cursor-pointer"
+                  :class="ditandai(currentQuestion?.id) ? 'bg-amber-500 border-amber-500 text-white' : 'bg-white border-amber-300 text-amber-700 hover:bg-amber-50'">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 21V4h9l-1 3h8v9h-8l1 3H4z"></path>
+            </svg>
+            <span x-text="ditandai(currentQuestion?.id) ? 'Hapus tanda' : 'Tandai dulu'"></span>
+          </button>
         </div>
 
         <div class="flex-1 min-h-0 overflow-y-auto pr-1">
@@ -78,9 +87,16 @@
                   class="bg-slate-100 hover:bg-slate-200 disabled:opacity-40 text-slate-700 font-bold px-3 py-2 rounded-lg text-[11px] transition cursor-pointer">
             &larr; Sebelumnya
           </button>
-          <button type="button" @click="maju()" :disabled="currentIndex === questions.length - 1"
+
+          <button type="button" @click="maju()" x-show="currentIndex < questions.length - 1"
                   class="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white font-bold px-4 py-2 rounded-lg text-[11px] transition cursor-pointer">
             Selanjutnya &rarr;
+          </button>
+
+          <button type="button" @click="bukaKonfirmasi()" x-show="currentIndex === questions.length - 1"
+                  class="text-white font-bold px-4 py-2 rounded-lg text-[11px] transition cursor-pointer shadow-sm"
+                  :class="semuaTerjawab ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-900 hover:bg-black'">
+            <span x-text="semuaTerjawab ? 'Selesaikan ✓' : 'Selesaikan'"></span>
           </button>
         </div>
       </div>
@@ -112,38 +128,134 @@
         <div class="grid grid-cols-8 sm:grid-cols-10 lg:grid-cols-4 gap-1 overflow-y-auto max-h-24 lg:max-h-none lg:flex-1 min-h-0 p-0.5">
           <template x-for="(q, idx) in questions" :key="q.id">
             <button type="button" @click="lompat(idx)"
-                    class="w-full aspect-square rounded-lg text-[10px] font-bold transition flex items-center justify-center border cursor-pointer"
-                    :class="kelasPalet(idx, q.id)"
-                    x-text="idx + 1"></button>
+                    class="w-full aspect-square rounded-lg text-[10px] font-bold transition flex items-center justify-center border cursor-pointer relative"
+                    :class="kelasPalet(idx, q.id)">
+              <span x-text="idx + 1"></span>
+              <span x-show="ditandai(q.id)" class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-800 border border-white"></span>
+            </button>
           </template>
         </div>
         <div class="hidden lg:block mt-2 pt-2 border-t border-slate-100 space-y-0.5 text-[10px] text-slate-500 font-medium shrink-0">
           <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span><span>Sudah dijawab</span></div>
           <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded bg-slate-200"></span><span>Belum dijawab</span></div>
+          <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span><span>Ditandai (perlu dicek)</span></div>
           <div class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded border-2 border-indigo-600"></span><span>Sedang dikerjakan</span></div>
         </div>
       </div>
     </div>
   </main>
 
+  {{-- ================= KONFIRMASI SELESAI ================= --}}
+  <div x-show="konfirmasi" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4"
+       style="background:rgba(15,23,42,.55)" @keydown.escape.window="tutupKonfirmasi()">
+    <div class="bg-white rounded-2xl w-full max-w-md p-5 shadow-2xl max-h-[92dvh] overflow-y-auto" @click.outside="tutupKonfirmasi()">
+      <div class="text-center">
+        <p class="text-[10px] font-black uppercase tracking-wider text-slate-400">Konfirmasi</p>
+        <h2 class="text-lg font-extrabold text-slate-900 mt-0.5">Selesaikan tes ini?</h2>
+      </div>
+
+      <div class="bg-rose-50 border border-rose-200 rounded-xl py-3 text-center mt-4">
+        <p class="text-[10px] font-black uppercase tracking-wide text-rose-500">Sisa waktu</p>
+        <p class="text-2xl font-black text-rose-700" x-text="formatTimer()"></p>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mt-3 text-center">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl py-2">
+          <p class="text-[9px] font-bold uppercase text-slate-400">Terjawab</p>
+          <p class="text-base font-black text-emerald-600"><span x-text="jumlahTerjawab"></span>/<span x-text="questions.length"></span></p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl py-2">
+          <p class="text-[9px] font-bold uppercase text-slate-400">Belum</p>
+          <p class="text-base font-black" :class="jumlahKosong > 0 ? 'text-rose-600' : 'text-slate-400'" x-text="jumlahKosong"></p>
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl py-2">
+          <p class="text-[9px] font-bold uppercase text-slate-400">Ditandai</p>
+          <p class="text-base font-black" :class="jumlahTanda > 0 ? 'text-amber-600' : 'text-slate-400'" x-text="jumlahTanda"></p>
+        </div>
+      </div>
+
+      <template x-if="jumlahKosong > 0">
+        <p class="mt-3 text-[12px] leading-relaxed text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+          Masih ada <b x-text="jumlahKosong"></b> soal belum dijawab. Anda masih bisa menutup jendela ini dan mengecek ulang.
+        </p>
+      </template>
+
+      <template x-if="jumlahTanda > 0">
+        <div class="mt-3 bg-amber-50 border border-amber-300 rounded-xl px-3 py-2.5">
+          <p class="text-[12px] font-bold text-amber-900 mb-1.5">
+            Masih ada <span x-text="jumlahTanda"></span> soal bertanda. Lepaskan tanda dulu bila sudah yakin.
+          </p>
+          <div class="flex flex-wrap gap-1 mb-2">
+            <template x-for="n in daftarTanda" :key="n">
+              <button type="button" @click="lompat(n.index); tutupKonfirmasi()"
+                      class="w-6 h-6 rounded-md bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center cursor-pointer"
+                      x-text="n.nomor"></button>
+            </template>
+          </div>
+          <button type="button" @click="lepasSemuaTanda()"
+                  class="w-full bg-white border border-amber-400 text-amber-800 font-bold py-1.5 rounded-lg text-[11px] cursor-pointer hover:bg-amber-100">
+            Lepas semua tanda
+          </button>
+        </div>
+      </template>
+
+      <p class="mt-3 text-[11px] leading-relaxed text-slate-500 text-center">
+        Periksa kembali jawaban Anda. Setelah diselesaikan, jawaban tidak bisa diubah.
+      </p>
+
+      <div class="grid grid-cols-2 gap-2 mt-4">
+        <button type="button" @click="tutupKonfirmasi()"
+                class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2.5 rounded-xl text-[12px] cursor-pointer">
+          Cek ulang jawaban
+        </button>
+        <button type="button" @click="kirim(false)" :disabled="jumlahTanda > 0"
+                class="text-white font-extrabold py-2.5 rounded-xl text-[12px] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                :class="jumlahTanda > 0 ? 'bg-slate-400' : 'bg-emerald-600 hover:bg-emerald-700'">
+          Yakin selesaikan
+        </button>
+      </div>
+      <p x-show="jumlahTanda > 0" x-cloak class="mt-1.5 text-[10.5px] text-amber-700 text-center font-semibold">
+        Tombol aktif setelah semua tanda dilepas.
+      </p>
+    </div>
+  </div>
+
   <script>
     function cbtApp() {
       return {
         questions: @json($soal),
         answers: {},
+        tanda: {},
         currentIndex: 0,
         sisaDetik: @json($sisaDetik),
         violations: 0,
         isFinished: false,
+        konfirmasi: false,
         hasil: {},
         timer: null,
 
         init() {
+          // tanda (bendera) disimpan per paket supaya tidak hilang saat halaman dimuat ulang
+          try {
+            this.tanda = JSON.parse(localStorage.getItem('cbt_tanda_{{ $paket->id }}') || '{}') || {};
+          } catch (e) {
+            this.tanda = {};
+          }
+
+          // jawaban juga disimpan sementara di perangkat, supaya tidak hilang bila halaman ter-refresh
+          try {
+            const simpan = JSON.parse(localStorage.getItem('cbt_jawab_{{ $paket->id }}') || '{}') || {};
+            this.answers = Object.keys(simpan).length ? simpan : {};
+          } catch (e) {
+            this.answers = {};
+          }
+
           this.timer = setInterval(() => {
             if (this.sisaDetik > 0) {
               this.sisaDetik--;
             } else {
               clearInterval(this.timer);
+              this.konfirmasi = false;
               this.kirim(true);
             }
           }, 1000);
@@ -164,6 +276,17 @@
         },
 
         get currentQuestion() { return this.questions[this.currentIndex]; },
+        get jumlahTerjawab() { return Object.keys(this.answers).length; },
+        get jumlahKosong() { return Math.max(0, this.questions.length - this.jumlahTerjawab); },
+        get semuaTerjawab() { return this.jumlahKosong === 0; },
+        get jumlahTanda() {
+          return this.questions.filter(q => this.ditandai(q.id)).length;
+        },
+        get daftarTanda() {
+          return this.questions
+            .map((q, i) => ({ id: q.id, index: i, nomor: i + 1 }))
+            .filter(x => this.ditandai(x.id));
+        },
 
         formatTimer() {
           const m = Math.floor(this.sisaDetik / 60);
@@ -171,10 +294,30 @@
           return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         },
 
-        pilih(huruf) { this.answers[this.currentQuestion.id] = huruf; },
+        pilih(huruf) {
+          this.answers[this.currentQuestion.id] = huruf;
+          try { localStorage.setItem('cbt_jawab_{{ $paket->id }}', JSON.stringify(this.answers)); } catch (e) {}
+        },
         mundur() { if (this.currentIndex > 0) this.currentIndex--; },
         maju() { if (this.currentIndex < this.questions.length - 1) this.currentIndex++; },
         lompat(idx) { this.currentIndex = idx; },
+
+        // ---------- bendera / tandai dulu ----------
+        ditandai(id) { return !!this.tanda[id]; },
+        toggleTanda() {
+          const id = this.currentQuestion.id;
+          const baru = { ...this.tanda };
+          if (baru[id]) { delete baru[id]; } else { baru[id] = true; }
+          this.tanda = baru;
+          this.simpanTanda();
+        },
+        lepasSemuaTanda() {
+          this.tanda = {};
+          this.simpanTanda();
+        },
+        simpanTanda() {
+          try { localStorage.setItem('cbt_tanda_{{ $paket->id }}', JSON.stringify(this.tanda)); } catch (e) {}
+        },
 
         kelasOpsi(huruf) {
           return this.answers[this.currentQuestion.id] === huruf
@@ -183,22 +326,24 @@
         },
 
         kelasPalet(idx, id) {
-          if (idx === this.currentIndex) return 'border-indigo-600 text-indigo-700 bg-white';
+          const tanda = this.ditandai(id);
+          if (idx === this.currentIndex) {
+            return tanda
+              ? 'border-amber-500 bg-amber-100 text-amber-800 ring-2 ring-amber-300'
+              : 'border-indigo-600 text-indigo-700 bg-white';
+          }
+          if (tanda) return 'bg-amber-400 border-amber-500 text-amber-900';
           return this.answers[id] !== undefined
             ? 'bg-emerald-500 border-emerald-500 text-white'
             : 'bg-slate-200 border-slate-200 text-slate-600';
         },
 
-        selesai() {
-          const kosong = this.questions.length - Object.keys(this.answers).length;
-          const pesan = kosong > 0
-            ? `Masih ada ${kosong} soal belum dijawab. Kirim jawaban dan selesaikan tes sekarang?`
-            : 'Kirim semua jawaban dan selesaikan tes sekarang?';
-          if (confirm(pesan)) this.kirim(false);
-        },
+        bukaKonfirmasi() { this.konfirmasi = true; },
+        tutupKonfirmasi() { this.konfirmasi = false; },
 
         async kirim(otomatis) {
           if (this.isFinished) return;
+          this.konfirmasi = false;
           clearInterval(this.timer);
 
           try {
@@ -215,8 +360,12 @@
             const data = await res.json().catch(() => ({}));
 
             if (res.ok || res.status === 409) {
-              this.hasil = { skor: data.skor, benar: data.benar, total: data.total, pelanggaran: data.pelanggaran ?? this.violations };
+              this.hasil = { pelanggaran: data.pelanggaran ?? this.violations };
               this.isFinished = true;
+              try {
+                localStorage.removeItem('cbt_tanda_{{ $paket->id }}');
+                localStorage.removeItem('cbt_jawab_{{ $paket->id }}');
+              } catch (e) {}
             } else if (res.status === 401) {
               alert('Sesi berakhir. Silakan masuk kembali ke Area Pendaftar.');
               window.location = '{{ route('spmb.pendaftar.masuk') }}';
