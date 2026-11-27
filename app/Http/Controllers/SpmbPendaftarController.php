@@ -91,19 +91,12 @@ class SpmbPendaftarController extends Controller
         }
         $registrasi->load('ujian');
 
-        $paketWajib = \App\Models\SpmbPaketSoal::query()->where('aktif', true)->where('wajib', true)->count();
-        $selesaiTes = $registrasi->ujian->where('status', 'selesai')->count();
-
         return view('spmb-dasbor', [
             'registrasi' => $registrasi,
             'biodata' => $registrasi->biodata()->firstOrCreate([]),
             'formulir' => $registrasi->formulir()->firstOrCreate([]),
-            'ujian' => $registrasi->ujian->first(),
-            'progresTes' => [
-                'selesai' => $selesaiTes,
-                'total' => $paketWajib,
-                'tuntas' => $paketWajib > 0 && $selesaiTes >= $paketWajib,
-            ],
+            'ujian' => $registrasi->ujianSemua()->latest('id')->first(),
+            'progresTes' => $registrasi->progresTes(),
         ]);
     }
 
@@ -338,7 +331,7 @@ class SpmbPendaftarController extends Controller
             ->orderBy('urutan')->orderBy('id')
             ->get();
 
-        $ujian = $registrasi->ujian()->get()->keyBy('paket_id');
+        $ujian = $registrasi->ujianSemua()->get()->keyBy('paket_id');
 
         $daftar = $paketWajib->map(function ($p) use ($ujian) {
             $u = $ujian[$p->id] ?? null;
@@ -364,6 +357,25 @@ class SpmbPendaftarController extends Controller
             'tuntas' => $jumlah > 0 && $selesai === $jumlah,
             'rataRata' => $skor->count() ? (int) round($skor->avg()) : null,
             'adaPaketAktif' => $jumlah > 0,
+        ]);
+    }
+
+    /** Pengumuman hasil: status akhir + rincian nilai per paket + nilai akhir (rata-rata). */
+    public function hasil(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+
+        $ujian = $registrasi->ujianSemua()->with('paket')
+            ->orderBy('id')->get();
+
+        return view('spmb-hasil', [
+            'registrasi' => $registrasi,
+            'progres' => $registrasi->progresTes(),
+            'ujian' => $ujian,
+            'diumumkan' => in_array($registrasi->status, ['diterima', 'ditolak'], true),
         ]);
     }
 

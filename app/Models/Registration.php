@@ -29,6 +29,53 @@ class Registration extends Model
         return $this->hasOne(\App\Models\SpmbUjian::class);
     }
 
+    /** Semua percobaan CBT — satu siswa bisa mengerjakan beberapa paket (per mapel). */
+    public function ujianSemua()
+    {
+        return $this->hasMany(\App\Models\SpmbUjian::class);
+    }
+
+    /**
+     * Ringkasan CBT: jumlah paket wajib, yang sudah selesai, sisa, ketuntasan, rata-rata.
+     * Dipakai dasbor, halaman tes, pengumuman, dan penjaga status "Diterima".
+     */
+    public function progresTes(): array
+    {
+        $wajib = \App\Models\SpmbPaketSoal::query()
+            ->where('aktif', true)->where('wajib', true)->pluck('id');
+
+        $selesai = $this->ujianSemua()->where('status', 'selesai')->get()
+            ->filter(fn ($u) => $wajib->contains($u->paket_id));
+
+        $kurang = $wajib->diff($selesai->pluck('paket_id'));
+
+        return [
+            'total' => $wajib->count(),
+            'selesai' => $selesai->count(),
+            'kurang' => $kurang->count(),
+            'tuntas' => $wajib->count() > 0 && $kurang->isEmpty(),
+            'rata' => $selesai->count() ? (int) round($selesai->avg('skor')) : null,
+        ];
+    }
+
+    /** Penjaga: status "Diterima" hanya boleh bila SEMUA paket wajib sudah tuntas. */
+    protected static function booted(): void
+    {
+        static::saving(function (self $r) {
+            if ($r->status !== 'diterima' || ! $r->isDirty('status')) {
+                return;
+            }
+
+            $p = $r->progresTes();
+            if ($p['total'] > 0 && ! $p['tuntas']) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'status' => 'Belum bisa "Diterima": '.$p['kurang'].' dari '.$p['total']
+                        .' paket tes wajib belum diselesaikan.',
+                ]);
+            }
+        });
+    }
+
     public function nilaiQuran()
     {
         return $this->hasOne(\App\Models\SpmbNilaiQuran::class);

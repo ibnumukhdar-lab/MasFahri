@@ -211,6 +211,9 @@
       <div class="sf-galgal">
         <a href="{{ route('spmb.pendaftar.kartu') }}" class="sf-tombol sf-tombol-draf">Lihat Kartu Tes (Cetak)</a>
         <a href="{{ route('spmb.pendaftar.tes') }}" class="sf-tombol sf-tombol-utama">{{ ! empty($progresTes['tuntas']) ? 'Lihat Hasil Tes' : (($progresTes['selesai'] ?? 0) > 0 ? 'Lanjutkan Tes CBT' : 'Buka Tes CBT') }}</a>
+        @if (in_array($registrasi->status, ['diterima', 'ditolak'], true))
+          <a href="{{ route('spmb.pendaftar.hasil') }}" class="sf-tombol sf-tombol-draf">Pengumuman Hasil</a>
+        @endif
       </div>
     </div>
   </div>
