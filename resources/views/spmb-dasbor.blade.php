@@ -2,8 +2,71 @@
 @section('judul', 'Dashboard Pendaftar — SPMB SMA IT Arafah')
 @section('isi')
 @include('partials.hero', ['kecil' => 'Area Pendaftar SPMB', 'judul' => 'Halo, ' . $registrasi->nama_siswa . ' 👋', 'sub' => 'Nomor pendaftaran '.$registrasi->nomor.' — status: '.(\App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status).'. Lengkapi formulir dan biodata di bawah ini.'])
+
+@php
+  $kolPribadi = ['nama_panggilan', 'nisn', 'nik', 'golongan_darah', 'tempat_lahir', 'tanggal_lahir', 'suku_bangsa', 'anak_ke', 'dari_bersaudara', 'alamat_jalan', 'kelurahan', 'kecamatan'];
+  $kolOrtu = ['ayah_nama', 'ayah_ttl', 'ayah_pendidikan', 'ayah_pekerjaan', 'ayah_penghasilan', 'ayah_telepon', 'ibu_nama', 'ibu_ttl', 'ibu_pendidikan', 'ibu_pekerjaan', 'ibu_penghasilan', 'ibu_telepon'];
+  $kolBiodata = ['nik', 'nisn', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'anak_ke', 'jumlah_saudara', 'nama_ayah', 'pekerjaan_ayah', 'nama_ibu', 'pekerjaan_ibu', 'telepon_rumah', 'hobi'];
+  $isiPribadi = collect($kolPribadi)->filter(fn ($k) => filled($formulir->{$k}))->count();
+  $isiOrtu = collect($kolOrtu)->filter(fn ($k) => filled($formulir->{$k}))->count();
+  $isiBiodata = collect($kolBiodata)->filter(fn ($k) => filled($biodata->{$k}))->count();
+  $adaFoto = filled($formulir->foto_latar_merah);
+  $bobotForm = count($kolPribadi) + count($kolOrtu) + 1;
+  $isiForm = $isiPribadi + $isiOrtu + ($adaFoto ? 1 : 0);
+  $persenTotal = (int) round(100 * ($isiForm + $isiBiodata) / ($bobotForm + count($kolBiodata)));
+  $formulirTampil = $formulir->terkirim_pada || in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir', 'tes'], true);
+  $statusTiles = [];
+  if ($formulirTampil) {
+      $statusTiles[] = ['judul' => 'Data pribadi', 'ket' => 'Identitas calon murid', 'isi' => $isiPribadi, 'total' => count($kolPribadi), 'anchor' => '#data-pribadi'];
+      $statusTiles[] = ['judul' => 'Data orang tua', 'ket' => 'Ayah & ibu / wali', 'isi' => $isiOrtu, 'total' => count($kolOrtu), 'anchor' => '#data-orang-tua'];
+      $statusTiles[] = ['judul' => 'Foto anak', 'ket' => 'Latar merah — wajib', 'isi' => $adaFoto ? 1 : 0, 'total' => 1, 'anchor' => '#foto-anak'];
+  }
+  $statusTiles[] = ['judul' => 'Biodata siswa', 'ket' => 'Data pendukung sekolah', 'isi' => $isiBiodata, 'total' => count($kolBiodata), 'anchor' => '#biodata'];
+@endphp
+
+<section class="wrap pt-8">
+  <div class="kartu p-5 md:p-6" style="box-shadow:0 22px 44px -36px rgba(31,58,95,.55)">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div>
+        <p class="text-[11px] font-bold uppercase tracking-[.16em] text-slate-500 mb-1">Progres pengisian</p>
+        <h2 class="text-[20px] md:text-[23px] font-extrabold text-navy">Yang sudah &amp; belum diisi</h2>
+      </div>
+      <div class="text-right">
+        <p class="text-[24px] font-black text-navy leading-none">{{ $persenTotal }}%</p>
+        <p class="text-[11.5px] text-slate-500">formulir + biodata</p>
+      </div>
+    </div>
+    <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden my-4">
+      <div class="h-full rounded-full" style="width:{{ $persenTotal }}%;background:linear-gradient(90deg,#1f3a5f 0%,#3d5987 100%)"></div>
+    </div>
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      @foreach ($statusTiles as $tile)
+        @php $lengkap = $tile['isi'] >= $tile['total']; $persenTile = (int) round(100 * $tile['isi'] / $tile['total']); @endphp
+        <a href="{{ $tile['anchor'] }}" class="block rounded-2xl p-3.5" style="border:1px solid {{ $lengkap ? '#bfe8cf' : '#e7eef6' }};background:{{ $lengkap ? '#f4fbf6' : '#fff' }}">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span class="text-[13px] font-bold text-navy">{{ $tile['judul'] }}</span>
+            @if ($lengkap)
+              <span class="w-5 h-5 rounded-full grid place-items-center" style="background:#22a35a"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
+            @else
+              <span class="w-5 h-5 rounded-full grid place-items-center" style="border:1px solid #c6d8ea;color:#7c8ba1;font-size:10.5px;font-weight:800">!</span>
+            @endif
+          </div>
+          <p class="text-[11.5px] text-slate-500 mb-2">{{ $tile['ket'] }}</p>
+          <div class="flex items-center justify-between text-[11.5px] mb-1">
+            <span class="font-semibold" style="color:{{ $lengkap ? '#177a43' : '#5b6470' }}">{{ $tile['isi'] }}/{{ $tile['total'] }} {{ $lengkap ? 'lengkap' : 'terisi' }}</span>
+            @if (! $lengkap)<span class="text-slate-400">klik untuk isi</span>@endif
+          </div>
+          <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+            <div class="h-full" style="width:{{ $persenTile }}%;background:{{ $lengkap ? '#22a35a' : '#fdd100' }}"></div>
+          </div>
+        </a>
+      @endforeach
+    </div>
+    <p class="text-[11.5px] text-slate-400 mt-3">Dihitung dari data tersimpan — tekan "Simpan Data" agar isian baru ikut terhitung.</p>
+  </div>
+</section>
 @if ($registrasi->status === 'tes' || $ujian)
-<x-seksi judul="Kartu Tes & Tes CBT">
+<x-seksi judul="Kartu Tes & Tes CBT" id="kartu">
   <div class="kartu p-6 md:p-7 max-w-2xl">
     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
       <div>
@@ -22,8 +85,7 @@
 @endif
 
 @if ($formulir->terkirim_pada || in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir', 'tes'], true))
-<span id="formulir"></span>
-<x-seksi judul="Formulir Pendaftaran Murid Baru">
+<x-seksi judul="Formulir Pendaftaran Murid Baru" id="formulir">
   @if (session('sukses'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-[13.5px] mb-5">{{ session('sukses') }}</div>
   @endif
@@ -61,7 +123,10 @@
 
   <form action="{{ route('spmb.pendaftar.formulir') }}" method="post" enctype="multipart/form-data" class="kartu p-6 md:p-8 grid md:grid-cols-2 gap-4 text-[13.5px]">
     @csrf
-    <p class="md:col-span-2 text-[11.5px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">I. Data Pribadi</p>
+    <p id="data-pribadi" class="md:col-span-2 scroll-mt-24 flex items-center justify-between gap-3 text-[11.5px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
+      <span>I. Data Pribadi</span>
+      <span class="chip" style="text-transform:none;letter-spacing:0">{{ $isiPribadi }}/{{ count($kolPribadi) }} terisi</span>
+    </p>
 
     <div><label class="block mb-1.5 font-medium text-navy">Nama panggilan</label><input name="nama_panggilan" value="{{ old('nama_panggilan', $formulir->nama_panggilan) }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <div><label class="block mb-1.5 font-medium text-navy">NISN <span class="text-slate-400 font-normal">(10 angka)</span></label><input name="nisn" value="{{ old('nisn', $formulir->nisn ?: $biodata->nisn) }}" required inputmode="numeric" maxlength="10" placeholder="10 digit angka" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
@@ -88,7 +153,10 @@
     <div><label class="block mb-1.5 font-medium text-navy">Kelurahan/desa</label><input name="kelurahan" value="{{ old('kelurahan', $formulir->kelurahan) }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <div><label class="block mb-1.5 font-medium text-navy">Kecamatan</label><input name="kecamatan" value="{{ old('kecamatan', $formulir->kecamatan) }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
 
-    <p class="md:col-span-2 text-[11.5px] font-bold uppercase tracking-wider text-slate-500 mt-3 mb-0.5">II. Data Orang Tua / Wali Murid</p>
+    <p id="data-orang-tua" class="md:col-span-2 scroll-mt-24 flex items-center justify-between gap-3 text-[11.5px] font-bold uppercase tracking-wider text-slate-500 mt-3 mb-0.5">
+      <span>II. Data Orang Tua / Wali Murid</span>
+      <span class="chip" style="text-transform:none;letter-spacing:0">{{ $isiOrtu }}/{{ count($kolOrtu) }} terisi</span>
+    </p>
 
     <p class="md:col-span-2 font-semibold text-navy">1. Ayah</p>
     <div><label class="block mb-1.5 font-medium text-navy">Nama ayah</label><input name="ayah_nama" value="{{ old('ayah_nama', $formulir->ayah_nama ?: $biodata->nama_ayah) }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
@@ -118,12 +186,12 @@
     </div>
     <div><label class="block mb-1.5 font-medium text-navy">Nomor telepon/HP</label><input name="ibu_telepon" value="{{ old('ibu_telepon', $formulir->ibu_telepon) }}" required inputmode="tel" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
 
-    <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Pas foto latar merah <span class="text-slate-400 font-normal">(wajib saat diserahkan — JPG/PNG, maks 4 MB)</span></label>
+    <div id="foto-anak" class="md:col-span-2 scroll-mt-24"><label class="block mb-1.5 font-medium text-navy">Pas foto anak (latar merah) <span class="text-slate-400 font-normal">— wajib saat diserahkan, JPG/PNG maks 4 MB</span></label>
       <input type="file" name="foto" accept="image/*" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13px] text-slate-600" style="background:#f8fafd">
       @if ($formulir->foto_latar_merah)
         <p class="text-[12px] text-slate-500 mt-1.5">Foto sudah tersimpan — unggah baru untuk mengganti. <a href="{{ $formulir->foto_url }}" target="_blank" class="text-navy font-semibold underline">Lihat foto</a></p>
       @else
-        <p class="text-[12px] text-slate-500 mt-1.5">Foto formal siswa dengan <b class="text-navy">latar belakang merah</b>. Boleh disimpan draf dulu bila foto belum siap.</p>
+        <p class="text-[12px] text-slate-500 mt-1.5">Hanya <b class="text-navy">foto calon murid</b> yang diperlukan (latar belakang merah) — foto orang tua/wali tidak perlu. Boleh disimpan draf dulu bila foto belum siap.</p>
       @endif
     </div>
     <div class="md:col-span-2 flex flex-wrap gap-3 items-center">
@@ -135,7 +203,7 @@
 </x-seksi>
 @endif
 
-<x-seksi judul="Biodata Lengkap Siswa">
+<x-seksi judul="Biodata Lengkap Siswa" id="biodata">
   @if (session('sukses'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-[13.5px] mb-5">{{ session('sukses') }}</div>
   @endif
