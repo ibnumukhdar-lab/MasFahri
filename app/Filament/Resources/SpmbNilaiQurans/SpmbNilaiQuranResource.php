@@ -28,13 +28,15 @@ class SpmbNilaiQuranResource extends Resource
 
     protected static ?string $slug = 'nilai-quran';
 
-    protected static ?string $navigationLabel = "Nilai Baca Tulis Al-Qur'an";
+    protected static ?string $navigationLabel = 'Nilai BTQ';
 
     protected static ?string $modelLabel = 'Nilai baca tulis';
 
     protected static ?string $pluralModelLabel = "Nilai baca tulis Al-Qur'an";
 
-    protected static string | UnitEnum | null $navigationGroup = 'SPMB & Alumni';
+    protected static string | UnitEnum | null $navigationGroup = 'Penerimaan SPMB';
+
+    protected static ?int $navigationSort = 5;
 
     public static function form(Schema $schema): Schema
     {

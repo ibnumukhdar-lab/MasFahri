@@ -48,9 +48,10 @@ class KelolaPanelProvider extends PanelProvider
                 . '}' . '.fi-fo-file-upload .filepond--root{min-height:96px}' . '.fi-fo-file-upload .filepond--drop-label{font-size:13.5px;font-weight:600;color:#1f3a5f;text-align:center}' . '.fi-fo-file-upload .filepond--drop-label label::after{content:" \\1F4F7"}' . '</style>'
             ))
             ->navigationGroups([
-                'Konten',
-                'SPMB & Alumni',
-                'Pengaturan',
+                'Penerimaan SPMB',
+                'Konten Situs',
+                'Alumni',
+                'Pengguna',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

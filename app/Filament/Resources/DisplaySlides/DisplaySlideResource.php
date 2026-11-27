@@ -33,7 +33,9 @@ class DisplaySlideResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Slide display';
 
-    protected static string | UnitEnum | null $navigationGroup = 'Konten';
+    protected static string | UnitEnum | null $navigationGroup = 'Konten Situs';
+
+    protected static ?int $navigationSort = 8;
 
     public static function getNavigationBadge(): ?string
     {

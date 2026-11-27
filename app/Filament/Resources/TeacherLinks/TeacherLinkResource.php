@@ -23,7 +23,7 @@ class TeacherLinkResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLink;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Pengaturan';
+    protected static string|UnitEnum|null $navigationGroup = 'Konten Situs';
 
     protected static ?string $navigationLabel = 'Tautan Guru';
 
@@ -31,7 +31,7 @@ class TeacherLinkResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Tautan Guru';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 7;
 
     protected static ?string $recordTitleAttribute = 'judul';
 

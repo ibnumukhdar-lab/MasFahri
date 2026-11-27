@@ -23,7 +23,7 @@ class RegistrationResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SPMB & Alumni';
+    protected static string|UnitEnum|null $navigationGroup = 'Penerimaan SPMB';
 
     protected static ?string $navigationLabel = 'Pendaftaran SPMB';
 

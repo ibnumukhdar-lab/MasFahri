@@ -23,7 +23,7 @@ class PostResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedNewspaper;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Konten';
+    protected static string|UnitEnum|null $navigationGroup = 'Konten Situs';
 
     protected static ?string $navigationLabel = 'Postingan';
 
@@ -31,7 +31,7 @@ class PostResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Postingan';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'judul';
 

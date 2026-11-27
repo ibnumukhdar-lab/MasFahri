@@ -23,7 +23,7 @@ class GraduateResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SPMB & Alumni';
+    protected static string|UnitEnum|null $navigationGroup = 'Alumni';
 
     protected static ?string $navigationLabel = 'Kelulusan';
 

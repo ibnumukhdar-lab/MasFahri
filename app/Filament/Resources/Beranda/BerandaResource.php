@@ -22,7 +22,7 @@ class BerandaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home-modern';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Konten';
+    protected static string|UnitEnum|null $navigationGroup = 'Konten Situs';
 
     protected static ?string $navigationLabel = 'Halaman Beranda';
 
@@ -30,7 +30,7 @@ class BerandaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Bagian Beranda';
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'judul';
 

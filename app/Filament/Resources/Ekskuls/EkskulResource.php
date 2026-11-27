@@ -23,7 +23,7 @@ class EkskulResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTrophy;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Konten';
+    protected static string|UnitEnum|null $navigationGroup = 'Konten Situs';
 
     protected static ?string $navigationLabel = 'Ekstrakurikuler';
 
@@ -31,7 +31,7 @@ class EkskulResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Ekstrakurikuler';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $recordTitleAttribute = 'nama';
 

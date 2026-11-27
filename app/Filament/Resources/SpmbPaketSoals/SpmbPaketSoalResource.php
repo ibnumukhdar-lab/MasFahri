@@ -33,7 +33,9 @@ class SpmbPaketSoalResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Paket soal CBT';
 
-    protected static string | UnitEnum | null $navigationGroup = 'SPMB & Alumni';
+    protected static string | UnitEnum | null $navigationGroup = 'Penerimaan SPMB';
+
+    protected static ?int $navigationSort = 2;
 
     public static function form(Schema $schema): Schema
     {

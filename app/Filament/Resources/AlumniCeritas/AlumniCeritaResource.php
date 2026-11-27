@@ -23,7 +23,7 @@ class AlumniCeritaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeftRight;
 
-    protected static string|UnitEnum|null $navigationGroup = 'SPMB & Alumni';
+    protected static string|UnitEnum|null $navigationGroup = 'Alumni';
 
     protected static ?string $navigationLabel = 'Cerita Alumni';
 
@@ -31,7 +31,7 @@ class AlumniCeritaResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Cerita alumni';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'nama';
 

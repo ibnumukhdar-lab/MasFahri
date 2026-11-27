@@ -24,7 +24,7 @@ class GalleryAlbumResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Konten';
+    protected static string|UnitEnum|null $navigationGroup = 'Konten Situs';
 
     protected static ?string $navigationLabel = 'Galeri';
 
@@ -32,7 +32,7 @@ class GalleryAlbumResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Galeri';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $recordTitleAttribute = 'judul';
 

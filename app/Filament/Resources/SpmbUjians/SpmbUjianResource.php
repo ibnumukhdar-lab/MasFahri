@@ -23,13 +23,15 @@ class SpmbUjianResource extends Resource
 
     protected static ?string $slug = 'hasil-tes-cbt';
 
-    protected static ?string $navigationLabel = 'Hasil Tes CBT';
+    protected static ?string $navigationLabel = 'Log Pengerjaan CBT';
 
     protected static ?string $modelLabel = 'Hasil tes';
 
     protected static ?string $pluralModelLabel = 'Hasil tes CBT';
 
-    protected static string | UnitEnum | null $navigationGroup = 'SPMB & Alumni';
+    protected static string | UnitEnum | null $navigationGroup = 'Penerimaan SPMB';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

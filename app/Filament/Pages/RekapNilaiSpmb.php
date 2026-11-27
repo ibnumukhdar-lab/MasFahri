@@ -27,9 +27,9 @@ class RekapNilaiSpmb extends Page
 
     protected static ?string $slug = 'rekap-nilai-spmb';
 
-    protected static string | UnitEnum | null $navigationGroup = 'SPMB & Alumni';
+    protected static string | UnitEnum | null $navigationGroup = 'Penerimaan SPMB';
 
-    protected static ?int $navigationSort = 0;
+    protected static ?int $navigationSort = 4;
 
     protected string $view = 'filament.pages.rekap-nilai-spmb';
 
