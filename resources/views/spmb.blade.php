@@ -178,8 +178,11 @@
           <p class="text-slate-600 text-[13.5px] leading-relaxed mb-3">Untuk calon murid berprestasi akademik/non-akademik yang terbukti — potongan sesuai tingkat juara:</p>
           <div class="space-y-1.5">
             <div class="sp-harga"><span>Juara 1 tingkat <b>kabupaten/kota</b></span><b>Rp 250.000</b></div>
-            <div class="sp-harga"><span>Juara 1–2 tingkat <b>provinsi</b></span><b>Rp 500.000</b></div>
-            <div class="sp-harga" style="background:#fff7d6"><span>Juara 1–3 tingkat <b>nasional</b></span><b>Rp 1.000.000</b></div>
+            <div class="sp-harga"><span>Juara 1 tingkat <b>provinsi</b></span><b>Rp 500.000</b></div>
+            <div class="sp-harga"><span>Juara 2 tingkat <b>provinsi</b></span><b>Rp 250.000</b></div>
+            <div class="sp-harga" style="background:#fff7d6"><span>Juara 1 tingkat <b>nasional</b></span><b>Rp 1.000.000</b></div>
+            <div class="sp-harga"><span>Juara 2 tingkat <b>nasional</b></span><b>Rp 750.000</b></div>
+            <div class="sp-harga"><span>Juara 3 tingkat <b>nasional</b></span><b>Rp 500.000</b></div>
           </div>
         </div>
       </div>
