@@ -51,6 +51,26 @@ class SpmbPaketSoalResource extends Resource
                     ->placeholder('Muncul di halaman masuk tes siswa.')
                     ->columnSpanFull(),
 
+                TextInput::make('mata_pelajaran')
+                    ->label('Mata pelajaran / jenis tes')
+                    ->maxLength(80)
+                    ->placeholder('mis. Matematika'),
+
+                TextInput::make('urutan')
+                    ->label('Urutan tampil')
+                    ->numeric()->default(0)
+                    ->helperText('Paket dengan angka kecil tampil lebih dulu di daftar siswa.'),
+
+                TextInput::make('kkm')
+                    ->label('KKM (opsional)')
+                    ->numeric()->minValue(0)->maxValue(100)
+                    ->helperText('Ambang lulus paket ini. Kosongkan bila belum ditetapkan.'),
+
+                Toggle::make('wajib')
+                    ->label('Wajib diselesaikan')
+                    ->default(true)
+                    ->helperText('Paket wajib ikut dihitung dalam syarat "semua paket tuntas" dan nilai akhir.'),
+
                 TextInput::make('durasi_menit')
                     ->label('Durasi (menit)')
                     ->numeric()->minValue(1)->maxValue(300)
@@ -115,9 +135,26 @@ class SpmbPaketSoalResource extends Resource
                     ->searchable()
                     ->wrap(),
 
+                TextColumn::make('mata_pelajaran')
+                    ->label('Mata pelajaran')
+                    ->placeholder('-')
+                    ->searchable(),
+
+                TextColumn::make('urutan')
+                    ->label('Urutan')
+                    ->sortable(),
+
                 TextColumn::make('soal_count')
                     ->label('Soal')
                     ->suffix(' butir'),
+
+                TextColumn::make('kkm')
+                    ->label('KKM')
+                    ->placeholder('-'),
+
+                IconColumn::make('wajib')
+                    ->label('Wajib')
+                    ->boolean(),
 
                 TextColumn::make('durasi_menit')
                     ->label('Durasi')

@@ -215,7 +215,7 @@
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
               },
-              body: JSON.stringify({ jawaban: this.answers, pelanggaran: this.violations, otomatis }),
+              body: JSON.stringify({ jawaban: this.answers, pelanggaran: this.violations, otomatis, paket_id: {{ $paket->id }} }),
             });
 
             const data = await res.json().catch(() => ({}));

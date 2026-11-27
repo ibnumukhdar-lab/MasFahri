@@ -10,12 +10,13 @@ class SpmbPaketSoal extends Model
 {
     protected $table = 'spmb_paket_soal';
 
-    protected $fillable = ['judul', 'deskripsi', 'durasi_menit', 'mulai_pada', 'selesai_pada', 'aktif'];
+    protected $fillable = ['judul', 'mata_pelajaran', 'deskripsi', 'durasi_menit', 'urutan', 'wajib', 'kkm', 'mulai_pada', 'selesai_pada', 'aktif'];
 
     protected $casts = [
         'mulai_pada' => 'datetime',
         'selesai_pada' => 'datetime',
         'aktif' => 'boolean',
+        'wajib' => 'boolean',
     ];
 
     public function soal(): HasMany
@@ -31,12 +32,31 @@ class SpmbPaketSoal extends Model
     /** Paket yang boleh dikerjakan sekarang (aktif + dalam jadwal). */
     public static function terbuka(): ?self
     {
+        return static::tersedia()->first();
+    }
+
+    /** Apakah paket ini sedang dalam jendela jadwal & aktif — dipakai untuk gerbang CBT. */
+    public function dalamJadwal(): bool
+    {
+        $kini = now();
+
+        return (bool) $this->aktif
+            && ($this->mulai_pada === null || $this->mulai_pada <= $kini)
+            && ($this->selesai_pada === null || $this->selesai_pada >= $kini);
+    }
+
+    /** Semua paket yang bisa dikerjakan sekarang (satu hari bisa beberapa mata pelajaran). */
+    public static function tersedia(): \Illuminate\Support\Collection
+    {
+        $kini = now();
+
         return static::query()
             ->where('aktif', true)
-            ->where(fn ($q) => $q->whereNull('mulai_pada')->orWhere('mulai_pada', '<=', now()))
-            ->where(fn ($q) => $q->whereNull('selesai_pada')->orWhere('selesai_pada', '>=', now()))
-            ->latest('id')
-            ->first();
+            ->where(fn ($q) => $q->whereNull('mulai_pada')->orWhere('mulai_pada', '<=', $kini))
+            ->where(fn ($q) => $q->whereNull('selesai_pada')->orWhere('selesai_pada', '>=', $kini))
+            ->orderBy('urutan')
+            ->orderBy('id')
+            ->get();
     }
 
     public function getJadwalAttribute(): string

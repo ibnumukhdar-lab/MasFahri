@@ -91,11 +91,19 @@ class SpmbPendaftarController extends Controller
         }
         $registrasi->load('ujian');
 
+        $paketWajib = \App\Models\SpmbPaketSoal::query()->where('aktif', true)->where('wajib', true)->count();
+        $selesaiTes = $registrasi->ujian->where('status', 'selesai')->count();
+
         return view('spmb-dasbor', [
             'registrasi' => $registrasi,
             'biodata' => $registrasi->biodata()->firstOrCreate([]),
             'formulir' => $registrasi->formulir()->firstOrCreate([]),
-            'ujian' => $registrasi->ujian,
+            'ujian' => $registrasi->ujian->first(),
+            'progresTes' => [
+                'selesai' => $selesaiTes,
+                'total' => $paketWajib,
+                'tuntas' => $paketWajib > 0 && $selesaiTes >= $paketWajib,
+            ],
         ]);
     }
 
@@ -306,11 +314,17 @@ class SpmbPendaftarController extends Controller
         return view('spmb-kartu', [
             'registrasi' => $registrasi,
             'kode' => $kode,
+            'paketList' => \App\Models\SpmbPaketSoal::query()
+                ->where('aktif', true)->where('wajib', true)
+                ->orderBy('urutan')->orderBy('id')->get(),
             'paket' => \App\Models\SpmbPaketSoal::terbuka(),
         ]);
     }
 
-    /** Pintu masuk CBT: hasil bila sudah selesai, atau form kode tes. */
+    /**
+     * Pintu masuk CBT. Satu hari bisa beberapa paket (per mata pelajaran);
+     * siswa melihat SEMUA paket wajib + progres, dan harus menuntaskan semuanya.
+     */
     public function tes(Request $request)
     {
         $registrasi = $this->pendaftarSesi($request);
@@ -318,16 +332,42 @@ class SpmbPendaftarController extends Controller
             return redirect()->route('spmb.pendaftar.masuk');
         }
 
-        $ujian = $registrasi->ujian()->with('paket')->first();
+        $paketWajib = \App\Models\SpmbPaketSoal::query()
+            ->where('aktif', true)
+            ->where('wajib', true)
+            ->orderBy('urutan')->orderBy('id')
+            ->get();
+
+        $ujian = $registrasi->ujian()->get()->keyBy('paket_id');
+
+        $daftar = $paketWajib->map(function ($p) use ($ujian) {
+            $u = $ujian[$p->id] ?? null;
+
+            return [
+                'paket' => $p,
+                'ujian' => $u,
+                'terbuka' => $p->dalamJadwal(),
+                'selesai' => $u !== null && $u->status === 'selesai',
+                'sedang' => $u !== null && $u->status === 'sedang',
+            ];
+        });
+
+        $jumlah = $daftar->count();
+        $selesai = $daftar->where('selesai', true)->count();
+        $skor = $daftar->where('selesai', true)->map(fn ($d) => (int) $d['ujian']->skor)->values();
 
         return view('spmb-tes', [
             'registrasi' => $registrasi,
-            'ujian' => $ujian,
-            'paket' => $ujian?->paket ?: \App\Models\SpmbPaketSoal::terbuka(),
+            'daftar' => $daftar,
+            'jumlahPaket' => $jumlah,
+            'selesaiPaket' => $selesai,
+            'tuntas' => $jumlah > 0 && $selesai === $jumlah,
+            'rataRata' => $skor->count() ? (int) round($skor->avg()) : null,
+            'adaPaketAktif' => $jumlah > 0,
         ]);
     }
 
-    /** Cocokkan kode tes → buat/lanjutkan percobaan ujian. */
+    /** Cocokkan kode tes → buat/lanjutkan percobaan untuk PAKET yang dipilih. */
     public function tesMulai(Request $request)
     {
         $registrasi = $this->pendaftarSesi($request);
@@ -336,16 +376,29 @@ class SpmbPendaftarController extends Controller
         }
 
         $data = $request->validate(
-            ['kode' => ['required', 'string', 'max:12']],
-            ['kode.required' => 'Kode tes wajib diisi — lihat kartu tes Anda.']
+            [
+                'kode' => ['required', 'string', 'max:12'],
+                'paket_id' => ['required', 'integer'],
+            ],
+            [
+                'kode.required' => 'Kode tes wajib diisi — lihat kartu tes Anda.',
+                'paket_id.required' => 'Pilih paket tes yang ingin dikerjakan.',
+            ]
         );
 
-        $paket = \App\Models\SpmbPaketSoal::terbuka();
+        $paket = \App\Models\SpmbPaketSoal::query()
+            ->where('aktif', true)
+            ->whereKey($data['paket_id'])
+            ->first();
+
         if (! $paket) {
-            return back()->withErrors(['kode' => 'Tes belum dibuka oleh panitia. Coba lagi sesuai jadwal di kartu tes.']);
+            return back()->withErrors(['kode' => 'Paket tes tidak ditemukan atau sudah ditutup panitia.']);
+        }
+        if (! $paket->dalamJadwal()) {
+            return back()->withErrors(['kode' => 'Paket "'.$paket->judul.'" belum dibuka. Jadwal: '.$paket->jadwal.'.']);
         }
         if ($paket->soal()->count() === 0) {
-            return back()->withErrors(['kode' => 'Soal tes belum disiapkan panitia.']);
+            return back()->withErrors(['kode' => 'Soal paket "'.$paket->judul.'" belum disiapkan panitia.']);
         }
         if ($registrasi->status !== 'tes' && ! $registrasi->ujian()->exists()) {
             return back()->withErrors(['kode' => 'Akun Anda belum masuk tahap tes. Hubungi panitia.']);
@@ -360,17 +413,18 @@ class SpmbPendaftarController extends Controller
         );
 
         if ($ujian->status === 'selesai') {
-            return redirect()->route('spmb.pendaftar.tes');
+            return redirect()->route('spmb.pendaftar.tes')
+                ->withErrors(['kode' => 'Paket "'.$paket->judul.'" sudah Anda selesaikan.']);
         }
 
         if ($ujian->sisa_detik <= 0) {
             $this->akhiriDanNilai($ujian);
 
             return redirect()->route('spmb.pendaftar.tes')
-                ->withErrors(['kode' => 'Waktu tes sudah habis.']);
+                ->withErrors(['kode' => 'Waktu tes paket "'.$paket->judul.'" sudah habis.']);
         }
 
-        return redirect()->route('spmb.pendaftar.kerjakan');
+        return redirect()->route('spmb.pendaftar.kerjakan', ['paket' => $paket->id]);
     }
 
     /** Halaman pengerjaan CBT (penuh layar). */
@@ -381,8 +435,19 @@ class SpmbPendaftarController extends Controller
             return redirect()->route('spmb.pendaftar.masuk');
         }
 
-        $ujian = $registrasi->ujian()->with('paket.soal')->first();
-        if (! $ujian || $ujian->status !== 'sedang') {
+        $paketId = (int) $request->query('paket');
+
+        $ujian = $registrasi->ujian()->with('paket.soal')
+            ->when($paketId > 0, fn ($q) => $q->where('paket_id', $paketId))
+            ->where('status', 'sedang')
+            ->first();
+
+        // Tautan lama tanpa ?paket → lanjutkan paket yang sedang berjalan.
+        if (! $ujian) {
+            $ujian = $registrasi->ujian()->with('paket.soal')->where('status', 'sedang')->first();
+        }
+
+        if (! $ujian) {
             return redirect()->route('spmb.pendaftar.tes');
         }
 
@@ -416,7 +481,19 @@ class SpmbPendaftarController extends Controller
             return response()->json(['galat' => 'Sesi berakhir.'], 401);
         }
 
-        $ujian = $registrasi->ujian()->with('paket.soal')->first();
+        $paketId = (int) ($request->input('paket_id') ?: $request->query('paket'));
+
+        // Cari percobaan paket yang dimaksud (tanpa saringan status, supaya kiriman
+        // ganda tetap dibalas skor — bukan "tidak ditemukan").
+        $ujian = $registrasi->ujian()->with('paket.soal')
+            ->when($paketId > 0, fn ($q) => $q->where('paket_id', $paketId))
+            ->latest('id')
+            ->first();
+
+        if (! $ujian) {
+            $ujian = $registrasi->ujian()->with('paket.soal')->latest('id')->first();
+        }
+
         if (! $ujian) {
             return response()->json(['galat' => 'Ujian tidak ditemukan.'], 404);
         }

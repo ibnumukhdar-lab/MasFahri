@@ -197,13 +197,20 @@
         <p class="sf-eyebrow" style="color:#7c8ba1">Kode login tes (CBT)</p>
         <p class="text-[24px] font-black text-navy mt-1" style="font-family:'Courier New',monospace;letter-spacing:.24em">{{ $registrasi->kode_tes ?: '—' }}</p>
       </div>
-      <span class="chip">{{ $ujian ? ($ujian->status === 'selesai' ? 'Tes: selesai — skor '.$ujian->skor : 'Tes: sedang berjalan') : 'Tes: belum dikerjakan' }}</span>
+      <span class="chip">
+        @if (($progresTes['total'] ?? 0) > 0)
+          Tes: {{ $progresTes['selesai'] }} / {{ $progresTes['total'] }} paket selesai
+          @if (! empty($progresTes['tuntas'])) — tuntas @endif
+        @else
+          Tes: belum ada paket dibuka
+        @endif
+      </span>
     </div>
     <div class="p-6 md:p-7">
       <p class="text-[13px] text-slate-600 mb-4">Kode ini juga tercetak di kartu tes. Simpan baik-baik — tanpa kode ini tes tidak bisa dibuka.</p>
       <div class="sf-galgal">
         <a href="{{ route('spmb.pendaftar.kartu') }}" class="sf-tombol sf-tombol-draf">Lihat Kartu Tes (Cetak)</a>
-        <a href="{{ route('spmb.pendaftar.tes') }}" class="sf-tombol sf-tombol-utama">{{ $ujian?->status === 'selesai' ? 'Lihat Hasil Tes' : 'Buka Tes CBT' }}</a>
+        <a href="{{ route('spmb.pendaftar.tes') }}" class="sf-tombol sf-tombol-utama">{{ ! empty($progresTes['tuntas']) ? 'Lihat Hasil Tes' : (($progresTes['selesai'] ?? 0) > 0 ? 'Lanjutkan Tes CBT' : 'Buka Tes CBT') }}</a>
       </div>
     </div>
   </div>

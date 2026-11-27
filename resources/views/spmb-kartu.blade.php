@@ -26,7 +26,16 @@
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Nomor pendaftaran</td><td class="py-2.5 font-semibold">{{ $registrasi->nomor }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Nama wali</td><td class="py-2.5">{{ $registrasi->nama_wali }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Jalur</td><td class="py-2.5">{{ $registrasi->minat_program ?: '-' }}</td></tr>
-      <tr><td class="py-2.5 pr-4 text-slate-500">Jadwal tes</td><td class="py-2.5">{{ $paket?->jadwal ?? 'Menyusul dari panitia' }}</td></tr>
+      <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Paket &amp; jadwal tes</td><td class="py-2.5">
+        @forelse ($paketList as $p)
+          <div class="flex flex-wrap gap-x-2">
+            <b>{{ $p->judul }}</b>
+            <span class="text-slate-500">· {{ $p->jadwal }}</span>
+          </div>
+        @empty
+          <span class="text-slate-500">Menyusul dari panitia</span>
+        @endforelse
+      </td></tr>
     </tbody></table>
 
     <div class="bg-navy rounded-2xl px-6 py-5 text-center mb-5">
