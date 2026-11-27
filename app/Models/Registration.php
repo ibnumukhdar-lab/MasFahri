@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class Registration extends Model
 {
     protected $fillable = ['nomor', 'kode_tes', 'tahun_ajaran', 'nama_wali', 'nama_siswa', 'jenis_kelamin', 'sekolah_asal', 'minat_program', 'whatsapp', 'email', 'catatan', 'status', 'ip', 'pesan_admin', 'bukti_transfer'];
-    public const STATUS = ['baru' => 'Baru', 'dihubungi' => 'Sudah dihubungi', 'lengkapi_formulir' => 'Lengkapi formulir', 'tes' => 'Tahap tes', 'diterima' => 'Diterima', 'ditolak' => 'Tidak diterima'];
+    public const STATUS = ['baru' => 'Belum terverifikasi', 'dihubungi' => 'Sudah dihubungi', 'lengkapi_formulir' => 'Lengkapi formulir', 'tes' => 'Tahap tes', 'diterima' => 'Diterima', 'ditolak' => 'Tidak diterima'];
 
     /** URL bukti transfer (disk media, folder spmb-bukti). */
     public function getBuktiTransferUrlAttribute(): ?string

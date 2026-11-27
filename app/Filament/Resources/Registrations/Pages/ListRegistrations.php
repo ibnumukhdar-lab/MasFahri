@@ -25,7 +25,7 @@ class ListRegistrations extends ListRecords
             'semua' => Tab::make('Semua')
                 ->badge(fn (): int => Registration::count()),
 
-            'baru' => Tab::make('Baru')
+            'baru' => Tab::make('Belum terverifikasi')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'baru'))
                 ->badge(fn (): int => Registration::where('status', 'baru')->count())
                 ->badgeColor('warning'),
