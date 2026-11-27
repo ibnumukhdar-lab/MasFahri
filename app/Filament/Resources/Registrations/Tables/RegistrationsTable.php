@@ -89,6 +89,19 @@ class RegistrationsTable
                         ])
                         ->schema(RegistrationForm::statusSchema())
                         ->action(function (Registration $record, array $data): void {
+                            // Jangan izinkan lompat ke Tahap tes sebelum formulir diserahkan:
+                            // formulir-lah yang menjadi sumber data resmi pendaftar.
+                            if ($data['status'] === 'tes'
+                                && ! $record->formulir()->whereNotNull('terkirim_pada')->exists()) {
+                                Notification::make()
+                                    ->title('Formulir belum diserahkan')
+                                    ->body('Status TIDAK diubah. Minta pendaftar menyerahkan formulir dulu; status akan berpindah otomatis ke Tahap tes.')
+                                    ->warning()
+                                    ->send();
+
+                                return;
+                            }
+
                             $record->update([
                                 'status' => $data['status'],
                                 'pesan_admin' => $data['pesan_admin'] ?? null,

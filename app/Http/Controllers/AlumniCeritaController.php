@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AlumniCerita;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -35,7 +36,51 @@ class AlumniCeritaController extends Controller
         ]);
     }
 
-    public function form()
+/**
+ * Konversi gambar transparan (PNG/WebP) ke JPEG berlatar putih — foto "hitam" dari HP alumni
+ * disebabkan transparansi JPEG menjadi hitam. Gambar 100% transparan ditolak (tidak ada isinya).
+ */
+private function konversiFoto(string $path): string
+{
+    // Aturan pemilik (26 Nov): sesederhana mungkin — crop 1:1 dari tengah,
+    // transparan jadi putih, simpan JPEG. Tanpa deteksi isi, tanpa penolakan.
+    $info = @getimagesize($path);
+    if (! $info) {
+        @unlink($path);
+
+        throw ValidationException::withMessages(['foto' => 'Berkas bukan gambar yang dikenali. Gunakan foto JPG.']);
+    }
+
+    $gambar = @imagecreatefromstring(file_get_contents($path));
+    if (! $gambar) {
+        @unlink($path);
+
+        throw ValidationException::withMessages(['foto' => 'Foto tidak bisa dibuka. Coba ambil ulang fotonya.']);
+    }
+
+    $w = imagesx($gambar);
+    $h = imagesy($gambar);
+
+    // --- CROP TENGAH 1:1 ---
+    $sisi = min($w, $h);
+    $cx = (int) floor(($w - $sisi) / 2);
+    $cy = (int) floor(($h - $sisi) / 2);
+
+    // batas 1200px supaya berkas ringan di hosting
+    $sisi = min($sisi, 1200);
+
+    $hasil = imagecreatetruecolor($sisi, $sisi);
+    $putih = imagecolorallocate($hasil, 255, 255, 255);
+    imagefill($hasil, 0, 0, $putih);          // transparan → putih
+    imagecopyresampled($hasil, $gambar, 0, 0, $cx, $cy, $sisi, $sisi, $sisi, $sisi);
+    imagedestroy($gambar);
+
+    imagejpeg($hasil, $path, 88);             // tulis ulang sebagai JPEG di path yang sama
+    imagedestroy($hasil);
+
+    return 'jpg';
+}
+public function form()
     {
         return view('alumni-cerita-form');
     }
@@ -53,7 +98,7 @@ class AlumniCeritaController extends Controller
             'pesan' => ['required', 'string', 'min:20', 'max:1500'],
             'instagram' => ['nullable', 'string', 'max:80'],
             'izin_tampil' => ['accepted'],
-            'foto' => ['required', 'image', 'max:4096'],
+            'foto' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
         ], [
             'nama.required' => 'Nama wajib diisi.',
             'wa.required' => 'Nomor WhatsApp wajib diisi.',
@@ -63,12 +108,21 @@ class AlumniCeritaController extends Controller
             'izin_tampil.accepted' => 'Centang dulu persetujuan tampil di situs.',
             'foto.required' => 'Foto diri wajib diunggah.',
             'foto.image' => 'Berkas harus berupa gambar (JPG/PNG).',
-            'foto.max' => 'Ukuran foto maksimal 4 MB.',
+            'foto.max' => 'Ukuran foto maksimal 10 MB.',
         ]);
 
         $berkas = $request->file('foto');
-        $nama = 'alumni-' . Str::random(6) . '.' . $berkas->getClientOriginalExtension();
+        $ekstensi = strtolower($berkas->getClientOriginalExtension() ?: 'jpg');
+        $nama = 'alumni-' . Str::random(6) . '.' . $ekstensi;
         $berkas->move('/home/u8151173/public_html/smaitarafah.sch.id/media/unggahan', $nama);
+        $pathTersimpan = '/home/u8151173/public_html/smaitarafah.sch.id/media/unggahan/' . $nama;
+        $ekstensiBaru = $this->konversiFoto($pathTersimpan);
+        if ($ekstensiBaru !== $ekstensi) {
+            // PNG/WebP → JPEG: ganti nama berkas mengikuti ekstensi baru
+            $namaBaru = preg_replace('/\.' . preg_quote($ekstensi, '/') . '$/', '.' . $ekstensiBaru, $nama);
+            rename($pathTersimpan, '/home/u8151173/public_html/smaitarafah.sch.id/media/unggahan/' . $namaBaru);
+            $nama = $namaBaru;
+        }
 
         $token = Str::random(32);
         AlumniCerita::create([
@@ -132,7 +186,7 @@ class AlumniCeritaController extends Controller
             'pesan' => ['required', 'string', 'min:20', 'max:1500'],
             'instagram' => ['nullable', 'string', 'max:80'],
             'izin_tampil' => ['accepted'],
-            'foto' => ['nullable', 'image', 'max:4096'],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:10240'],
         ]);
 
         $isi = [
@@ -152,8 +206,16 @@ class AlumniCeritaController extends Controller
 
         if ($request->hasFile('foto')) {
             $berkas = $request->file('foto');
-            $nama = 'alumni-' . Str::random(6) . '.' . $berkas->getClientOriginalExtension();
+            $ekstensi = strtolower($berkas->getClientOriginalExtension() ?: 'jpg');
+            $nama = 'alumni-' . Str::random(6) . '.' . $ekstensi;
             $berkas->move('/home/u8151173/public_html/smaitarafah.sch.id/media/unggahan', $nama);
+            $pathTersimpan = '/home/u8151173/public_html/smaitarafah.sch.id/media/unggahan/' . $nama;
+            $ekstensiBaru = $this->konversiFoto($pathTersimpan);
+            if ($ekstensiBaru !== $ekstensi) {
+                $namaBaru = preg_replace('/\.' . preg_quote($ekstensi, '/') . '$/', '.' . $ekstensiBaru, $nama);
+                rename($pathTersimpan, '/home/u8151173/public_html/smaitarafah.sch.id/media/unggahan/' . $namaBaru);
+                $nama = $namaBaru;
+            }
             $isi['foto'] = 'unggahan/' . $nama;
         }
 

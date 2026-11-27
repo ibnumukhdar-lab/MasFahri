@@ -21,7 +21,8 @@
 </x-seksi>
 @endif
 
-@if ($registrasi->status === 'lengkapi_formulir' || $formulir->terkirim_pada)
+@if ($formulir->terkirim_pada || in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir', 'tes'], true))
+<span id="formulir"></span>
 <x-seksi judul="Formulir Pendaftaran Murid Baru">
   @if (session('sukses'))
     <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-[13.5px] mb-5">{{ session('sukses') }}</div>
@@ -32,7 +33,7 @@
     </div>
   @endif
 
-  @if ($registrasi->status === 'lengkapi_formulir' && ! $formulir->terkirim_pada)
+  @if (! $formulir->terkirim_pada)
     <div class="rounded-xl px-5 py-4 mb-5 text-[13.5px] leading-relaxed" style="background:#fffbe8;border:1px solid #f2e3ac;color:#5b4a00">
       <b>Lengkapi Formulir Pendaftaran Murid Baru</b> seperti formulir resmi sekolah — isi Data Pribadi dan Data Orang Tua/Wali, lalu unggah <b>pas foto latar merah</b>.
       Belum siap semua? Tekan <b>Simpan Data</b> dulu (draf) — misalnya bila perlu meninggalkan halaman untuk memproses foto. Saat sudah lengkap, tekan <b>Simpan &amp; Serahkan</b>: semua kolom wajib terisi (tidak boleh kosong) dan status Anda <b>otomatis masuk Tahap tes</b>.

@@ -49,7 +49,12 @@ class SpmbPendaftarController extends Controller
             return redirect()->route('spmb.pendaftar.kena')->with('nomor', $registrasi->nomor);
         }
 
-        return redirect()->route('spmb.pendaftar.dasbor');
+        // Bila formulir belum diserahkan, langsung antar ke bagian formulir (bukan beranda dasbor).
+        $formulir = $registrasi->formulir()->first();
+        $perluFormulir = in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir'], true)
+            && ! $formulir?->terkirim_pada;
+
+        return redirect()->to(route('spmb.pendaftar.dasbor') . ($perluFormulir ? '#formulir' : ''));
     }
 
     public function logout(Request $request)
@@ -274,7 +279,7 @@ class SpmbPendaftarController extends Controller
         ], fn ($v) => $v !== null && $v !== ''));
 
         // Formulir lengkap → otomatis pindah ke tahap tes + kode tes terbit.
-        if ($registrasi->status === 'lengkapi_formulir') {
+        if (in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir'], true)) {
             $registrasi->update(['status' => 'tes']);
             $registrasi->pastikanKodeTes();
         }
