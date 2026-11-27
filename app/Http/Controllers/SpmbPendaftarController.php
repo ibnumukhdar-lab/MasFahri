@@ -270,6 +270,7 @@ class SpmbPendaftarController extends Controller
             'nisn' => $data['nisn'],
             'tempat_lahir' => $data['tempat_lahir'],
             'tanggal_lahir' => $data['tanggal_lahir'],
+            'alamat' => trim($data['alamat_jalan'] . ', Kel. ' . $data['kelurahan'] . ', Kec. ' . $data['kecamatan']),
             'anak_ke' => $data['anak_ke'],
             'jumlah_saudara' => $data['dari_bersaudara'],
             'nama_ayah' => $data['ayah_nama'],

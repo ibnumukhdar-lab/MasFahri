@@ -6,22 +6,19 @@
 @php
   $kolPribadi = ['nama_panggilan', 'nisn', 'nik', 'golongan_darah', 'tempat_lahir', 'tanggal_lahir', 'suku_bangsa', 'anak_ke', 'dari_bersaudara', 'alamat_jalan', 'kelurahan', 'kecamatan'];
   $kolOrtu = ['ayah_nama', 'ayah_ttl', 'ayah_pendidikan', 'ayah_pekerjaan', 'ayah_penghasilan', 'ayah_telepon', 'ibu_nama', 'ibu_ttl', 'ibu_pendidikan', 'ibu_pekerjaan', 'ibu_penghasilan', 'ibu_telepon'];
-  $kolBiodata = ['nik', 'nisn', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'anak_ke', 'jumlah_saudara', 'nama_ayah', 'pekerjaan_ayah', 'nama_ibu', 'pekerjaan_ibu', 'telepon_rumah', 'hobi'];
   $isiPribadi = collect($kolPribadi)->filter(fn ($k) => filled($formulir->{$k}))->count();
   $isiOrtu = collect($kolOrtu)->filter(fn ($k) => filled($formulir->{$k}))->count();
-  $isiBiodata = collect($kolBiodata)->filter(fn ($k) => filled($biodata->{$k}))->count();
   $adaFoto = filled($formulir->foto_latar_merah);
   $bobotForm = count($kolPribadi) + count($kolOrtu) + 1;
   $isiForm = $isiPribadi + $isiOrtu + ($adaFoto ? 1 : 0);
-  $persenTotal = (int) round(100 * ($isiForm + $isiBiodata) / ($bobotForm + count($kolBiodata)));
+  $persenTotal = (int) round(100 * $isiForm / $bobotForm);
   $formulirTampil = $formulir->terkirim_pada || in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir', 'tes'], true);
   $statusTiles = [];
   if ($formulirTampil) {
-      $statusTiles[] = ['judul' => 'Data pribadi', 'ket' => 'Identitas calon murid', 'isi' => $isiPribadi, 'total' => count($kolPribadi), 'anchor' => '#data-pribadi'];
-      $statusTiles[] = ['judul' => 'Data orang tua', 'ket' => 'Ayah & ibu / wali', 'isi' => $isiOrtu, 'total' => count($kolOrtu), 'anchor' => '#data-orang-tua'];
+      $statusTiles[] = ['judul' => 'Biodata anak', 'ket' => 'Identitas calon murid', 'isi' => $isiPribadi, 'total' => count($kolPribadi), 'anchor' => '#data-pribadi'];
       $statusTiles[] = ['judul' => 'Foto anak', 'ket' => 'Latar merah — wajib', 'isi' => $adaFoto ? 1 : 0, 'total' => 1, 'anchor' => '#foto-anak'];
+      $statusTiles[] = ['judul' => 'Biodata orang tua', 'ket' => 'Ayah & ibu / wali', 'isi' => $isiOrtu, 'total' => count($kolOrtu), 'anchor' => '#data-orang-tua'];
   }
-  $statusTiles[] = ['judul' => 'Biodata siswa', 'ket' => 'Data pendukung sekolah', 'isi' => $isiBiodata, 'total' => count($kolBiodata), 'anchor' => '#biodata'];
 @endphp
 
 <section class="wrap pt-8">
@@ -33,13 +30,13 @@
       </div>
       <div class="text-right">
         <p class="text-[24px] font-black text-navy leading-none">{{ $persenTotal }}%</p>
-        <p class="text-[11.5px] text-slate-500">formulir + biodata</p>
+        <p class="text-[11.5px] text-slate-500">formulir pendaftaran</p>
       </div>
     </div>
     <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden my-4">
       <div class="h-full rounded-full" style="width:{{ $persenTotal }}%;background:linear-gradient(90deg,#1f3a5f 0%,#3d5987 100%)"></div>
     </div>
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
       @foreach ($statusTiles as $tile)
         @php $lengkap = $tile['isi'] >= $tile['total']; $persenTile = (int) round(100 * $tile['isi'] / $tile['total']); @endphp
         <a href="{{ $tile['anchor'] }}" class="block rounded-2xl p-3.5" style="border:1px solid {{ $lengkap ? '#bfe8cf' : '#e7eef6' }};background:{{ $lengkap ? '#f4fbf6' : '#fff' }}">
@@ -97,7 +94,7 @@
 
   @if (! $formulir->terkirim_pada)
     <div class="rounded-xl px-5 py-4 mb-5 text-[13.5px] leading-relaxed" style="background:#fffbe8;border:1px solid #f2e3ac;color:#5b4a00">
-      <b>Lengkapi Formulir Pendaftaran Murid Baru</b> seperti formulir resmi sekolah — isi Data Pribadi dan Data Orang Tua/Wali, lalu unggah <b>pas foto latar merah</b>.
+      <b>Lengkapi Formulir Pendaftaran Murid Baru</b> seperti formulir resmi sekolah — mulai dari <b>Biodata Lengkap Anak (dengan pas foto)</b>, lalu <b>Biodata Orang Tua/Wali</b>.
       Belum siap semua? Tekan <b>Simpan Data</b> dulu (draf) — misalnya bila perlu meninggalkan halaman untuk memproses foto. Saat sudah lengkap, tekan <b>Simpan &amp; Serahkan</b>: semua kolom wajib terisi (tidak boleh kosong) dan status Anda <b>otomatis masuk Tahap tes</b>.
     </div>
   @endif
@@ -124,9 +121,23 @@
   <form action="{{ route('spmb.pendaftar.formulir') }}" method="post" enctype="multipart/form-data" class="kartu p-6 md:p-8 grid md:grid-cols-2 gap-4 text-[13.5px]">
     @csrf
     <p id="data-pribadi" class="md:col-span-2 scroll-mt-24 flex items-center justify-between gap-3 text-[11.5px] font-bold uppercase tracking-wider text-slate-500 mb-0.5">
-      <span>I. Data Pribadi</span>
+      <span>1. Biodata Lengkap Anak (Siswa)</span>
       <span class="chip" style="text-transform:none;letter-spacing:0">{{ $isiPribadi }}/{{ count($kolPribadi) }} terisi</span>
     </p>
+
+    <div id="foto-anak" class="md:col-span-2 scroll-mt-24 rounded-2xl p-4" style="background:#f8fafd;border:1px dashed #c6d8ea">
+      <div class="flex flex-col sm:flex-row gap-4 items-start">
+        <div class="flex-none">
+          <img id="foto-pratinjau" src="{{ $formulir->foto_latar_merah ? $formulir->foto_url : '' }}" alt="Pratinjau pas foto anak" class="rounded-xl border object-cover" style="width:96px;height:128px;border-color:#dbe7f4;{{ $formulir->foto_latar_merah ? '' : 'display:none' }}">
+          <div id="foto-kosong" class="rounded-xl border grid place-items-center text-center" style="width:96px;height:128px;border-color:#dbe7f4;background:#fff;color:#94a3b8;font-size:10.5px;line-height:1.35;{{ $formulir->foto_latar_merah ? 'display:none' : '' }}">Belum ada<br>foto</div>
+        </div>
+        <div class="flex-1 min-w-0">
+          <label class="block mb-1.5 font-medium text-navy">Pas foto anak (latar merah) <span class="text-slate-400 font-normal">— wajib saat diserahkan, JPG/PNG maks 4 MB</span></label>
+          <input type="file" name="foto" accept="image/*" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13px] text-slate-600" style="background:#fff">
+          <p class="text-[12px] text-slate-500 mt-1.5">Hanya <b class="text-navy">foto calon murid</b> — foto orang tua/wali tidak perlu. Pratinjau muncul otomatis setelah foto dipilih. Boleh simpan draf dulu bila foto belum siap.</p>
+        </div>
+      </div>
+    </div>
 
     <div><label class="block mb-1.5 font-medium text-navy">Nama panggilan</label><input name="nama_panggilan" value="{{ old('nama_panggilan', $formulir->nama_panggilan) }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <div><label class="block mb-1.5 font-medium text-navy">NISN <span class="text-slate-400 font-normal">(10 angka)</span></label><input name="nisn" value="{{ old('nisn', $formulir->nisn ?: $biodata->nisn) }}" required inputmode="numeric" maxlength="10" placeholder="10 digit angka" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
@@ -154,7 +165,7 @@
     <div><label class="block mb-1.5 font-medium text-navy">Kecamatan</label><input name="kecamatan" value="{{ old('kecamatan', $formulir->kecamatan) }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
 
     <p id="data-orang-tua" class="md:col-span-2 scroll-mt-24 flex items-center justify-between gap-3 text-[11.5px] font-bold uppercase tracking-wider text-slate-500 mt-3 mb-0.5">
-      <span>II. Data Orang Tua / Wali Murid</span>
+      <span>2. Biodata Orang Tua / Wali Murid</span>
       <span class="chip" style="text-transform:none;letter-spacing:0">{{ $isiOrtu }}/{{ count($kolOrtu) }} terisi</span>
     </p>
 
@@ -186,64 +197,35 @@
     </div>
     <div><label class="block mb-1.5 font-medium text-navy">Nomor telepon/HP</label><input name="ibu_telepon" value="{{ old('ibu_telepon', $formulir->ibu_telepon) }}" required inputmode="tel" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
 
-    <div id="foto-anak" class="md:col-span-2 scroll-mt-24"><label class="block mb-1.5 font-medium text-navy">Pas foto anak (latar merah) <span class="text-slate-400 font-normal">— wajib saat diserahkan, JPG/PNG maks 4 MB</span></label>
-      <input type="file" name="foto" accept="image/*" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13px] text-slate-600" style="background:#f8fafd">
-      @if ($formulir->foto_latar_merah)
-        <p class="text-[12px] text-slate-500 mt-1.5">Foto sudah tersimpan — unggah baru untuk mengganti. <a href="{{ $formulir->foto_url }}" target="_blank" class="text-navy font-semibold underline">Lihat foto</a></p>
-      @else
-        <p class="text-[12px] text-slate-500 mt-1.5">Hanya <b class="text-navy">foto calon murid</b> yang diperlukan (latar belakang merah) — foto orang tua/wali tidak perlu. Boleh disimpan draf dulu bila foto belum siap.</p>
-      @endif
-    </div>
     <div class="md:col-span-2 flex flex-wrap gap-3 items-center">
       <button name="aksi" value="simpan" formnovalidate class="rounded-xl px-6 py-3 font-semibold text-[13.5px]" style="background:#fff;color:#1f3a5f;border:1px solid #c6d8ea">Simpan Data (draf)</button>
       <button name="aksi" value="serahkan" class="bg-navy text-white rounded-xl px-7 py-3 font-bold">Simpan &amp; Serahkan</button>
       <span class="text-[12px] text-slate-500">"Serahkan" wajib lengkap semua kolom + pas foto — status otomatis ke Tahap tes.</span>
     </div>
   </form>
+
+  <script>
+    (function () {
+      var input = document.querySelector('#foto-anak input[type=file]');
+      var img = document.getElementById('foto-pratinjau');
+      var kosong = document.getElementById('foto-kosong');
+      if (!input || !img) return;
+      input.addEventListener('change', function () {
+        var f = input.files && input.files[0];
+        if (!f) return;
+        var r = new FileReader();
+        r.onload = function (e) {
+          img.src = e.target.result;
+          img.style.display = 'block';
+          if (kosong) kosong.style.display = 'none';
+        };
+        r.readAsDataURL(f);
+      });
+    })();
+  </script>
 </x-seksi>
 @endif
 
-<x-seksi judul="Biodata Lengkap Siswa" id="biodata">
-  @if (session('sukses'))
-    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl px-4 py-3 text-[13.5px] mb-5">{{ session('sukses') }}</div>
-  @endif
-  @if ($errors->any())
-    <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-xl px-4 py-3 text-[13px] mb-5">
-      <ul class="list-disc pl-5">@foreach ($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
-    </div>
-  @endif
-
-  <div class="flex flex-wrap items-center gap-3 mb-5 text-[13px]">
-    <span class="chip">Kelengkapan biodata: {{ $biodata->persen }}%</span>
-    <span class="text-slate-500">Data ini dipakai panitia untuk kartu tes dan berkas pendaftaran — isi seakurat mungkin.</span>
-  </div>
-
-  <form action="{{ route('spmb.pendaftar.biodata') }}" method="post" enctype="multipart/form-data" class="kartu p-6 md:p-8 grid md:grid-cols-2 gap-4 text-[13.5px]">
-    @csrf
-    <div><label class="block mb-1.5 font-medium text-navy">NIK</label><input name="nik" value="{{ old('nik', $biodata->nik) }}" placeholder="16 angka" inputmode="numeric" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">NISN</label><input name="nisn" value="{{ old('nisn', $biodata->nisn) }}" placeholder="8-12 angka" inputmode="numeric" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Tempat lahir</label><input name="tempat_lahir" value="{{ old('tempat_lahir', $biodata->tempat_lahir) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Tanggal lahir</label><input type="date" name="tanggal_lahir" value="{{ old('tanggal_lahir', $biodata->tanggal_lahir?->format('Y-m-d')) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Alamat lengkap</label><textarea name="alamat" rows="2" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5">{{ old('alamat', $biodata->alamat) }}</textarea></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Anak ke-</label><input name="anak_ke" value="{{ old('anak_ke', $biodata->anak_ke) }}" inputmode="numeric" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Jumlah saudara</label><input name="jumlah_saudara" value="{{ old('jumlah_saudara', $biodata->jumlah_saudara) }}" inputmode="numeric" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Nama ayah</label><input name="nama_ayah" value="{{ old('nama_ayah', $biodata->nama_ayah) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Pekerjaan ayah</label><input name="pekerjaan_ayah" value="{{ old('pekerjaan_ayah', $biodata->pekerjaan_ayah) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Nama ibu</label><input name="nama_ibu" value="{{ old('nama_ibu', $biodata->nama_ibu) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Pekerjaan ibu</label><input name="pekerjaan_ibu" value="{{ old('pekerjaan_ibu', $biodata->pekerjaan_ibu) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Telepon rumah (opsional)</label><input name="telepon_rumah" value="{{ old('telepon_rumah', $biodata->telepon_rumah) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div><label class="block mb-1.5 font-medium text-navy">Hobi (opsional)</label><input name="hobi" value="{{ old('hobi', $biodata->hobi) }}" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
-    <div class="md:col-span-2"><label class="block mb-1.5 font-medium text-navy">Foto siswa (opsional, maks 4 MB)</label>
-      <input type="file" name="foto" accept="image/*" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-[13px] text-slate-600" style="background:#f8fafd">
-      @if ($biodata->foto)
-        <p class="text-[12px] text-slate-500 mt-1.5">Sudah ada foto tersimpan — unggah baru untuk mengganti.</p>
-      @endif
-    </div>
-    <div class="md:col-span-2">
-      <button class="bg-navy text-white rounded-xl px-7 py-3 font-bold">Simpan Biodata</button>
-    </div>
-  </form>
-</x-seksi>
 <x-seksi judul="Data Formulir Anda">
   <div class="kartu overflow-hidden max-w-xl">
     <table class="w-full text-[13.5px]"><tbody>
