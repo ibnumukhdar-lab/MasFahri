@@ -87,26 +87,20 @@
 
       {{-- Layar hasil --}}
       <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm text-center flex-1 min-h-0 overflow-y-auto" x-show="isFinished" x-cloak>
-        <div class="text-4xl mb-2">🏆</div>
+        <div class="text-4xl mb-2">✅</div>
         <h2 class="text-lg font-extrabold text-slate-900 mb-1">Pengerjaan Selesai!</h2>
-        <p class="text-[12px] text-slate-500 mb-4">Jawaban Anda sudah direkam oleh sistem dan diteruskan ke panitia.</p>
-        <div class="grid grid-cols-3 gap-2 max-w-md mx-auto mb-4">
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-            <span class="text-[9px] font-black text-slate-400 uppercase block">Skor</span>
-            <span class="text-2xl font-black text-indigo-600" x-text="hasil.skor ?? '—'"></span>
-          </div>
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-            <span class="text-[9px] font-black text-slate-400 uppercase block">Benar</span>
-            <span class="text-2xl font-black text-emerald-600" x-text="(hasil.benar ?? '—') + '/' + (hasil.total ?? '—')"></span>
-          </div>
-          <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-            <span class="text-[9px] font-black text-slate-400 uppercase block">Pelanggaran</span>
-            <span class="text-2xl font-black text-rose-600" x-text="hasil.pelanggaran ?? violations"></span>
-          </div>
+        <p class="text-[12.5px] text-slate-600 mb-4 leading-relaxed">
+          Jawaban Anda sudah direkam dan diteruskan ke panitia.<br>
+          Nilai tidak ditampilkan di sini — hasil rekap dipegang panitia.
+        </p>
+        <div class="rounded-xl p-3.5 mb-4 text-left" style="background:#eef6f2;border:1px solid #cfe6da">
+          <p class="text-[9px] font-black uppercase tracking-wide text-emerald-800 mb-0.5">Tahap berikutnya</p>
+          <p class="text-[13px] font-bold text-slate-800">Tes Baca Tulis Al-Qur'an</p>
+          <p class="text-[11.5px] text-slate-600">Jadwal ditetapkan panitia — pantau dasbor dan WhatsApp.</p>
         </div>
         <a href="{{ route('spmb.pendaftar.tes') }}"
            class="inline-block bg-slate-900 hover:bg-black text-white font-extrabold py-2.5 px-5 rounded-xl text-[11px] uppercase tracking-wider">
-          Lihat Hasil &amp; Kartu Tes
+          Kembali ke Daftar Paket
         </a>
       </div>
     </div>

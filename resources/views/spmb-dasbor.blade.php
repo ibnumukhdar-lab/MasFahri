@@ -210,11 +210,16 @@
       <p class="text-[13px] text-slate-600 mb-4">Kode ini juga tercetak di kartu tes. Simpan baik-baik — tanpa kode ini tes tidak bisa dibuka.</p>
       <div class="sf-galgal">
         <a href="{{ route('spmb.pendaftar.kartu') }}" class="sf-tombol sf-tombol-draf">Lihat Kartu Tes (Cetak)</a>
-        <a href="{{ route('spmb.pendaftar.tes') }}" class="sf-tombol sf-tombol-utama">{{ ! empty($progresTes['tuntas']) ? 'Lihat Hasil Tes' : (($progresTes['selesai'] ?? 0) > 0 ? 'Lanjutkan Tes CBT' : 'Buka Tes CBT') }}</a>
-        @if (in_array($registrasi->status, ['diterima', 'ditolak'], true))
-          <a href="{{ route('spmb.pendaftar.hasil') }}" class="sf-tombol sf-tombol-draf">Pengumuman Hasil</a>
-        @endif
+        <a href="{{ route('spmb.pendaftar.tes') }}" class="sf-tombol sf-tombol-utama">{{ ! empty($progresTes['tuntas']) ? 'Tes CBT Selesai' : (($progresTes['selesai'] ?? 0) > 0 ? 'Lanjutkan Tes CBT' : 'Buka Tes CBT') }}</a>
       </div>
+
+      @if (! empty($progresTes['tuntas']))
+        <div class="rounded-xl p-4 mt-5" style="background:#eef6f2;border:1px solid #cfe6da">
+          <p class="text-[10px] font-bold uppercase tracking-wide text-emerald-800 mb-1">Tahap berikutnya</p>
+          <p class="font-extrabold text-navy text-[14.5px] mb-0.5">Tes Baca Tulis Al-Qur'an</p>
+          <p class="text-[12.5px] text-slate-600">CBT Anda sudah tuntas dan nilainya direkap panitia. Jadwal tes baca tulis ditetapkan panitia — pantau dasbor dan WhatsApp.</p>
+        </div>
+      @endif
     </div>
   </div>
 </div>

@@ -31,25 +31,26 @@
           @if ($tuntas)
             ✅ Semua paket sudah diselesaikan.
           @else
-            Selesaikan <b>semua paket</b> — hasil akhir dihitung dari rata-rata seluruh paket wajib.
+            Selesaikan <b>semua paket</b> — setelah tuntas, Anda lanjut ke tahap Tes Baca Tulis Al-Qur'an.
           @endif
         </p>
       @endif
     </div>
 
     @if ($tuntas)
-      {{-- ================= RINGKASAN AKHIR ================= --}}
+      {{-- ================= SEMUA PAKET TUNTAS → TAHAP BERIKUTNYA ================= --}}
       <div class="kartu p-6 text-center mb-4">
-        <div class="text-4xl mb-2">🏆</div>
-        <p class="font-extrabold text-navy text-[17px] mb-1">Tes selesai — semua paket tuntas</p>
-        <p class="text-slate-500 text-[12.5px] mb-5">Hasil sudah masuk ke panitia. Terima kasih!</p>
+        <div class="text-4xl mb-2">✅</div>
+        <p class="font-extrabold text-navy text-[17px] mb-1">Semua paket CBT sudah selesai</p>
+        <p class="text-slate-500 text-[12.5px] mb-5">Jawaban Anda sudah masuk ke panitia untuk direkap.</p>
 
-        <div class="bg-navy-soft rounded-xl p-4 max-w-xs mx-auto mb-5">
-          <p class="text-[10px] font-bold uppercase tracking-wide text-slate-500 mb-1">Nilai akhir (rata-rata)</p>
-          <p class="text-3xl font-extrabold text-navy">{{ $rataRata }}</p>
+        <div class="rounded-xl p-4 text-left" style="background:#eef6f2;border:1px solid #cfe6da">
+          <p class="text-[10px] font-bold uppercase tracking-wide text-emerald-800 mb-1">Tahap berikutnya</p>
+          <p class="font-extrabold text-navy text-[15px] mb-1">Tes Baca Tulis Al-Qur'an</p>
+          <p class="text-[12.5px] text-slate-600">Jadwal dan tempat ditetapkan panitia. Pantau dasbor dan WhatsApp Anda.</p>
         </div>
 
-        <a href="{{ route('spmb.pendaftar.kartu') }}" class="inline-block bg-navy text-white rounded-xl px-5 py-2.5 font-semibold">Lihat Kartu Tes</a>
+        <a href="{{ route('spmb.pendaftar.dasbor') }}" class="inline-block mt-5 bg-navy text-white rounded-xl px-5 py-2.5 font-semibold">Kembali ke Dasbor</a>
       </div>
     @endif
 
@@ -89,20 +90,9 @@
           </div>
 
           @if ($d['selesai'])
-            <div class="grid grid-cols-3 gap-3 mt-4">
-              <div class="bg-navy-soft rounded-xl p-3 text-center">
-                <p class="text-[10px] font-bold uppercase text-slate-500 mb-0.5">Skor</p>
-                <p class="text-xl font-extrabold text-navy">{{ $u->skor }}</p>
-              </div>
-              <div class="bg-navy-soft rounded-xl p-3 text-center">
-                <p class="text-[10px] font-bold uppercase text-slate-500 mb-0.5">Benar</p>
-                <p class="text-xl font-extrabold text-navy">{{ $u->benar }}/{{ $u->total }}</p>
-              </div>
-              <div class="bg-navy-soft rounded-xl p-3 text-center">
-                <p class="text-[10px] font-bold uppercase text-slate-500 mb-0.5">Selesai</p>
-                <p class="text-[12px] font-bold text-navy leading-tight mt-1">{{ $u->selesai_pada?->format('d M H:i') }}</p>
-              </div>
-            </div>
+            <p class="text-[12.5px] text-slate-500 mt-3">
+              Sudah dikerjakan{{ $u->selesai_pada ? ' pada '.$u->selesai_pada->format('d M Y H:i') : '' }}. Nilai direkap panitia.
+            </p>
           @elseif ($d['sedang'])
             <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-3 text-[12.5px] text-amber-800">
               Sisa waktu ± {{ intdiv($u->sisa_detik, 60) }} menit {{ $u->sisa_detik % 60 }} detik. Jawaban yang belum dikirim akan hilang bila waktu habis.

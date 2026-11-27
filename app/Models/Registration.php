@@ -58,24 +58,6 @@ class Registration extends Model
         ];
     }
 
-    /** Penjaga: status "Diterima" hanya boleh bila SEMUA paket wajib sudah tuntas. */
-    protected static function booted(): void
-    {
-        static::saving(function (self $r) {
-            if ($r->status !== 'diterima' || ! $r->isDirty('status')) {
-                return;
-            }
-
-            $p = $r->progresTes();
-            if ($p['total'] > 0 && ! $p['tuntas']) {
-                throw \Illuminate\Validation\ValidationException::withMessages([
-                    'status' => 'Belum bisa "Diterima": '.$p['kurang'].' dari '.$p['total']
-                        .' paket tes wajib belum diselesaikan.',
-                ]);
-            }
-        });
-    }
-
     public function nilaiQuran()
     {
         return $this->hasOne(\App\Models\SpmbNilaiQuran::class);

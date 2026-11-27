@@ -360,25 +360,6 @@ class SpmbPendaftarController extends Controller
         ]);
     }
 
-    /** Pengumuman hasil: status akhir + rincian nilai per paket + nilai akhir (rata-rata). */
-    public function hasil(Request $request)
-    {
-        $registrasi = $this->pendaftarSesi($request);
-        if (! $registrasi) {
-            return redirect()->route('spmb.pendaftar.masuk');
-        }
-
-        $ujian = $registrasi->ujianSemua()->with('paket')
-            ->orderBy('id')->get();
-
-        return view('spmb-hasil', [
-            'registrasi' => $registrasi,
-            'progres' => $registrasi->progresTes(),
-            'ujian' => $ujian,
-            'diumumkan' => in_array($registrasi->status, ['diterima', 'ditolak'], true),
-        ]);
-    }
-
     /** Cocokkan kode tes → buat/lanjutkan percobaan untuk PAKET yang dipilih. */
     public function tesMulai(Request $request)
     {
@@ -511,10 +492,7 @@ class SpmbPendaftarController extends Controller
         }
         if ($ujian->status === 'selesai') {
             return response()->json([
-                'galat' => 'Ujian sudah selesai.',
-                'skor' => $ujian->skor,
-                'benar' => $ujian->benar,
-                'total' => $ujian->total,
+                'galat' => 'Ujian sudah selesai. Nilai direkap oleh panitia.',
             ], 409);
         }
 
@@ -527,9 +505,8 @@ class SpmbPendaftarController extends Controller
         $this->akhiriDanNilai($ujian, $jawaban);
 
         return response()->json([
-            'skor' => $ujian->skor,
-            'benar' => $ujian->benar,
-            'total' => $ujian->total,
+            'status' => 'selesai',
+            'pesan' => 'Jawaban diterima. Nilai direkap oleh panitia.',
             'pelanggaran' => $ujian->pelanggaran,
         ]);
     }
