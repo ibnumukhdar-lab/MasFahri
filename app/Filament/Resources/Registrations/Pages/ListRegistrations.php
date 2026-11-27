@@ -33,6 +33,11 @@ class ListRegistrations extends ListRecords
             'dihubungi' => Tab::make('Dihubungi')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'dihubungi')),
 
+            'lengkapi_formulir' => Tab::make('Lengkapi formulir')
+                ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'lengkapi_formulir'))
+                ->badge(fn (): int => Registration::where('status', 'lengkapi_formulir')->count())
+                ->badgeColor('warning'),
+
             'tes' => Tab::make('Tes')
                 ->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'tes')),
 

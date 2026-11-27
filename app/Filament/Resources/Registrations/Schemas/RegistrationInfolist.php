@@ -80,6 +80,56 @@ class RegistrationInfolist
                     ->columns(2)
                     ->visible(fn ($record): bool => $record->biodata()->exists()),
 
+                Section::make('Formulir pendaftaran murid baru (diisi pendaftar)')
+                    ->columns(2)
+                    ->schema([
+                        TextEntry::make('formulir.nama_panggilan')->label('Nama panggilan')->placeholder('-'),
+                        TextEntry::make('formulir.golongan_darah')->label('Golongan darah')->placeholder('-'),
+                        TextEntry::make('formulir.suku_bangsa')->label('Suku bangsa')->placeholder('-'),
+                        TextEntry::make('formulir.nisn')->label('NISN (formulir)')->placeholder('-'),
+                        TextEntry::make('formulir.nik')->label('NIK (formulir)')->placeholder('-'),
+                        TextEntry::make('formulir.tempat_lahir')->label('Tempat lahir')->placeholder('-'),
+                        TextEntry::make('formulir.tanggal_lahir')->label('Tanggal lahir')->date('d M Y')->placeholder('-'),
+                        TextEntry::make('formulir.anak_ke')->label('Anak ke-')->placeholder('-'),
+                        TextEntry::make('formulir.dari_bersaudara')->label('Dari ... bersaudara')->placeholder('-'),
+                        TextEntry::make('formulir.alamat_jalan')->label('Alamat (jalan)')->placeholder('-')->columnSpanFull(),
+                        TextEntry::make('formulir.kelurahan')->label('Kelurahan/desa')->placeholder('-'),
+                        TextEntry::make('formulir.kecamatan')->label('Kecamatan')->placeholder('-'),
+                        TextEntry::make('formulir.ayah_nama')->label('Nama ayah')->placeholder('-'),
+                        TextEntry::make('formulir.ayah_ttl')->label('Tempat tanggal lahir ayah')->placeholder('-'),
+                        TextEntry::make('formulir.ayah_pendidikan')->label('Pendidikan ayah')->placeholder('-'),
+                        TextEntry::make('formulir.ayah_pekerjaan')->label('Pekerjaan ayah')->placeholder('-'),
+                        TextEntry::make('formulir.ayah_penghasilan')->label('Penghasilan ayah')
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                '<2jt' => '< Rp 2.000.000',
+                                '2-5jt' => 'Rp 2.000.000 – Rp 5.000.000',
+                                '>5jt' => '> Rp 5.000.000',
+                                default => $state ?: '-',
+                            }),
+                        TextEntry::make('formulir.ayah_telepon')->label('Telepon ayah')->placeholder('-'),
+                        TextEntry::make('formulir.ibu_nama')->label('Nama ibu')->placeholder('-'),
+                        TextEntry::make('formulir.ibu_ttl')->label('Tempat tanggal lahir ibu')->placeholder('-'),
+                        TextEntry::make('formulir.ibu_pendidikan')->label('Pendidikan ibu')->placeholder('-'),
+                        TextEntry::make('formulir.ibu_pekerjaan')->label('Pekerjaan ibu')->placeholder('-'),
+                        TextEntry::make('formulir.ibu_penghasilan')->label('Penghasilan ibu')
+                            ->formatStateUsing(fn (?string $state): string => match ($state) {
+                                '<2jt' => '< Rp 2.000.000',
+                                '2-5jt' => 'Rp 2.000.000 – Rp 5.000.000',
+                                '>5jt' => '> Rp 5.000.000',
+                                default => $state ?: '-',
+                            }),
+                        TextEntry::make('formulir.ibu_telepon')->label('Telepon ibu')->placeholder('-'),
+                        TextEntry::make('formulir.foto_latar_merah')
+                            ->label('Pas foto latar merah')
+                            ->state(fn ($record): ?string => $record->formulir?->foto_url)
+                            ->formatStateUsing(fn (?string $state): string => $state ? 'Lihat pas foto latar merah' : 'Belum ada')
+                            ->url(fn (?string $state): ?string => $state)
+                            ->openUrlInNewTab()
+                            ->color(fn (?string $state): string => $state ? 'primary' : 'gray'),
+                        TextEntry::make('formulir.terkirim_pada')->label('Formulir terkirim')->dateTime('d M Y H:i')->placeholder('-'),
+                    ])
+                    ->visible(fn ($record): bool => $record->formulir()->exists()),
+
                 Section::make('Bukti transfer biaya formulir')
                     ->schema([
                         TextEntry::make('bukti_transfer')
@@ -109,6 +159,7 @@ class RegistrationInfolist
         return match ($status) {
             'baru' => 'warning',
             'dihubungi' => 'info',
+            'lengkapi_formulir' => 'warning',
             'tes' => 'primary',
             'diterima' => 'success',
             'ditolak' => 'danger',

@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 class SpmbPendaftarController extends Controller
 {
     /** Status yang dianggap "sudah diverifikasi panitia". */
-    public const STATUS_TERVERIFIKASI = ['dihubungi', 'tes', 'diterima'];
+    public const STATUS_TERVERIFIKASI = ['dihubungi', 'lengkapi_formulir', 'tes', 'diterima'];
 
     public function formLogin()
     {
@@ -89,6 +89,7 @@ class SpmbPendaftarController extends Controller
         return view('spmb-dasbor', [
             'registrasi' => $registrasi,
             'biodata' => $registrasi->biodata()->firstOrCreate([]),
+            'formulir' => $registrasi->formulir()->firstOrCreate([]),
             'ujian' => $registrasi->ujian,
         ]);
     }
@@ -138,6 +139,147 @@ class SpmbPendaftarController extends Controller
         $registrasi->biodata()->updateOrCreate([], $data);
 
         return back()->with('sukses', 'Biodata tersimpan. Terima kasih!');
+    }
+
+    /**
+     * Simpan Formulir Pendaftaran Murid Baru (Data Pribadi + Data Orang Tua/Wali
+     * + pas foto latar merah). Dipakai saat status "Lengkapi formulir".
+     * Bila formulir lengkap tersimpan, status otomatis pindah ke Tahap tes.
+     */
+    public function simpanFormulir(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+        if (! $this->terverifikasi($registrasi)) {
+            return redirect()->route('spmb.pendaftar.kena');
+        }
+
+        // Dua mode: "simpan" = draf (boleh sebagian, mis. foto belum siap),
+        // "serahkan" = formulir wajib lengkap semua + pas foto → final.
+        $serahkan = $request->input('aksi') === 'serahkan';
+
+        $aturan = [
+            'nama_panggilan' => ['nullable', 'string', 'max:100'],
+            'nisn' => ['nullable', 'digits:10'],
+            'nik' => ['nullable', 'digits:16'],
+            'tempat_lahir' => ['nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['nullable', 'date'],
+            'golongan_darah' => ['nullable', 'in:A,B,AB,O,-'],
+            'suku_bangsa' => ['nullable', 'string', 'max:80'],
+            'anak_ke' => ['nullable', 'integer', 'min:1', 'max:20'],
+            'dari_bersaudara' => ['nullable', 'integer', 'min:1', 'max:30'],
+            'alamat_jalan' => ['nullable', 'string', 'max:255'],
+            'kelurahan' => ['nullable', 'string', 'max:100'],
+            'kecamatan' => ['nullable', 'string', 'max:100'],
+            'ayah_nama' => ['nullable', 'string', 'max:120'],
+            'ayah_ttl' => ['nullable', 'string', 'max:150'],
+            'ayah_pendidikan' => ['nullable', 'string', 'max:60'],
+            'ayah_pekerjaan' => ['nullable', 'string', 'max:120'],
+            'ayah_penghasilan' => ['nullable', 'in:<2jt,2-5jt,>5jt'],
+            'ayah_telepon' => ['nullable', 'string', 'max:25'],
+            'ibu_nama' => ['nullable', 'string', 'max:120'],
+            'ibu_ttl' => ['nullable', 'string', 'max:150'],
+            'ibu_pendidikan' => ['nullable', 'string', 'max:60'],
+            'ibu_pekerjaan' => ['nullable', 'string', 'max:120'],
+            'ibu_penghasilan' => ['nullable', 'in:<2jt,2-5jt,>5jt'],
+            'ibu_telepon' => ['nullable', 'string', 'max:25'],
+            'foto' => ['nullable', 'image', 'max:4096'],
+        ];
+
+        if ($serahkan) {
+            foreach ($aturan as $kolom => $r) {
+                if ($kolom !== 'foto') {
+                    $aturan[$kolom][0] = 'required';
+                }
+            }
+        }
+
+        $data = $request->validate($aturan, [
+            'required' => ':attribute wajib diisi.',
+            'nisn.digits' => 'NISN harus 10 angka.',
+            'nik.digits' => 'NIK harus 16 angka.',
+            'golongan_darah.in' => 'Pilih golongan darah yang tersedia.',
+            'penghasilan.in' => 'Pilih rentang penghasilan.',
+            'tanggal_lahir.date' => 'Tanggal lahir tidak valid.',
+            'foto.image' => 'Pas foto harus berupa gambar (JPG/PNG/WEBP).',
+            'foto.max' => 'Ukuran pas foto maksimal 4 MB.',
+        ], [
+            'nama_panggilan' => 'Nama panggilan',
+            'nisn' => 'NISN',
+            'nik' => 'NIK',
+            'tempat_lahir' => 'Tempat lahir',
+            'tanggal_lahir' => 'Tanggal lahir',
+            'golongan_darah' => 'Golongan darah',
+            'suku_bangsa' => 'Suku bangsa',
+            'anak_ke' => 'Anak ke-',
+            'dari_bersaudara' => 'Jumlah bersaudara',
+            'alamat_jalan' => 'Alamat jalan',
+            'kelurahan' => 'Kelurahan/desa',
+            'kecamatan' => 'Kecamatan',
+            'ayah_nama' => 'Nama ayah',
+            'ayah_ttl' => 'Tempat tanggal lahir ayah',
+            'ayah_pendidikan' => 'Pendidikan ayah',
+            'ayah_pekerjaan' => 'Pekerjaan ayah',
+            'ayah_penghasilan' => 'Penghasilan ayah',
+            'ayah_telepon' => 'Telepon ayah',
+            'ibu_nama' => 'Nama ibu',
+            'ibu_ttl' => 'Tempat tanggal lahir ibu',
+            'ibu_pendidikan' => 'Pendidikan ibu',
+            'ibu_pekerjaan' => 'Pekerjaan ibu',
+            'ibu_penghasilan' => 'Penghasilan ibu',
+            'ibu_telepon' => 'Telepon ibu',
+        ]);
+
+        $formulir = $registrasi->formulir()->firstOrCreate([]);
+
+        if ($request->hasFile('foto')) {
+            $berkas = $request->file('foto');
+            $nama = 'spmb-formulir/' . $registrasi->nomor . '-' . \Illuminate\Support\Str::random(6) . '.'
+                . strtolower($berkas->getClientOriginalExtension() ?: 'jpg');
+            Storage::disk('media')->put($nama, file_get_contents($berkas->getRealPath()));
+            $data['foto_latar_merah'] = $nama;
+        }
+        unset($data['foto']);
+
+        // Mode draf: boleh belum lengkap & belum ada foto — bisa dilanjutkan nanti.
+        if (! $serahkan) {
+            $data['disimpan_pada'] = now();
+            $formulir->update($data);
+
+            return back()->with('sukses', 'Draf formulir tersimpan. Lengkapi sisa data dan unggah pas foto latar merah bila sudah siap, lalu tekan "Simpan & Serahkan".');
+        }
+
+        // Mode serahkan: wajib lengkap semua + pas foto latar merah.
+        if (! ($data['foto_latar_merah'] ?? $formulir->foto_latar_merah)) {
+            return back()->withErrors(['foto' => 'Pas foto latar merah wajib diunggah sebelum formulir diserahkan.'])->withInput();
+        }
+
+        $data['terkirim_pada'] = now();
+        $formulir->update($data);
+
+        // Selaraskan field yang tumpang-tindih ke biodata (kartu tes & kelengkapan ikut terisi).
+        $registrasi->biodata()->updateOrCreate([], array_filter([
+            'nik' => $data['nik'],
+            'nisn' => $data['nisn'],
+            'tempat_lahir' => $data['tempat_lahir'],
+            'tanggal_lahir' => $data['tanggal_lahir'],
+            'anak_ke' => $data['anak_ke'],
+            'jumlah_saudara' => $data['dari_bersaudara'],
+            'nama_ayah' => $data['ayah_nama'],
+            'pekerjaan_ayah' => $data['ayah_pekerjaan'],
+            'nama_ibu' => $data['ibu_nama'],
+            'pekerjaan_ibu' => $data['ibu_pekerjaan'],
+        ], fn ($v) => $v !== null && $v !== ''));
+
+        // Formulir lengkap → otomatis pindah ke tahap tes + kode tes terbit.
+        if ($registrasi->status === 'lengkapi_formulir') {
+            $registrasi->update(['status' => 'tes']);
+            $registrasi->pastikanKodeTes();
+        }
+
+        return back()->with('sukses', 'Formulir diserahkan — Anda otomatis masuk Tahap tes. Kartu tes & kode CBT sudah bisa dibuka di halaman ini.');
     }
 
     // ---------- kartu tes & CBT ----------
