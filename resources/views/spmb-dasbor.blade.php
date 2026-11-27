@@ -1,7 +1,7 @@
 @extends('layouts.publik')
 @section('judul', 'Dashboard Pendaftar — SPMB SMA IT Arafah')
 @section('isi')
-@include('partials.hero', ['kecil' => 'Area Pendaftar SPMB', 'judul' => 'Halo, ' . $registrasi->nama_siswa . ' 👋', 'sub' => 'Nomor pendaftaran '.$registrasi->nomor.' — status: '.(\App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status).'. Lengkapi biodata di bawah ini.'])
+@include('partials.hero', ['kecil' => 'Area Pendaftar SPMB', 'judul' => 'Halo, ' . $registrasi->nama_siswa . ' 👋', 'sub' => 'Nomor pendaftaran '.$registrasi->nomor.' — status: '.(\App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status).'. Lengkapi formulir dan biodata di bawah ini.'])
 @if ($registrasi->status === 'tes' || $ujian)
 <x-seksi judul="Kartu Tes & Tes CBT">
   <div class="kartu p-6 md:p-7 max-w-2xl">
