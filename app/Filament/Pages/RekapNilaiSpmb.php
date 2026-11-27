@@ -29,7 +29,7 @@ class RekapNilaiSpmb extends Page
 
     protected static string | UnitEnum | null $navigationGroup = 'Penerimaan SPMB';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 5;
 
     protected string $view = 'filament.pages.rekap-nilai-spmb';
 

@@ -3,8 +3,11 @@
 namespace App\Filament\Resources\SpmbPaketSoals;
 
 use App\Filament\Resources\SpmbPaketSoals\Pages;
+use App\Models\SpmbBankSoal;
 use App\Models\SpmbPaketSoal;
 use BackedEnum;
+use Filament\Actions\Action;
+use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
@@ -12,12 +15,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use UnitEnum;
 
 class SpmbPaketSoalResource extends Resource
@@ -36,7 +41,7 @@ class SpmbPaketSoalResource extends Resource
 
     protected static string | UnitEnum | null $navigationGroup = 'Penerimaan SPMB';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {
@@ -167,9 +172,11 @@ class SpmbPaketSoalResource extends Resource
                     ->label('KKM')
                     ->placeholder('-'),
 
-                IconColumn::make('wajib')
+                TextColumn::make('wajib')
                     ->label('Wajib')
-                    ->boolean(),
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state ? 'Ya' : 'Tidak')
+                    ->color(fn ($state) => $state ? 'success' : 'gray'),
 
                 TextColumn::make('durasi_menit')
                     ->label('Durasi')
@@ -178,12 +185,93 @@ class SpmbPaketSoalResource extends Resource
                 TextColumn::make('jadwal')
                     ->label('Jadwal'),
 
-                IconColumn::make('aktif')
+                TextColumn::make('aktif')
                     ->label('Aktif')
-                    ->boolean(),
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => $state ? 'Aktif' : 'Nonaktif')
+                    ->color(fn ($state) => $state ? 'success' : 'gray'),
             ])
             ->recordActions([
                 \Filament\Actions\EditAction::make()->label('Ubah'),
+
+                // Ambil butir soal dari bank soal (disalin ke paket ini, tetap bisa diedit).
+                Action::make('ambil_bank')
+                    ->label('Ambil dari Bank')
+                    ->icon(Heroicon::OutlinedArrowDownTray)
+                    ->color('gray')
+                    ->modalHeading('Ambil soal dari Bank Soal')
+                    ->modalDescription(fn (\App\Models\SpmbPaketSoal $record) => 'Soal yang dipilih akan disalin ke paket "'.$record->judul.'".')
+                    ->modalSubmitActionLabel('Tambahkan ke paket')
+                    ->schema([
+                        CheckboxList::make('soal_ids')
+                            ->label('Pilih soal')
+                            ->options(fn () => SpmbBankSoal::query()
+                                ->where('aktif', true)
+                                ->orderBy('mata_pelajaran')->orderBy('id')
+                                ->get()
+                                ->mapWithKeys(fn ($s) => [
+                                    $s->id => '['.($s->mata_pelajaran ?: 'Umum').' · '.($s->tingkat ?: 'sedang').'] '
+                                        .Str::limit($s->teks, 90),
+                                ]))
+                            ->searchable()
+                            ->bulkToggleable()
+                            ->columns(1)
+                            ->required(),
+                    ])
+                    ->action(function (array $data, \App\Models\SpmbPaketSoal $record) {
+                        $urut = (int) $record->soal()->max('urut');
+                        $jumlah = 0;
+
+                        foreach (SpmbBankSoal::whereIn('id', $data['soal_ids'] ?? [])->get() as $s) {
+                            $record->soal()->create([
+                                'urut' => ++$urut,
+                                'teks' => $s->teks,
+                                'opsi_a' => $s->opsi_a,
+                                'opsi_b' => $s->opsi_b,
+                                'opsi_c' => $s->opsi_c,
+                                'opsi_d' => $s->opsi_d,
+                                'opsi_e' => $s->opsi_e,
+                                'kunci' => $s->kunci,
+                            ]);
+                            $jumlah++;
+                        }
+
+                        Notification::make()
+                            ->title($jumlah.' soal ditambahkan ke paket')
+                            ->success()
+                            ->send();
+                    }),
+
+                // Duplikat paket beserta seluruh butir soalnya.
+                Action::make('duplikat')
+                    ->label('Duplikat')
+                    ->icon(Heroicon::OutlinedDocumentDuplicate)
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->modalHeading('Duplikat paket')
+                    ->modalDescription('Seluruh butir soal ikut disalin. Paket baru dibuat nonaktif, judul diberi "(salinan)", dan tanggal tes dikosongkan.')
+                    ->action(function (\App\Models\SpmbPaketSoal $record) {
+                        // Jangan pakai replicate(): atribut hasil withCount (soal_count) ikut tersalin
+                        // dan bukan kolom tabel → insert gagal.
+                        $baru = new \App\Models\SpmbPaketSoal();
+                        $baru->fill($record->only($baru->getFillable()));
+                        $baru->judul = $record->judul.' (salinan)';
+                        $baru->aktif = false;
+                        $baru->tanggal_tes = null;
+                        $baru->save();
+
+                        foreach ($record->soal()->orderBy('urut')->get() as $s) {
+                            $baru->soal()->create($s->only([
+                                'urut', 'teks', 'opsi_a', 'opsi_b', 'opsi_c', 'opsi_d', 'opsi_e', 'kunci',
+                            ]));
+                        }
+
+                        Notification::make()
+                            ->title('Paket diduplikat')
+                            ->body($baru->judul.' — '.$baru->soal()->count().' soal')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->headerActions([]);
     }
