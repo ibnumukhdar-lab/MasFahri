@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\AlumniProfile;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -70,14 +69,6 @@ class ImporPengguna extends Command
                 'peran' => $peran,
                 'aktif' => true,
             ]);
-
-            if ($peran === 'alumni') {
-                AlumniProfile::create([
-                    'user_id' => $user->id,
-                    'tahun_lulus' => null,
-                    'tampil_publik' => false,
-                ]);
-            }
 
             $catatan[] = sprintf('%-34s %-10s %s', $email, $peran, $sandi);
             $n++;

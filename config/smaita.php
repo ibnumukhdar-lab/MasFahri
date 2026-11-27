@@ -17,7 +17,7 @@ return [
         'Galeri' => '/galeri',
         'Berita' => '/berita',
         'SPMB' => '/spmb',
-        'Alumni' => '/alumni',
+        'Alumni' => '/alumni-cerita',
         'Tools Guru' => '/toolsguru',
     ],
 

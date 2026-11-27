@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AlumniCeritaController;
-use App\Http\Controllers\AlumniController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\KelulusanController;
@@ -34,8 +33,8 @@ Route::get('/pengumuman-kelulusan', [KelulusanController::class, 'index'])->name
 Route::get('/pengumuman-kelulusan/cek', [KelulusanController::class, 'cek'])->name('kelulusan.cek');
 
 // ---------- alumni & akun ----------
-Route::get('/alumni', [AlumniController::class, 'index'])->name('alumni');
-Route::post('/alumni', [AlumniController::class, 'simpan'])->middleware('throttle:6,1')->name('alumni.simpan');
+// Direktori alumni lama sudah dilebur ke Cerita Alumni (27 Nov 2026).
+Route::get('/alumni', fn () => redirect()->route('alumni.cerita', [], 301))->name('alumni');
 Route::get('/login', [AuthController::class, 'form'])->middleware('guest')->name('login');
 Route::post('/login', [AuthController::class, 'masuk'])->middleware('throttle:8,1')->name('login.proses');
 Route::post('/logout', [AuthController::class, 'keluar'])->middleware('auth')->name('logout');

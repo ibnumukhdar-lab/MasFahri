@@ -48,11 +48,6 @@ class User extends Authenticatable implements FilamentUser
         return (bool) $this->aktif && $this->peran === 'admin';
     }
 
-    public function alumniProfile()
-    {
-        return $this->hasOne(AlumniProfile::class);
-    }
-
     public function posts()
     {
         return $this->hasMany(Post::class, 'penulis_id');

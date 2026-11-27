@@ -118,7 +118,7 @@
         <a href="{{ route('galeri') }}" class="hover:text-white">Galeri</a>
         <a href="{{ route('halaman', 'ekskul') }}" class="hover:text-white">Ekskul</a>
         <a href="{{ route('berita') }}" class="hover:text-white">Berita</a>
-        <a href="{{ route('alumni') }}" class="hover:text-white">Alumni</a>
+        <a href="{{ route('alumni.cerita') }}" class="hover:text-white">Alumni</a>
       </div>
     </div>
     <div class="text-[13px]">

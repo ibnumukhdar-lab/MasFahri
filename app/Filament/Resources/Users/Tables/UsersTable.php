@@ -43,10 +43,6 @@ class UsersTable
                     ->label('Aktif')
                     ->boolean(),
 
-                TextColumn::make('alumniProfile.tahun_lulus')
-                    ->label('Tahun lulus')
-                    ->placeholder('-')
-                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('created_at')
                     ->label('Dibuat')
@@ -63,7 +59,6 @@ class UsersTable
                         'musyrif' => 'Musyrif/Musyrifah',
                         'ustadz_diniyah' => 'Ustadz Diniyah',
                         'orang_tua' => 'Orang Tua',
-                        'alumni' => 'Alumni',
                     ]),
 
                 SelectFilter::make('aktif')
@@ -75,26 +70,6 @@ class UsersTable
             ])
             ->recordActions([
                 EditAction::make(),
-
-                Action::make('verifikasi_alumni')
-                    ->label('Verifikasi alumni')
-                    ->icon('heroicon-o-check-badge')
-                    ->color('success')
-                    ->visible(fn (User $record): bool => $record->alumniProfile !== null)
-                    ->requiresConfirmation()
-                    ->modalDescription('Menandai profil alumni ini terverifikasi dan menampilkannya di direktori publik.')
-                    ->action(function (User $record): void {
-                        $record->alumniProfile?->update([
-                            'diverifikasi_pada' => now(),
-                            'tampil_publik' => true,
-                        ]);
-
-                        Notification::make()
-                            ->title('Alumni diverifikasi')
-                            ->body($record->name)
-                            ->success()
-                            ->send();
-                    }),
             ]);
     }
 }

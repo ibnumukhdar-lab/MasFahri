@@ -9,7 +9,7 @@
     <div><label class="block mb-1.5 font-medium text-navy">Email</label><input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <div><label class="block mb-1.5 font-medium text-navy">Sandi</label><input type="password" name="password" required class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5"></div>
     <button class="w-full bg-navy text-white rounded-xl py-2.5 font-semibold">Masuk</button>
-    <p class="text-slate-500">Belum punya akun? <a href="{{ route('alumni') }}" class="text-navy font-semibold underline">Daftar alumni</a></p>
+    <p class="text-slate-500">Ingin berbagi cerita? <a href="{{ route('alumni.cerita.form') }}" class="text-navy font-semibold underline">Isi cerita alumni</a></p>
   </form>
 </x-seksi>
 @endsection
