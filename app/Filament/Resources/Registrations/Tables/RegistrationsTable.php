@@ -127,16 +127,31 @@ class RegistrationsTable
                         ->url(fn (Registration $record): ?string => \App\Http\Controllers\SpmbController::tautanAksesWa($record))
                         ->openUrlInNewTab(),
 
-                    Action::make('tandai_dihubungi')
-                        ->label('Tandai dihubungi')
-                        ->icon('heroicon-o-phone')
-                        ->visible(fn (Registration $record): bool => $record->status === 'baru')
-                        ->requiresConfirmation()
+                    Action::make('verifikasi_bayar')
+                        ->label('Verifikasi pembayaran formulir')
+                        ->icon('heroicon-o-banknotes')
+                        ->color('success')
+                        ->visible(fn (Registration $record): bool => in_array($record->status, ['baru', 'dihubungi'], true))
+                        ->modalHeading('Verifikasi pembayaran formulir')
+                        ->modalDescription('Setelah diverifikasi, pendaftar otomatis masuk tahap "Lengkapi formulir".')
+                        ->modalContent(fn (Registration $record) => view('filament.bukti-pembayaran', ['record' => $record]))
+                        ->modalSubmitActionLabel('Ya, verifikasi')
                         ->action(function (Registration $record): void {
-                            $record->update(['status' => 'dihubungi']);
+                            $record->update(['status' => 'lengkapi_formulir']);
 
-                            Notification::make()->title($record->nomor . ' ditandai sudah dihubungi')->success()->send();
+                            Notification::make()
+                                ->title('Pembayaran terverifikasi')
+                                ->body($record->nomor . ' → Lengkapi formulir. Pendaftar otomatis diminta mengisi formulir.')
+                                ->success()
+                                ->send();
                         }),
+
+                    Action::make('lihat_bukti')
+                        ->label('Lihat bukti pembayaran')
+                        ->icon('heroicon-o-photo')
+                        ->visible(fn (Registration $record): bool => (bool) $record->bukti_transfer)
+                        ->url(fn (Registration $record): ?string => $record->bukti_transfer_url)
+                        ->openUrlInNewTab(),
 
                     Action::make('terima')
                         ->label('Terima')
