@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
@@ -48,13 +49,31 @@ class SpmbNilaiQuranResource extends Resource
                     ->unique(ignoreRecord: true)
                     ->columnSpanFull(),
 
-                TextInput::make('nilai_baca')
-                    ->label('Nilai baca (0–100)')
-                    ->numeric()->minValue(0)->maxValue(100),
+                Section::make("Baca Al-Qur'an")
+                    ->schema([
+                        TextInput::make('baca_tajwid')->label('Tajwid')->numeric()->minValue(0)->maxValue(100),
+                        TextInput::make('baca_makhraj')->label('Makhraj')->numeric()->minValue(0)->maxValue(100),
+                        TextInput::make('baca_kelancaran')->label('Kelancaran')->numeric()->minValue(0)->maxValue(100),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
 
-                TextInput::make('nilai_tulis')
-                    ->label('Nilai tulis (0–100)')
-                    ->numeric()->minValue(0)->maxValue(100),
+                Section::make('Tulis Arab')
+                    ->schema([
+                        TextInput::make('tulis_ketepatan')->label('Ketepatan huruf')->numeric()->minValue(0)->maxValue(100),
+                        TextInput::make('tulis_kerapian')->label('Keindahan / kerapian tulisan')->numeric()->minValue(0)->maxValue(100),
+                    ])
+                    ->columns(2)
+                    ->columnSpanFull(),
+
+                Section::make('Praktek Sholat')
+                    ->schema([
+                        TextInput::make('sholat_bacaan')->label('Bacaan sholat')->numeric()->minValue(0)->maxValue(100),
+                        TextInput::make('sholat_fiqih')->label('Pemahaman fiqih')->numeric()->minValue(0)->maxValue(100),
+                        TextInput::make('sholat_gerakan')->label('Kesesuaian gerakan')->numeric()->minValue(0)->maxValue(100),
+                    ])
+                    ->columns(3)
+                    ->columnSpanFull(),
 
                 TextInput::make('penilai')
                     ->label('Penilai')
@@ -82,8 +101,10 @@ class SpmbNilaiQuranResource extends Resource
                     ->searchable()
                     ->wrap(),
 
-                TextColumn::make('nilai_baca')->label('Baca')->placeholder('—')->sortable(),
-                TextColumn::make('nilai_tulis')->label('Tulis')->placeholder('—')->sortable(),
+                TextColumn::make('skor_baca')->label('Baca')->placeholder('—')->sortable(),
+                TextColumn::make('skor_tulis')->label('Tulis')->placeholder('—')->sortable(),
+                TextColumn::make('skor_sholat')->label('Sholat')->placeholder('—')->sortable(),
+                TextColumn::make('skor_btq')->label('BTQ')->placeholder('—')->sortable()->weight('bold'),
 
                 TextColumn::make('penilai')->label('Penilai')->placeholder('—'),
 

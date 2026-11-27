@@ -14,9 +14,8 @@ use UnitEnum;
 
 /**
  * Rekap hasil tes SPMB untuk PANITIA:
- * daftar siswa, nilai CBT per mata pelajaran, nilai BTQ (baca tulis Al-Qur'an),
- * dan tombol keputusan panitia (terima / tolak).
- * Tidak tampil ke siswa.
+ * nilai CBT per mata pelajaran, nilai BTQ (baca, tulis, praktek sholat)
+ * beserta kriteria, dan tombol keputusan panitia.
  */
 class RekapNilaiSpmb extends Page
 {
@@ -37,7 +36,86 @@ class RekapNilaiSpmb extends Page
     /** Kata kunci pencarian nama / nomor pendaftaran. */
     public string $cari = '';
 
-    /** Keputusan panitia: terima. */
+    /** ID pendaftar yang form BTQ-nya sedang dibuka (null = tertutup). */
+    public ?int $bukaId = null;
+
+    /** Isian form BTQ yang sedang dibuka. */
+    public array $form = [];
+
+    public function bukaBtq(int $id): void
+    {
+        $q = SpmbNilaiQuran::firstOrCreate(['registration_id' => $id]);
+
+        $this->bukaId = $id;
+        $this->form = [
+            'baca_tajwid' => $q->baca_tajwid,
+            'baca_makhraj' => $q->baca_makhraj,
+            'baca_kelancaran' => $q->baca_kelancaran,
+            'tulis_ketepatan' => $q->tulis_ketepatan,
+            'tulis_kerapian' => $q->tulis_kerapian,
+            'sholat_bacaan' => $q->sholat_bacaan,
+            'sholat_fiqih' => $q->sholat_fiqih,
+            'sholat_gerakan' => $q->sholat_gerakan,
+            'penilai' => $q->penilai,
+            'catatan' => $q->catatan,
+        ];
+    }
+
+    public function tutupBtq(): void
+    {
+        $this->bukaId = null;
+        $this->form = [];
+    }
+
+    public function simpanBtqForm(): void
+    {
+        if (! $this->bukaId) {
+            return;
+        }
+
+        $aturan = [];
+        $pesan = [];
+        $label = [];
+        foreach (SpmbNilaiQuran::ASPEK as $aspek) {
+            foreach ($aspek['kriteria'] as $k => $nama) {
+                $aturan["form.$k"] = ['nullable', 'integer', 'min:0', 'max:100'];
+                $label["form.$k"] = $nama;
+                $pesan["form.$k.integer"] = "Nilai $nama harus angka bulat.";
+                $pesan["form.$k.min"] = "Nilai $nama minimal 0.";
+                $pesan["form.$k.max"] = "Nilai $nama maksimal 100.";
+            }
+        }
+        $aturan['form.penilai'] = ['nullable', 'string', 'max:120'];
+        $aturan['form.catatan'] = ['nullable', 'string', 'max:1000'];
+        $label['form.penilai'] = 'Nama penilai';
+        $label['form.catatan'] = 'Catatan';
+        $pesan['form.penilai.max'] = 'Nama penilai maksimal 120 karakter.';
+
+        $this->validate($aturan, $pesan, $label);
+
+        $q = SpmbNilaiQuran::firstOrCreate(['registration_id' => $this->bukaId]);
+
+        foreach (array_keys($this->form) as $k) {
+            if (in_array($k, ['penilai', 'catatan'], true)) {
+                $q->{$k} = $this->form[$k] !== '' ? $this->form[$k] : null;
+            } else {
+                $q->{$k} = ($this->form[$k] === '' || $this->form[$k] === null) ? null : (int) $this->form[$k];
+            }
+        }
+        $q->nilai_baca = null;
+        $q->nilai_tulis = null;
+        $q->save();
+
+        Notification::make()
+            ->title('Nilai BTQ tersimpan')
+            ->body('Baca: '.($q->skor_baca ?? '—').' · Tulis: '.($q->skor_tulis ?? '—')
+                .' · Sholat: '.($q->skor_sholat ?? '—').' · BTQ: '.($q->skor_btq ?? '—'))
+            ->success()
+            ->send();
+
+        $this->tutupBtq();
+    }
+
     public function terima(int $id): void
     {
         $r = Registration::find($id);
@@ -50,12 +128,11 @@ class RekapNilaiSpmb extends Page
 
         Notification::make()
             ->title($r->nama_siswa.' diterima')
-            ->body('Keputusan panitia tersimpan. Siswa melihat status pada halaman cek status SPMB.')
+            ->body('Keputusan panitia tersimpan.')
             ->success()
             ->send();
     }
 
-    /** Keputusan panitia: tidak diterima. */
     public function tolak(int $id): void
     {
         $r = Registration::find($id);
@@ -73,7 +150,6 @@ class RekapNilaiSpmb extends Page
             ->send();
     }
 
-    /** Batalkan keputusan → kembali ke tahap tes. */
     public function batalkan(int $id): void
     {
         $r = Registration::find($id);
@@ -87,39 +163,6 @@ class RekapNilaiSpmb extends Page
         Notification::make()
             ->title('Keputusan dibatalkan')
             ->body($r->nama_siswa.' kembali ke tahap tes.')
-            ->send();
-    }
-
-    /** Simpan nilai BTQ langsung dari tabel (0–100). */
-    public function simpanBtq(int $id, string $kolom, $nilai): void
-    {
-        if (! in_array($kolom, ['nilai_baca', 'nilai_tulis'], true)) {
-            return;
-        }
-
-        $nilai = trim((string) $nilai);
-        if ($nilai === '') {
-            $angka = null;
-        } elseif (! is_numeric($nilai) || (int) $nilai < 0 || (int) $nilai > 100) {
-            Notification::make()
-                ->title('Nilai BTQ tidak sah')
-                ->body('Isi angka 0–100.')
-                ->danger()
-                ->send();
-
-            return;
-        } else {
-            $angka = (int) $nilai;
-        }
-
-        $q = SpmbNilaiQuran::firstOrCreate(['registration_id' => $id]);
-        $q->{$kolom} = $angka;
-        $q->save();
-
-        Notification::make()
-            ->title('Nilai BTQ tersimpan')
-            ->body(($kolom === 'nilai_baca' ? 'Baca' : 'Tulis').': '.($angka ?? '—'))
-            ->success()
             ->send();
     }
 
@@ -168,8 +211,11 @@ class RekapNilaiSpmb extends Page
                 'rata' => $terisi ? (int) round(array_sum($terisi) / count($terisi)) : null,
                 'dikerjakan' => count($terisi),
                 'lengkap' => $paket->count() > 0 && count($terisi) === $paket->count(),
-                'baca' => $q?->nilai_baca,
-                'tulis' => $q?->nilai_tulis,
+                'baca' => $q?->skor_baca,
+                'tulis' => $q?->skor_tulis,
+                'sholat' => $q?->skor_sholat,
+                'btq' => $q?->skor_btq,
+                'btq_lengkap' => $q?->lengkap ?? false,
                 'catatan' => $q?->catatan,
             ];
         });
@@ -177,6 +223,8 @@ class RekapNilaiSpmb extends Page
         return [
             'paket' => $paket,
             'baris' => $baris,
+            'aspek' => SpmbNilaiQuran::ASPEK,
+            'dinilai' => $this->bukaId ? Registration::find($this->bukaId) : null,
             'jumlahLengkap' => $baris->where('lengkap', true)->count(),
             'jumlahDiterima' => $baris->where('registrasi.status', 'diterima')->count(),
             'jumlahDitolak' => $baris->where('registrasi.status', 'ditolak')->count(),
