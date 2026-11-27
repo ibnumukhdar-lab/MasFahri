@@ -65,7 +65,13 @@
   .sf-bingkai{flex:none;position:relative;width:99px;height:132px;border-radius:12px;overflow:hidden;background:#fff;
     border:1px dashed #c6d8ea;display:grid;place-items:center}
   .sf-bingkai img{width:100%;height:100%;object-fit:cover;display:block}
-  .sf-bingkai-kosong{text-align:center;font-size:10.5px;line-height:1.35;color:#93a3b8;padding:0 4px}
+  .sf-bingkai-kosong{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+    width:100%;height:100%;padding:0 4px;text-align:center;font-size:9.5px;line-height:1.3;color:#a87777;
+    background:linear-gradient(180deg,#fff8f8 0%,#ffeded 100%)}
+  .sf-bingkai-kosong svg{color:#d3adad;flex:none}
+  .sf-bingkai-kosong b{font-size:9.5px;font-weight:700;color:#b06868;letter-spacing:.02em}
+  /* kelas hidden harus menang atas display:flex/block di atas */
+  .sf-bingkai img.hidden,.sf-bingkai-kosong.hidden{display:none}
   .sf-file{width:100%;font-size:13px;color:#5b6470;border:1px solid #dfe8f1;background:#fff;border-radius:12px;padding:7px 9px}
   .sf-file::file-selector-button{margin-right:10px;padding:8px 13px;border-radius:9px;border:1px solid #dbe7f4;
     background:#eef4fb;color:#1f3a5f;font-weight:700;font-size:12.5px;cursor:pointer;font-family:inherit}
@@ -247,7 +253,14 @@
         <div id="foto-anak" class="sf-foto mb-5" style="scroll-margin-top:88px">
           <div class="sf-bingkai">
             <img id="foto-pratinjau" src="{{ $formulir->foto_latar_merah ? $formulir->foto_url : '' }}" alt="Pratinjau pas foto anak" class="{{ $formulir->foto_latar_merah ? '' : 'hidden' }}">
-            <div id="foto-kosong" class="sf-bingkai-kosong {{ $formulir->foto_latar_merah ? 'hidden' : '' }}">Belum ada<br>foto</div>
+            <div id="foto-kosong" class="sf-bingkai-kosong {{ $formulir->foto_latar_merah ? 'hidden' : '' }}">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8.4" r="3.7"/>
+                <path d="M4.6 20.6c.7-4.2 3.7-6.4 7.4-6.4s6.7 2.2 7.4 6.4"/>
+              </svg>
+              <span>Belum ada<br>foto</span>
+              <b>3 &times; 4</b>
+            </div>
           </div>
           <div class="flex-1 min-w-0">
             <p class="sf-label">Pas foto anak <span class="sf-note">Latar merah · JPG/PNG maks 4 MB · hanya foto calon murid</span></p>
