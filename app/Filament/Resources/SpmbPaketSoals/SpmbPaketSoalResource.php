@@ -107,7 +107,7 @@ class SpmbPaketSoalResource extends Resource
                     ->helperText('Kosongkan = tidak ada batas tutup.'),
 
                 Repeater::make('soal')
-                    ->label('Butir soal (pilihan ganda A–D)')
+                    ->label('Butir soal (pilihan ganda A–E)')
                     ->relationship()
                     ->schema([
                         Textarea::make('teks')
@@ -120,7 +120,8 @@ class SpmbPaketSoalResource extends Resource
                         TextInput::make('opsi_b')->label('Pilihan B')->required()->maxLength(255),
                         TextInput::make('opsi_c')->label('Pilihan C')->maxLength(255),
                         TextInput::make('opsi_d')->label('Pilihan D')->maxLength(255),
-                        TextInput::make('opsi_e')->label('Pilihan E')->maxLength(255),
+                        TextInput::make('opsi_e')->label('Pilihan E')->maxLength(255)
+                            ->helperText('Opsional — kosongkan bila 4 pilihan.'),
 
                         Select::make('kunci')
                             ->label('Kunci jawaban')
