@@ -109,15 +109,46 @@
           Jawaban Anda sudah direkam dan diteruskan ke panitia.<br>
           Nilai tidak ditampilkan di sini — hasil rekap dipegang panitia.
         </p>
-        <div class="rounded-xl p-3.5 mb-4 text-left" style="background:#eef6f2;border:1px solid #cfe6da">
-          <p class="text-[9px] font-black uppercase tracking-wide text-emerald-800 mb-0.5">Tahap berikutnya</p>
-          <p class="text-[13px] font-bold text-slate-800">Tes Baca Tulis Al-Qur'an</p>
-          <p class="text-[11.5px] text-slate-600">Jadwal ditetapkan panitia — pantau dasbor dan WhatsApp.</p>
-        </div>
-        <a href="{{ route('spmb.pendaftar.tes') }}"
-           class="inline-block bg-slate-900 hover:bg-black text-white font-extrabold py-2.5 px-5 rounded-xl text-[11px] uppercase tracking-wider">
-          Kembali ke Daftar Paket
-        </a>
+        @if ($sisaPaket->count() > 0)
+          {{-- MASIH ADA PAKET LAIN: jangan arahkan ke BTQ --}}
+          <div class="rounded-xl p-3.5 mb-4 text-left" style="background:#fff8e8;border:1px solid #f2d9a0">
+            <p class="text-[9px] font-black uppercase tracking-wide text-amber-700 mb-0.5">Paket ini selesai</p>
+            <p class="text-[13px] font-bold text-slate-800 mb-1">
+              Masih ada {{ $sisaPaket->count() }} paket Tes Akademik yang belum dikerjakan.
+            </p>
+            <p class="text-[11.5px] text-slate-600 mb-0">
+              Belum: {{ $sisaPaket->map(fn ($p) => $p->mata_pelajaran ?: $p->judul)->implode(' · ') }}
+            </p>
+          </div>
+          <a href="{{ route('spmb.pendaftar.tes') }}"
+             class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2.5 px-5 rounded-xl text-[11px] uppercase tracking-wider">
+            Kerjakan Paket Lain
+          </a>
+        @else
+          {{-- SEMUA PAKET AKADEMIK SELESAI → LANJUT POS BTQ --}}
+          <div class="rounded-xl p-3.5 mb-4 text-left" style="background:#eef6f2;border:1px solid #cfe6da">
+            <p class="text-[9px] font-black uppercase tracking-wide text-emerald-800 mb-0.5">Tahap berikutnya</p>
+            <p class="text-[13px] font-bold text-slate-800 mb-1">Tes BTQ (Baca Tulis Al-Qur'an)</p>
+            <p class="text-[11.5px] text-slate-600 leading-relaxed mb-2">
+              Seluruh paket Tes Akademik sudah selesai. Silakan menuju pos Tes BTQ dan
+              <b>tunjukkan kartu tes ini kepada Ustadz/Ustadzah penguji BTQ</b>.
+            </p>
+            <div class="bg-white rounded-lg border border-emerald-200 px-3 py-2 inline-flex items-center gap-2">
+              <span class="text-[9px] font-bold uppercase text-slate-400">Kode tes</span>
+              <span class="font-black text-slate-900 tracking-[.2em]" style="font-family:'Courier New',monospace">{{ $registrasi->kode_tes }}</span>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2 justify-center">
+            <a href="{{ route('spmb.pendaftar.kartu') }}"
+               class="inline-block bg-slate-900 hover:bg-black text-white font-extrabold py-2.5 px-5 rounded-xl text-[11px] uppercase tracking-wider">
+              Lihat Kartu Tes
+            </a>
+            <a href="{{ route('spmb.pendaftar.dasbor') }}"
+               class="inline-block bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold py-2.5 px-5 rounded-xl text-[11px] uppercase tracking-wider">
+              Kembali ke Dasbor
+            </a>
+          </div>
+        @endif
       </div>
     </div>
 

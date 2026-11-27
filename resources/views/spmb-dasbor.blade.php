@@ -199,7 +199,7 @@
       </div>
       <span class="chip">
         @if (($progresTes['total'] ?? 0) > 0)
-          Tes: {{ $progresTes['selesai'] }} / {{ $progresTes['total'] }} paket selesai
+          Tes Akademik: {{ $progresTes['selesai'] }} / {{ $progresTes['total'] }} paket selesai
           @if (! empty($progresTes['tuntas'])) — tuntas @endif
         @else
           Tes: belum ada paket dibuka
@@ -216,8 +216,8 @@
       @if (! empty($progresTes['tuntas']))
         <div class="rounded-xl p-4 mt-5" style="background:#eef6f2;border:1px solid #cfe6da">
           <p class="text-[10px] font-bold uppercase tracking-wide text-emerald-800 mb-1">Tahap berikutnya</p>
-          <p class="font-extrabold text-navy text-[14.5px] mb-0.5">Tes Baca Tulis Al-Qur'an</p>
-          <p class="text-[12.5px] text-slate-600">CBT Anda sudah tuntas dan nilainya direkap panitia. Jadwal tes baca tulis ditetapkan panitia — pantau dasbor dan WhatsApp.</p>
+          <p class="font-extrabold text-navy text-[14.5px] mb-0.5">Tes BTQ (Baca Tulis Al-Qur'an)</p>
+          <p class="text-[12.5px] text-slate-600">Seluruh paket Tes Akademik sudah tuntas. Menuju pos BTQ dan tunjukkan kartu tes kepada Ustadz/Ustadzah penguji. Nilai diisi oleh penguji.</p>
         </div>
       @endif
     </div>

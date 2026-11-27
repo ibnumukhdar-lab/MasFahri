@@ -10,9 +10,10 @@ class SpmbPaketSoal extends Model
 {
     protected $table = 'spmb_paket_soal';
 
-    protected $fillable = ['judul', 'mata_pelajaran', 'deskripsi', 'durasi_menit', 'urutan', 'wajib', 'kkm', 'mulai_pada', 'selesai_pada', 'aktif'];
+    protected $fillable = ['judul', 'mata_pelajaran', 'deskripsi', 'durasi_menit', 'urutan', 'wajib', 'kkm', 'tanggal_tes', 'mulai_pada', 'selesai_pada', 'aktif'];
 
     protected $casts = [
+        'tanggal_tes' => 'date',
         'mulai_pada' => 'datetime',
         'selesai_pada' => 'datetime',
         'aktif' => 'boolean',

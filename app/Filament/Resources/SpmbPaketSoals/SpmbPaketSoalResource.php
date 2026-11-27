@@ -5,6 +5,7 @@ namespace App\Filament\Resources\SpmbPaketSoals;
 use App\Filament\Resources\SpmbPaketSoals\Pages;
 use App\Models\SpmbPaketSoal;
 use BackedEnum;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -62,6 +63,12 @@ class SpmbPaketSoalResource extends Resource
                     ->label('Urutan tampil')
                     ->numeric()->default(0)
                     ->helperText('Paket dengan angka kecil tampil lebih dulu di daftar siswa.'),
+
+                DatePicker::make('tanggal_tes')
+                    ->label('Tanggal tes')
+                    ->native(false)
+                    ->displayFormat('d M Y')
+                    ->helperText('Hari tes paket ini. Tampil sebagai judul hari tes di halaman siswa.'),
 
                 TextInput::make('kkm')
                     ->label('KKM (opsional)')
@@ -149,6 +156,12 @@ class SpmbPaketSoalResource extends Resource
                 TextColumn::make('soal_count')
                     ->label('Soal')
                     ->suffix(' butir'),
+
+                TextColumn::make('tanggal_tes')
+                    ->label('Tanggal tes')
+                    ->date('d M Y')
+                    ->placeholder('-')
+                    ->sortable(),
 
                 TextColumn::make('kkm')
                     ->label('KKM')

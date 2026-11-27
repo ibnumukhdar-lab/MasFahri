@@ -349,6 +349,18 @@ class SpmbPendaftarController extends Controller
         $selesai = $daftar->where('selesai', true)->count();
         $skor = $daftar->where('selesai', true)->map(fn ($d) => (int) $d['ujian']->skor)->values();
 
+        // Label hari tes: pakai tanggal_tes, bila kosong ambil tanggal mulai jadwal.
+        $tanggal = $paketWajib
+            ->map(fn ($p) => ($p->tanggal_tes ?? $p->mulai_pada)?->translatedFormat('l, j F Y'))
+            ->filter()->unique()->values();
+        $hariTes = match (true) {
+            $tanggal->count() === 1 => $tanggal->first(),
+            $tanggal->count() > 1 => $tanggal->first().' – '.$tanggal->last(),
+            default => null,
+        };
+
+        $btq = $registrasi->nilaiQuran()->first();
+
         return view('spmb-tes', [
             'registrasi' => $registrasi,
             'daftar' => $daftar,
@@ -357,6 +369,8 @@ class SpmbPendaftarController extends Controller
             'tuntas' => $jumlah > 0 && $selesai === $jumlah,
             'rataRata' => $skor->count() ? (int) round($skor->avg()) : null,
             'adaPaketAktif' => $jumlah > 0,
+            'hariTes' => $hariTes,
+            'btqDinilai' => $btq && $btq->lengkap,
         ]);
     }
 
@@ -457,12 +471,26 @@ class SpmbPendaftarController extends Controller
             'pilihan' => $s->pilihan,
         ]);
 
+        // Sisa paket wajib setelah paket yang sedang dikerjakan ini (untuk arahan setelah submit).
+        $wajib = \App\Models\SpmbPaketSoal::query()
+            ->where('aktif', true)->where('wajib', true)
+            ->orderBy('urutan')->orderBy('id')->get();
+
+        $selesaiIds = $registrasi->ujianSemua()->where('status', 'selesai')->pluck('paket_id')->all();
+
+        $sisaPaket = $wajib
+            ->filter(fn ($p) => ! in_array($p->id, $selesaiIds, true) && $p->id !== $ujian->paket_id)
+            ->values();
+
         return view('spmb-cbt', [
             'registrasi' => $registrasi,
             'paket' => $ujian->paket,
             'ujian' => $ujian,
             'sisaDetik' => $ujian->sisa_detik,
             'soal' => $soal,
+            'sisaPaket' => $sisaPaket,
+            'jumlahWajib' => $wajib->count(),
+            'jumlahSelesai' => count(array_intersect($wajib->pluck('id')->all(), $selesaiIds)),
         ]);
     }
 
