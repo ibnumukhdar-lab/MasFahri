@@ -22,7 +22,7 @@
     </div>
 
     <table class="w-full text-[13.5px] mb-5"><tbody>
-      <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500 w-48">Nama siswa</td><td class="py-2.5 font-bold text-navy">{{ $registrasi->nama_siswa }}</td></tr>
+      <tr class="border-b border-slate-100"><td class="py-2.5 pr-3 text-slate-500 w-28 md:w-48 md:pr-4">Nama siswa</td><td class="py-2.5 font-bold text-navy">{{ $registrasi->nama_siswa }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Nomor pendaftaran</td><td class="py-2.5 font-semibold">{{ $registrasi->nomor }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Nama wali</td><td class="py-2.5">{{ $registrasi->nama_wali }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Jalur</td><td class="py-2.5">{{ $registrasi->minat_program ?: '-' }}</td></tr>
