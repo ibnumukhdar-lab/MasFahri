@@ -33,14 +33,19 @@
   <div class="wrap" style="position:relative;padding-top:64px;padding-bottom:64px">
     <p class="sp-kicker" style="color:#fdd100">Penerimaan Murid Baru {{ $tahunAjaran }}</p>
     <h1 style="font-size:31px;line-height:1.12;font-weight:800;color:#fff;letter-spacing:-.02em;max-width:22ch;margin:0 0 16px">
-      SPMB Gelombang 1<br>Telah Dibuka
+      @if ($gelombangAktif)
+        SPMB {{ $gelombangAktif->nama }}<br>{{ $gelombangAktif->sedangBerjalan() ? 'Telah Dibuka' : ($gelombangAktif->belumDibuka() ? 'Segera Dibuka' : 'Pendaftaran Ditutup') }}
+      @else
+        SPMB Gelombang 1<br>Telah Dibuka
+      @endif
     </h1>
     <p class="text-putih-85" style="font-size:14.5px;line-height:1.7;max-width:62ch;margin:0 0 26px">
       Kesempatan pertama masuk SMA IT Arafah tahun ajaran {{ $tahunAjaran }} — sekolah Islam terpadu boarding yang membina iman, hafalan Al-Qur'an, dan prestasi akademik sekaligus.
     </p>
     <div class="flex flex-wrap gap-2.5 mb-8">
-      <span class="sp-chip-tgl">🗓️ Daftar: <b>1 Des 2026 s/d Feb 2027</b></span>
-      <span class="sp-chip-tgl">📝 Tes pertama: <b>Senin, 14 Des 2026</b></span>
+      @php $tesPertama = $gelombangAktif?->jadwalTes->first(); @endphp
+      <span class="sp-chip-tgl">🗓️ Daftar: <b>{{ $gelombangAktif?->rentang_label ?? '1 Des 2026 s/d Feb 2027' }}</b></span>
+      <span class="sp-chip-tgl">📝 Tes pertama: <b>{{ $tesPertama?->waktu_label ?? 'Senin, 14 Des 2026' }}</b></span>
       <span class="sp-chip-tgl">💰 Cashback Desember: <b>Rp 1.000.000</b></span>
     </div>
     <div class="flex flex-wrap gap-3">
@@ -53,40 +58,79 @@
   </div>
 </section>
 
-{{-- ================= JADWAL ================= --}}
+{{-- ================= JADWAL (dari data gelombang di panel) ================= --}}
 <section class="sp-band" style="background:#fff">
   <div class="wrap">
     <div class="sp-h2-baris">
       <p class="sp-kicker">Jangan sampai terlewat</p>
       <h2 class="sp-h2">Jadwal SPMB {{ $tahunAjaran }}</h2>
       <p class="sp-lead">
-        Persiapkan langkah terbaik untuk buah hati Anda: <b class="text-navy">Pendaftaran Siswa Baru SMA IT Arafah Tahun Ajaran {{ $tahunAjaran }}</b> resmi dibuka lewat Gelombang 1.
-        Ini kesempatan pertama — dan terbaik — untuk mengamankan kursi sebelum antrean gelombang berikutnya.
-        Dua tanggal di bawah ini adalah kuncinya.
+        Pendaftaran Siswa Baru SMA IT Arafah tahun ajaran {{ $tahunAjaran }} dibuka bertahap.
+        Pilih gelombang yang paling siap — setiap gelombang punya jadwal tes masuknya sendiri.
       </p>
     </div>
-    <div class="grid md:grid-cols-2 gap-4 mb-4">
-      <div class="kartu p-6 flex gap-4 items-start" style="box-shadow:0 18px 40px -30px rgba(31,58,95,.45)">
-        <span aria-hidden="true" class="sp-ikon" style="background:#1f3a5f">🗓️</span>
-        <div>
-          <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-1.5">Pembukaan pendaftaran</p>
-          <p class="font-extrabold text-navy text-[17.5px] leading-snug mb-2">Gelombang 1: 1 Desember 2026 s/d Februari 2027</p>
-          <p class="text-slate-600 text-[13.5px] leading-relaxed">Isi formulir online kapan saja dalam periode ini — semakin awal mendaftar, semakin cepat masuk proses seleksi dan mengamankan kursi.</p>
+
+    @if ($gelombang->isEmpty())
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div class="kartu p-6 flex gap-4 items-start" style="box-shadow:0 18px 40px -30px rgba(31,58,95,.45)">
+          <span aria-hidden="true" class="sp-ikon" style="background:#1f3a5f">🗓️</span>
+          <div>
+            <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-1.5">Pembukaan pendaftaran</p>
+            <p class="font-extrabold text-navy text-[17.5px] leading-snug mb-2">1 Desember 2026 s/d Februari 2027</p>
+            <p class="text-slate-600 text-[13.5px] leading-relaxed">Isi formulir online kapan saja dalam periode ini.</p>
+          </div>
+        </div>
+        <div class="kartu p-6 flex gap-4 items-start" style="box-shadow:0 18px 40px -30px rgba(31,58,95,.45)">
+          <span aria-hidden="true" class="sp-ikon" style="background:#fdd100">📝</span>
+          <div>
+            <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-1.5">Tes penerimaan pertama</p>
+            <p class="font-extrabold text-navy text-[17.5px] leading-snug mb-2">Senin, 14 Desember 2026</p>
+            <p class="text-slate-600 text-[13.5px] leading-relaxed">Potensi Akademik &amp; Minat Bakat.</p>
+          </div>
         </div>
       </div>
-      <div class="kartu p-6 flex gap-4 items-start" style="box-shadow:0 18px 40px -30px rgba(31,58,95,.45)">
-        <span aria-hidden="true" class="sp-ikon" style="background:#fdd100">📝</span>
-        <div>
-          <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-1.5">Tes penerimaan pertama</p>
-          <p class="font-extrabold text-navy text-[17.5px] leading-snug mb-2">Senin, 14 Desember 2026</p>
-          <p class="text-slate-600 text-[13.5px] leading-relaxed">Potensi Akademik &amp; Minat Bakat. Peserta akan dihubungi panitia lewat WhatsApp setelah pendaftaran terverifikasi.</p>
-        </div>
+    @else
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        @foreach ($gelombang as $g)
+          <div class="kartu p-6" style="box-shadow:0 18px 40px -30px rgba(31,58,95,.45)">
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <div>
+                <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-1">{{ $g->tahun_ajaran }}</p>
+                <p class="font-extrabold text-navy text-[18px] leading-snug">{{ $g->nama }}</p>
+              </div>
+              <span class="text-[11.5px] font-bold px-2.5 py-1 rounded-full whitespace-nowrap {{ $g->sedangBerjalan() ? 'bg-emerald-50 text-emerald-700' : ($g->belumDibuka() ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-600') }}">
+                {{ $g->status_label }}
+              </span>
+            </div>
+
+            <p class="text-slate-600 text-[13.5px] leading-relaxed mb-4">
+              <span class="font-bold text-navy">Pendaftaran:</span> {{ $g->rentang_label }}
+            </p>
+
+            @if ($g->jadwalTes->isEmpty())
+              <p class="text-slate-500 text-[13px]">Jadwal tes menyusul — ikuti informasi panitia.</p>
+            @else
+              <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-2">Jadwal tes masuk</p>
+              <ul class="space-y-2.5">
+                @foreach ($g->jadwalTes as $jdw)
+                  <li class="flex gap-3 items-start">
+                    <span class="text-[15px] leading-none mt-0.5" aria-hidden="true">{{ $jdw->jenis === 'akademik' ? '📝' : ($jdw->jenis === 'btq' ? '📖' : ($jdw->jenis === 'wawancara' ? '🎤' : '📌')) }}</span>
+                    <div>
+                      <p class="font-bold text-navy text-[13.5px] leading-snug">{{ $jdw->waktu_label }}</p>
+                      <p class="text-slate-600 text-[13px] leading-snug">{{ $jdw->nama }}@if ($jdw->tempat) · {{ $jdw->tempat }}@endif</p>
+                    </div>
+                  </li>
+                @endforeach
+              </ul>
+            @endif
+
+            @if ($g->keterangan)
+              <p class="text-slate-500 text-[12.5px] leading-relaxed mt-4 pt-3" style="border-top:1px dashed #dbe6f2">{{ $g->keterangan }}</p>
+            @endif
+          </div>
+        @endforeach
       </div>
-    </div>
-    <div class="rounded-xl px-5 py-4 text-[13.5px] text-slate-700 leading-relaxed" style="background:#f2f6fb;border:1px dashed #c6d8ea;max-width:860px">
-      <p class="mb-1"><b class="text-navy">Catatan:</b> setelah 14 Desember, tes berikutnya dijadwalkan berkelanjutan sampai kuota Gelombang 1 terisi — ikuti arahan panitia lewat WhatsApp.</p>
-      <p><b class="text-navy">Belum siap di Gelombang 1?</b> Gelombang 2 dibuka <b>Maret s/d Juni 2027</b> — kursi tinggal mengikuti sisa kuota, jadi daftar lebih awal tetap lebih menguntungkan.</p>
-    </div>
+    @endif
   </div>
 </section>
 

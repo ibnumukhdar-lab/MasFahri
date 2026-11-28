@@ -49,10 +49,33 @@
 </div>
 
 <div class="ps-kartu">
+  <p class="ps-judul">Gelombang &amp; jadwal tes</p>
+  <p class="ps-sub">Jadwal SPMB (gelombang mana saja, dan tes masuknya) diatur di menu tersendiri.
+    Halaman <b>/spmb</b> membaca data itu langsung — tidak ada lagi jadwal yang ditulis di halaman.</p>
+
+  @if ($gelombang->isEmpty())
+    <p class="ps-kosong">Belum ada gelombang. Tambahkan minimal satu gelombang supaya jadwal tampil di situs.</p>
+  @else
+    <div class="ps-hari">
+      @foreach ($gelombang as $g)
+        <span>{{ $g->nama }} · {{ $g->status_label }} · {{ $g->jadwalTes->count() }} jadwal tes</span>
+      @endforeach
+    </div>
+  @endif
+
+  <div style="margin-top:12px">
+    <a href="{{ \App\Filament\Resources\SpmbGelombangs\SpmbGelombangResource::getUrl('index') }}" class="ps-btn" style="display:inline-block;text-decoration:none">
+      Kelola gelombang &amp; jadwal
+    </a>
+  </div>
+</div>
+
+<div class="ps-kartu">
   <p class="ps-judul">Catatan</p>
   <p class="ps-sub" style="margin-bottom:0">
-    Hari tes diambil dari kolom <b>Tanggal tes</b> pada menu <b>Paket Soal CBT</b>.
-    Ubah tanggal di sana untuk mengatur daftar hari tes — pengumuman otomatis menyesuaikan (H+1).
+    Hari tes diambil dari <b>Jadwal tes</b> pada menu <b>Gelombang &amp; Jadwal</b> (dan dari kolom
+    <b>Tanggal tes</b> pada menu <b>Paket Soal CBT</b> bila paket tidak ditautkan ke jadwal).
+    Pengumuman otomatis menyesuaikan: <b>H+1 dari hari tes terakhir</b>.
   </p>
 </div>
 </div>

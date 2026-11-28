@@ -29,6 +29,10 @@ class SpmbController extends Controller
         return view('spmb', [
             'tahunAjaran' => $tahun,
             'pilihanTahun' => $pilihan,
+            'gelombang' => \App\Models\SpmbGelombang::untukTahun($tahun),
+            'gelombangAktif' => \App\Models\SpmbGelombang::berjalan($tahun)
+                ?? \App\Models\SpmbGelombang::untukTahun($tahun)->first(fn ($g) => ! $g->sudahDitutup())
+                ?? \App\Models\SpmbGelombang::untukTahun($tahun)->first(),
         ]);
     }
 
@@ -64,6 +68,10 @@ class SpmbController extends Controller
         } else {
             $data['bukti_transfer'] = null;
         }
+        // Pendaftar otomatis dicatat masuk gelombang yang sedang berjalan
+        // (panitia masih bisa mengubahnya dari panel bila perlu).
+        $data['gelombang_id'] = \App\Models\SpmbGelombang::berjalan($data['tahun_ajaran'] ?? null)?->id;
+
         $registrasi = Registration::create($data);
 
         // Pesan konfirmasi dari PENDAFTAR ke WhatsApp sekolah: setelah formulir terkirim,

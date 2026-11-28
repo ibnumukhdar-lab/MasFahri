@@ -50,6 +50,13 @@ class RegistrationsTable
                     ->sortable()
                     ->toggleable(),
 
+                TextColumn::make('gelombang.nama')
+                    ->label('Gelombang')
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('gray')
+                    ->toggleable(),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()

@@ -34,13 +34,24 @@
         </ol>
       </td></tr>
       <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Tanggal tes</td><td class="py-2.5">
-        @php $tanggalTes = $paketList->pluck('tanggal_tes')->filter()->sort()->last(); @endphp
+        @php
+          $tanggalJadwal = $jadwal->pluck('tanggal')->filter()->sort()->first();
+          $tanggalTes = $tanggalJadwal ?: $paketList->pluck('tanggal_tes')->filter()->sort()->last();
+        @endphp
         @if ($tanggalTes)
           <b>{{ $tanggalTes->translatedFormat('l, j F Y') }}</b>
         @else
           <span class="text-slate-500">Sesuai informasi panitia</span>
         @endif
       </td></tr>
+      @if ($jadwal->isNotEmpty())
+        <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Rincian jadwal</td><td class="py-2.5">
+          @foreach ($jadwal as $jdw)
+            @php $tpt = $jdw->tempat ? ' (' . $jdw->tempat . ')' : ''; @endphp
+            <div style="margin-bottom:4px"><b>{{ $jdw->waktu_label }}</b> · {{ $jdw->nama }}{{ $tpt }}</div>
+          @endforeach
+        </td></tr>
+      @endif
     </tbody></table>
 
     <div class="bg-navy rounded-2xl px-6 py-5 text-center mb-5">

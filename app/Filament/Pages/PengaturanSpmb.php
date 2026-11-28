@@ -71,9 +71,28 @@ class PengaturanSpmb extends Page
 
         $otomatis = $hari->keys()->sort()->last();
 
+        // Tahun ajaran yang dipakai halaman /spmb (dinormalkan seperti SpmbController::index).
+        $tahun = (string) Setting::ambil('tahun_ajaran', '2027/2028');
+        if (! in_array($tahun, \App\Http\Controllers\SpmbController::TAHUN_AJARAN, true)) {
+            $tahun = \App\Http\Controllers\SpmbController::TAHUN_AJARAN[0];
+        }
+
+        // Tanggal pengumuman otomatis H+1 dari JADWAL TES TERAKHIR di gelombang aktif.
+        $gelombang = \App\Models\SpmbGelombang::untukTahun($tahun);
+        $tesJadwal = $gelombang->flatMap(fn ($g) => $g->jadwalTes()->where('aktif', true)->get())
+            ->filter(fn ($j) => (bool) $j->tanggal)
+            ->sortByDesc(fn ($j) => $j->tanggal->toDateString())
+            ->first();
+
+        $otomatisJadwal = $tesJadwal?->tanggal?->copy()->addDay();
+        $otomatisAkhir = collect([$otomatis ? \Carbon\Carbon::parse($otomatis) : null, $otomatisJadwal])
+            ->filter()->sort()->last();
+
         return [
             'hariTes' => $hari,
-            'otomatis' => $otomatis ? \Carbon\Carbon::parse($otomatis)->addDay() : null,
+            'otomatis' => $otomatisAkhir,
+            'gelombang' => $gelombang,
+            'jumlahJadwal' => $gelombang->sum(fn ($g) => $g->jadwalTes()->count()),
         ];
     }
 }

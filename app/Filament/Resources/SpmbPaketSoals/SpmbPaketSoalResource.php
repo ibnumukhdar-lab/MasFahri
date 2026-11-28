@@ -69,11 +69,26 @@ class SpmbPaketSoalResource extends Resource
                     ->numeric()->default(0)
                     ->helperText('Paket dengan angka kecil tampil lebih dulu di daftar siswa.'),
 
+                Select::make('jadwal_tes_id')
+                    ->label('Tautkan ke jadwal gelombang (opsional)')
+                    ->options(fn (): array => \App\Models\SpmbJadwalTes::query()
+                        ->with('gelombang')
+                        ->orderBy('tanggal')
+                        ->get()
+                        ->mapWithKeys(fn ($j) => [
+                            $j->id => ($j->gelombang?->nama ?? '—').' · '.$j->waktu_label.' · '.$j->nama,
+                        ])
+                        ->all())
+                    ->searchable()
+                    ->native(false)
+                    ->helperText('Bila ditautkan, tanggal & jam paket ini MENGIKUTI jadwal gelombang tersebut — tidak perlu diisi manual lagi.')
+                    ->columnSpanFull(),
+
                 DatePicker::make('tanggal_tes')
                     ->label('Tanggal tes')
                     ->native(false)
                     ->displayFormat('d M Y')
-                    ->helperText('Hari tes paket ini. Tampil sebagai judul hari tes di halaman siswa.'),
+                    ->helperText('Diabaikan bila paket ditautkan ke jadwal gelombang di atas.'),
 
                 TextInput::make('kkm')
                     ->label('KKM (opsional)')

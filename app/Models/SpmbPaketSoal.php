@@ -10,7 +10,7 @@ class SpmbPaketSoal extends Model
 {
     protected $table = 'spmb_paket_soal';
 
-    protected $fillable = ['judul', 'mata_pelajaran', 'deskripsi', 'durasi_menit', 'urutan', 'wajib', 'kkm', 'tanggal_tes', 'mulai_pada', 'selesai_pada', 'aktif'];
+    protected $fillable = ['judul', 'mata_pelajaran', 'deskripsi', 'durasi_menit', 'urutan', 'wajib', 'kkm', 'tanggal_tes', 'jadwal_tes_id', 'mulai_pada', 'selesai_pada', 'aktif'];
 
     protected $casts = [
         'tanggal_tes' => 'date',
@@ -28,6 +28,35 @@ class SpmbPaketSoal extends Model
     public function ujian(): HasMany
     {
         return $this->hasMany(SpmbUjian::class, 'paket_id');
+    }
+
+    /** Jadwal tes masuk pada gelombang SPMB yang mengatur paket ini (opsional). */
+    public function jadwalTes(): BelongsTo
+    {
+        return $this->belongsTo(SpmbJadwalTes::class, 'jadwal_tes_id');
+    }
+
+    /**
+     * Paket yang ditautkan ke jadwal gelombang SELALU mengikuti tanggal & jam
+     * jadwal itu — satu sumber tanggal, tidak mungkin berbeda dengan halaman /spmb.
+     */
+    protected static function booted(): void
+    {
+        static::saving(function (self $paket) {
+            if (! $paket->jadwal_tes_id) {
+                return;
+            }
+
+            $jadwal = SpmbJadwalTes::find($paket->jadwal_tes_id);
+            if (! $jadwal) {
+                return;
+            }
+
+            [$mulai, $selesai] = $jadwal->jendela();
+            $paket->tanggal_tes = $jadwal->tanggal;
+            $paket->mulai_pada = $mulai;
+            $paket->selesai_pada = $selesai;
+        });
     }
 
     /** Paket yang boleh dikerjakan sekarang (aktif + dalam jadwal). */

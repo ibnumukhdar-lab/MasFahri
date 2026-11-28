@@ -366,6 +366,7 @@ class SpmbPendaftarController extends Controller
         return view('spmb-kartu', [
             'registrasi' => $registrasi,
             'kode' => $kode,
+            'jadwal' => $registrasi->gelombang?->jadwalTes()->where('aktif', true)->get() ?? collect(),
             'paketList' => \App\Models\SpmbPaketSoal::query()
                 ->where('aktif', true)->where('wajib', true)
                 ->orderBy('urutan')->orderBy('id')->get(),
