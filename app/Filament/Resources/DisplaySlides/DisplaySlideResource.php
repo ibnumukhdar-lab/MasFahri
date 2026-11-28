@@ -16,9 +16,12 @@ use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use UnitEnum;
+use App\Filament\Concerns\HanyaPengelolaPenuh;
 
 class DisplaySlideResource extends Resource
 {
+    use HanyaPengelolaPenuh;
+
     protected static ?string $model = DisplaySlide::class;
 
     protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedTv;

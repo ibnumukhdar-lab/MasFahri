@@ -44,6 +44,27 @@ return [
             'transaction_mode' => 'DEFERRED',
         ],
 
+        'siakad' => [
+            // Koneksi BACA-SAJA ke basis data SIAKAD (MySQL) supaya akun SIAKAD
+            // bisa masuk panel /kelola tanpa membuat sandi baru.
+            'driver' => 'mysql',
+            'host' => env('SIAKAD_DB_HOST', '127.0.0.1'),
+            'port' => env('SIAKAD_DB_PORT', '3306'),
+            'database' => env('SIAKAD_DB_DATABASE', 'u8151173_siakad'),
+            'username' => env('SIAKAD_DB_USERNAME', ''),
+            'password' => env('SIAKAD_DB_PASSWORD', ''),
+            'unix_socket' => env('SIAKAD_DB_SOCKET', ''),
+            'charset' => env('SIAKAD_DB_CHARSET', 'latin1'),
+            'collation' => env('SIAKAD_DB_COLLATION', 'latin1_swedish_ci'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                (PHP_VERSION_ID >= 80500 ? Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => env('MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),

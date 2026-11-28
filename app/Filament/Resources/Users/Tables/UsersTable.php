@@ -32,7 +32,17 @@ class UsersTable
                 TextColumn::make('peran_label')
                     ->label('Peran')
                     ->badge()
-                    ->color(fn (User $record): string => $record->peran === 'admin' ? 'primary' : 'gray'),
+                    ->color(fn (User $record): string => match ((string) $record->peran) {
+                        'super_admin', 'admin' => 'primary',
+                        'operator_website' => 'success',
+                        'panitia_spmb' => 'warning',
+                        default => 'gray',
+                    }),
+
+                TextColumn::make('nipa')
+                    ->label('NIPA')
+                    ->placeholder('-')
+                    ->toggleable(),
 
                 TextColumn::make('whatsapp')
                     ->label('WhatsApp')
@@ -53,8 +63,8 @@ class UsersTable
             ->filters([
                 SelectFilter::make('peran')
                     ->label('Peran')
-                    ->options([
-                        'admin' => 'Administrator',
+                    ->options(User::PERAN_PILIHAN + [
+                        'admin' => 'Administrator (lama)',
                         'guru' => 'Guru',
                         'musyrif' => 'Musyrif/Musyrifah',
                         'ustadz_diniyah' => 'Ustadz Diniyah',

@@ -6,6 +6,7 @@ use App\Filament\Resources\Users\Pages\EditUser;
 use App\Filament\Resources\Users\Pages\ListUsers;
 use App\Filament\Resources\Users\Schemas\UserForm;
 use App\Filament\Resources\Users\Tables\UsersTable;
+use App\Filament\Concerns\HanyaSuperAdmin;
 use App\Models\User;
 use BackedEnum;
 use Filament\Resources\Resource;
@@ -16,6 +17,8 @@ use UnitEnum;
 
 class UserResource extends Resource
 {
+    use HanyaSuperAdmin;
+
     protected static ?string $slug = 'pengguna';
 
     protected static ?string $model = User::class;
@@ -33,12 +36,6 @@ class UserResource extends Resource
     protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
-
-    /** Akun dibuat lewat impor/registrasi publik, bukan dari panel. */
-    public static function canCreate(): bool
-    {
-        return false;
-    }
 
     public static function form(Schema $schema): Schema
     {

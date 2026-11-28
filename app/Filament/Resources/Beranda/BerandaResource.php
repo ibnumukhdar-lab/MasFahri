@@ -13,9 +13,12 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use UnitEnum;
+use App\Filament\Concerns\HanyaPengelolaPenuh;
 
 class BerandaResource extends Resource
 {
+    use HanyaPengelolaPenuh;
+
     protected static ?string $slug = 'beranda';
 
     protected static ?string $model = BerandaBagian::class;

@@ -30,7 +30,7 @@ class KelolaPanelProvider extends PanelProvider
             ->default()
             ->id('kelola')
             ->path('kelola')
-            ->login()
+            ->login(\App\Filament\Pages\MasukKelola::class)
             ->brandName('Kelola · smaitarafah.sch.id')
             ->brandLogo('/media/logo/logo-192.png')
             ->brandLogoHeight('2rem')
