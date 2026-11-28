@@ -7,6 +7,30 @@ class Registration extends Model
 {
     protected $fillable = ['nomor', 'kode_tes', 'tahun_ajaran', 'gelombang_id', 'nama_wali', 'nama_siswa', 'jenis_kelamin', 'sekolah_asal', 'minat_program', 'whatsapp', 'email', 'catatan', 'status', 'ip', 'pesan_admin', 'bukti_transfer'];
 
+    /**
+     * Cari pendaftar dari nomor registrasi yang diketik petugas.
+     * Menerima "SPMB-2027-0001", "spmb-2027-1", "2027-0001", atau "20270001".
+     */
+    public static function cariNomor(?string $teks): ?self
+    {
+        $t = strtoupper(preg_replace('/[\s\.]+/', '', (string) $teks));
+
+        if ($t === '') {
+            return null;
+        }
+
+        // Buang awalan SPMB yang mungkin ikut diketik, lalu susun ulang bentuk bakunya.
+        $t = preg_replace('/^SPMB-?/', '', $t);
+
+        if (preg_match('/^(\d{4})-?(\d{1,6})$/', $t, $m)) {
+            $t = 'SPMB-'.$m[1].'-'.str_pad($m[2], 4, '0', STR_PAD_LEFT);
+        } else {
+            $t = 'SPMB-'.$t;
+        }
+
+        return static::query()->whereRaw('UPPER(REPLACE(nomor, \' \', \'\')) = ?', [$t])->first();
+    }
+
     /** Gelombang SPMB tempat pendaftar ini masuk. */
     public function gelombang()
     {
