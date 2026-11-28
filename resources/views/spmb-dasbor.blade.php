@@ -1,7 +1,6 @@
 @extends('layouts.publik')
 @section('judul', 'Dashboard Pendaftar — SPMB SMA IT Arafah')
 @section('isi')
-@include('partials.hero', ['kecil' => 'Area Pendaftar SPMB', 'judul' => 'Halo, ' . $registrasi->nama_siswa . ' 👋', 'sub' => 'Nomor pendaftaran '.$registrasi->nomor.' — status: '.(\App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status).'. Lengkapi formulir dan biodata di bawah ini.'])
 
 @php
   $kolPribadi = ['nama_panggilan', 'nisn', 'nik', 'golongan_darah', 'tempat_lahir', 'tanggal_lahir', 'suku_bangsa', 'anak_ke', 'dari_bersaudara', 'alamat_jalan', 'kelurahan', 'kecamatan'];
@@ -51,6 +50,12 @@
       default => ['label' => 'Tahap tes', 'dot' => '#fdd100', 'bg' => 'rgba(253,209,0,.16)', 'fg' => '#ffe483', 'bd' => 'rgba(253,209,0,.34)'],
   };
 
+  $chipRingan = match (true) {
+      $registrasi->status === 'diterima' => ['bg' => '#e7f6ec', 'fg' => '#166534'],
+      $registrasi->status === 'ditolak' => ['bg' => '#fdecec', 'fg' => '#991b1b'],
+      default => ['bg' => '#fff8e8', 'fg' => '#8a5a00'],
+  };
+
   $lingkar = 213.63;
 @endphp
 
@@ -66,8 +71,10 @@
   .sf-input:hover{border-color:#c6d8ea;background:#fcfdff}
   .sf-input:focus{outline:none;border-color:#1f3a5f;background:#fff;box-shadow:0 0 0 4px rgba(31,58,95,.10)}
   .sf-input:valid:not(:placeholder-shown){border-color:#cfdded}
-  .sf-kartu{background:#fff;border:1px solid #e7eef6;border-radius:20px;overflow:hidden;
-    box-shadow:0 18px 44px -36px rgba(31,58,95,.55)}
+  .sf-kartu{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;
+    box-shadow:0 1px 2px rgba(15,23,42,.05)}
+  .sf-kartu h2{font-size:15px;font-weight:600;color:#374151;letter-spacing:0}
+  .sf-panel .sf-eyebrow{font-size:10.5px;font-weight:600;letter-spacing:.12em;color:#9ca3af}
   .sf-kepala{position:relative;overflow:hidden;color:#fff;
     background:linear-gradient(125deg,#1b3455 0%,#1f3a5f 45%,#2b5288 100%);padding:18px 22px}
   .sf-kepala::after{content:"";position:absolute;right:-46px;top:-58px;width:170px;height:170px;border-radius:50%;
@@ -161,13 +168,13 @@
   .sf-tombol-kecil{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:8px 13px;border-radius:10px;text-decoration:none}
 
   /* ---- tab halaman pendaftar ---- */
-  .sf-tabs{display:flex;gap:5px;background:#fff;border:1px solid #e7eef6;border-radius:14px;padding:5px;
-    position:sticky;top:74px;z-index:30;box-shadow:0 10px 24px -22px rgba(31,58,95,.6);overflow-x:auto}
+  .sf-tabs{display:flex;gap:4px;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:12px;padding:4px;
+    position:sticky;top:74px;z-index:30;overflow-x:auto}
   .sf-tabs::-webkit-scrollbar{display:none}
   .sf-tab{flex:1 0 auto;white-space:nowrap;border:0;background:transparent;padding:9px 12px;border-radius:10px;
     font-size:12.5px;font-weight:700;color:#64748b;cursor:pointer;transition:background .15s,color .15s}
   .sf-tab:hover{background:#f4f8fd;color:#1f3a5f}
-  .sf-tab.aktif{background:#1f3a5f;color:#fff}
+  .sf-tab.aktif{background:#fff;color:#1f3a5f;box-shadow:0 1px 3px rgba(15,23,42,.10)}
   .sf-led{display:inline-block;width:6px;height:6px;border-radius:50%;background:#fdd100;margin-left:5px;vertical-align:middle}
   .sf-panel{display:none}
   .sf-panel.tampil{display:block}
@@ -178,50 +185,44 @@
 </style>
 
 <section class="wrap pt-8">
-  <div class="sf-kartu max-w-3xl mx-auto">
-    <div class="sf-kepala">
-      <div class="sf-kepala-isi flex items-center gap-5 justify-between">
-        <div class="min-w-0">
-          <p class="sf-eyebrow">Ringkasan pendaftaran</p>
-          <p class="text-[17px] md:text-[19px] font-extrabold mt-1 tracking-tight">{{ $registrasi->nomor }}</p>
-          <div class="flex flex-wrap items-center gap-2 mt-2">
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full"
-                  style="background:{{ $statusIntegrasi['bg'] }};color:{{ $statusIntegrasi['fg'] }};border:1px solid {{ $statusIntegrasi['bd'] }}">
-              <span class="w-1.5 h-1.5 rounded-full" style="background:{{ $statusIntegrasi['dot'] }}"></span>
-              {{ $statusIntegrasi['label'] }}
-            </span>
-            <span class="text-[11px] text-white/70">Tahun pelajaran {{ $registrasi->tahun_ajaran }}</span>
-          </div>
-        </div>
-        <div class="sf-donat" title="Progres pengisian formulir">
-          <svg width="78" height="78" viewBox="0 0 78 78">
-            <circle cx="39" cy="39" r="34" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="7"></circle>
-            <circle cx="39" cy="39" r="34" fill="none" stroke="#fdd100" stroke-width="7" stroke-linecap="round"
-              stroke-dasharray="{{ $lingkar }}" stroke-dashoffset="{{ round($lingkar * (1 - $persenTotal / 100), 2) }}"></circle>
-          </svg>
-          <span class="sf-donat-angka">{{ $persenTotal }}%</span>
-        </div>
+  <div class="max-w-5xl mx-auto">
+    <div class="flex flex-wrap items-start justify-between gap-3 pb-5 border-b border-slate-200">
+      <div class="min-w-0">
+        <p class="text-[10.5px] font-bold uppercase tracking-[.18em] text-slate-400">Portal Pendaftar SPMB</p>
+        <h1 class="text-[21px] md:text-[25px] font-semibold text-navy mt-1 leading-tight">Halo, {{ $registrasi->nama_siswa }}</h1>
+        <p class="text-[12.5px] text-slate-500 mt-1">{{ $registrasi->nomor }} · Tahun pelajaran {{ $registrasi->tahun_ajaran }}</p>
       </div>
+      <span class="inline-flex items-center gap-1.5 text-[11.5px] font-semibold px-3 py-1.5 rounded-full"
+            style="background:{{ $chipRingan['bg'] }};color:{{ $chipRingan['fg'] }}">
+        <span class="w-1.5 h-1.5 rounded-full" style="background:currentColor"></span>
+        {{ $statusIntegrasi['label'] }}
+      </span>
     </div>
 
-    <div class="p-5 md:p-6">
-      <div class="flex flex-wrap items-end justify-between gap-2 mb-3">
-        <div>
-          <p class="sf-eyebrow" style="color:#94a3b8">Progres pengisian</p>
-          <h2 class="text-[18px] md:text-[20px] font-extrabold text-navy mt-0.5">Yang sudah &amp; belum diisi</h2>
-        </div>
-        <p class="text-[12px] text-slate-500">{{ $isiForm }} dari {{ $bobotForm }} kolom terisi</p>
-      </div>
-      <div class="h-2.5 rounded-full bg-slate-100 overflow-hidden mb-5">
-        <div class="h-full rounded-full transition-all" style="width:{{ $persenTotal }}%;background:{{ $persenTotal >= 100 ? 'linear-gradient(90deg,#14875a,#22a35a)' : 'linear-gradient(90deg,#1f3a5f,#3d5987 60%,#fdd100)' }}"></div>
-      </div>
+    @php
+      $stat = [
+        ['Kelengkapan data', $persenTotal.'%', $isiForm.' / '.$bobotForm.' kolom terisi', $persenTotal >= 100],
+        ['Tes akademik (TPA)', ($progres['selesai'] ?? 0).' / '.($progres['total'] ?? 0), 'paket soal selesai', $tesTpaSelesai],
+        ["Baca Tulis Al-Qur'an", $tesBtqSelesai ? 'Selesai' : 'Belum', $tesBtqSelesai ? 'sudah dinilai penguji' : 'dinilai penguji BTQ', $tesBtqSelesai],
+        ['Pengumuman hasil', $tglUmum ? $tglUmum->format('d M') : '—', $tglUmum ? ($sudahDiumumkan ? 'sudah dibuka' : 'belum dibuka') : 'belum dijadwalkan', $sudahDiumumkan],
+      ];
+    @endphp
 
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5">
+      @foreach ($stat as [$labelStat, $nilaiStat, $ketStat, $okStat])
+        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p class="text-[10.5px] font-semibold uppercase tracking-wide text-slate-400">{{ $labelStat }}</p>
+          <p class="text-[19px] font-semibold text-navy mt-1 leading-tight">{{ $nilaiStat }}</p>
+          <p class="text-[11.5px] text-slate-500 mt-0.5">{{ $ketStat }}</p>
+          <div class="mt-2.5 h-1.5 rounded-full {{ $okStat ? 'bg-emerald-500' : 'bg-slate-200' }}"></div>
+        </div>
+      @endforeach
     </div>
   </div>
 </section>
 
 <div class="wrap pt-6">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <div class="sf-tabs" id="sf-tabs" role="tablist" aria-label="Bagian dashboard">
       <button type="button" class="sf-tab aktif" data-tab="ringkasan" role="tab">Ringkasan</button>
       <button type="button" class="sf-tab" data-tab="tes" role="tab">Tes</button>
@@ -235,7 +236,7 @@
 
 {{-- ================= KELENGKAPAN DATA ================= --}}
 <section class="wrap pt-4">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <div class="sf-kartu">
       <div class="p-5 md:p-6">
         <div class="flex items-end justify-between gap-2 mb-3">
@@ -288,7 +289,7 @@
 
 {{-- ================= TES MASUK ================= --}}
 <section class="wrap pt-4">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <div class="sf-kartu">
       <div class="p-5 md:p-6">
         <div class="flex items-end justify-between gap-2 mb-1">
@@ -366,7 +367,7 @@
 
 {{-- ================= HASIL TES ================= --}}
 <section class="wrap pt-4">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <div class="sf-kartu">
       <div class="p-5 md:p-6">
         <p class="sf-eyebrow" style="color:#94a3b8">Pengumuman</p>
@@ -427,7 +428,7 @@
 
 @if ($registrasi->status === 'tes' || $ujian)
 <section id="kartu" class="wrap py-12 md:py-14" style="scroll-margin-top:88px">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <h2 class="text-[22px] md:text-[27px] font-extrabold text-navy mb-2">Kartu Tes &amp; Tes CBT</h2>
     <div class="h-[3px] w-14 bg-navy-line rounded mb-7"></div>
   <div class="kartu overflow-hidden">
@@ -472,7 +473,7 @@
 @if ($formulirTampil)
 @if ($modeUbah)
 <section id="formulir" class="wrap py-12 md:py-14" style="scroll-margin-top:88px">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <h2 class="text-[22px] md:text-[27px] font-extrabold text-navy mb-2">Formulir Pendaftaran Murid Baru</h2>
     <div class="h-[3px] w-14 bg-navy-line rounded mb-7"></div>
   @if ($errors->any())
@@ -494,7 +495,7 @@
     </div>
   @endif
 
-  <form action="{{ route('spmb.pendaftar.formulir') }}" method="post" enctype="multipart/form-data" class="space-y-5 max-w-3xl">
+  <form action="{{ route('spmb.pendaftar.formulir') }}" method="post" enctype="multipart/form-data" class="space-y-5 max-w-5xl">
     @csrf
 
     {{-- ============ 1. BIODATA ANAK ============ --}}
@@ -657,7 +658,7 @@
 @else
 {{-- ================= PROFIL (BACA SAJA) ================= --}}
 <section class="wrap py-8 md:py-10">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <div class="sf-kartu">
       <div class="p-5 md:p-6">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
@@ -734,7 +735,7 @@
 @endif
 
 <div class="wrap pb-10">
-  <div class="max-w-3xl mx-auto">
+  <div class="max-w-5xl mx-auto">
     <form action="{{ route('spmb.pendaftar.keluar') }}" method="post">
       @csrf
       <button class="border border-slate-300 text-slate-600 rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">Keluar dari Area Pendaftar</button>
