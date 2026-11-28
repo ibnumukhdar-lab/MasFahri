@@ -1,10 +1,6 @@
 @extends('layouts.spmb')
 @section('judul', 'Hari Tes — SPMB SMA IT Arafah')
 @section('isi')
-  'kecil' => 'Tes Penerimaan',
-  'judul' => 'Hari Tes',
-  'sub' => $hariTes ? 'Jadwal tes: '.$hariTes.'. Dua tahap: Tes Akademik lalu Tes BTQ.' : 'Jadwal tes ditetapkan panitia.',
-])
 
 <div class="flex flex-wrap items-end justify-between gap-2 mb-4">
   <div>
