@@ -159,6 +159,22 @@
   .sf-nilai-tabel tr:last-child td{border-bottom:0}
   .sf-nilai-tabel td:last-child{text-align:right;font-weight:800;color:#1f3a5f}
   .sf-tombol-kecil{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:8px 13px;border-radius:10px;text-decoration:none}
+
+  /* ---- tab halaman pendaftar ---- */
+  .sf-tabs{display:flex;gap:5px;background:#fff;border:1px solid #e7eef6;border-radius:14px;padding:5px;
+    position:sticky;top:74px;z-index:30;box-shadow:0 10px 24px -22px rgba(31,58,95,.6);overflow-x:auto}
+  .sf-tabs::-webkit-scrollbar{display:none}
+  .sf-tab{flex:1 0 auto;white-space:nowrap;border:0;background:transparent;padding:9px 12px;border-radius:10px;
+    font-size:12.5px;font-weight:700;color:#64748b;cursor:pointer;transition:background .15s,color .15s}
+  .sf-tab:hover{background:#f4f8fd;color:#1f3a5f}
+  .sf-tab.aktif{background:#1f3a5f;color:#fff}
+  .sf-led{display:inline-block;width:6px;height:6px;border-radius:50%;background:#fdd100;margin-left:5px;vertical-align:middle}
+  .sf-panel{display:none}
+  .sf-panel.tampil{display:block}
+  @media (max-width:640px){
+    .sf-tabs{top:66px;gap:3px;padding:4px}
+    .sf-tab{font-size:11.5px;padding:8px 9px}
+  }
 </style>
 
 <section class="wrap pt-8">
@@ -203,6 +219,19 @@
     </div>
   </div>
 </section>
+
+<div class="wrap pt-6">
+  <div class="max-w-3xl mx-auto">
+    <div class="sf-tabs" id="sf-tabs" role="tablist" aria-label="Bagian dashboard">
+      <button type="button" class="sf-tab aktif" data-tab="ringkasan" role="tab">Ringkasan</button>
+      <button type="button" class="sf-tab" data-tab="tes" role="tab">Tes</button>
+      <button type="button" class="sf-tab" data-tab="hasil" role="tab">Hasil</button>
+      <button type="button" class="sf-tab" data-tab="data" role="tab">Data</button>
+    </div>
+  </div>
+</div>
+
+<div class="sf-panel tampil" data-panel="ringkasan">
 
 {{-- ================= KELENGKAPAN DATA ================= --}}
 <section class="wrap pt-4">
@@ -331,6 +360,10 @@
   </div>
 </section>
 
+</div>
+
+<div class="sf-panel" data-panel="hasil">
+
 {{-- ================= HASIL TES ================= --}}
 <section class="wrap pt-4">
   <div class="max-w-3xl mx-auto">
@@ -388,6 +421,10 @@
   </div>
 </section>
 
+</div>
+
+<div class="sf-panel" data-panel="tes">
+
 @if ($registrasi->status === 'tes' || $ujian)
 <section id="kartu" class="wrap py-12 md:py-14" style="scroll-margin-top:88px">
   <div class="max-w-3xl mx-auto">
@@ -427,6 +464,10 @@
 </div>
 </section>
 @endif
+
+</div>
+
+<div class="sf-panel" data-panel="data">
 
 @if ($formulirTampil)
 @if ($modeUbah)
@@ -692,20 +733,63 @@
 @endif
 @endif
 
-<section class="wrap py-12 md:py-14" style="scroll-margin-top:88px">
+<div class="wrap pb-10">
   <div class="max-w-3xl mx-auto">
-    <h2 class="text-[22px] md:text-[27px] font-extrabold text-navy mb-2">Data Formulir Anda</h2>
-    <div class="h-[3px] w-14 bg-navy-line rounded mb-7"></div>
-  <div class="kartu overflow-hidden max-w-md">
-    <dl class="px-5">
-      <div class="sf-info"><dt>Nomor pendaftaran</dt><dd>{{ $registrasi->nomor }}</dd></div>
-      <div class="sf-info"><dt>Nama wali</dt><dd>{{ $registrasi->nama_wali }}</dd></div>
-      <div class="sf-info"><dt>Jalur</dt><dd>{{ $registrasi->minat_program ?: '-' }}</dd></div>
-      <div class="sf-info"><dt>Tahun ajaran</dt><dd>{{ $registrasi->tahun_ajaran }}</dd></div>
-      <div class="sf-info"><dt>Status</dt><dd><span class="chip">{{ \App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status }}</span></dd></div>
-    </dl>
+    <form action="{{ route('spmb.pendaftar.keluar') }}" method="post">
+      @csrf
+      <button class="border border-slate-300 text-slate-600 rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">Keluar dari Area Pendaftar</button>
+    </form>
   </div>
-  <form action="{{ route('spmb.pendaftar.keluar') }}" method="post" class="mt-5">@csrf<button class="border border-slate-300 text-slate-600 rounded-xl px-5 py-2.5 font-semibold text-[13.5px]">Keluar dari Area Pendaftar</button></form>
 </div>
-</section>
+</div>
+
+<script>
+(function () {
+  function siapkan() {
+    var bar = document.getElementById('sf-tabs');
+    if (!bar) return;
+
+    var tombol = [].slice.call(bar.querySelectorAll('[data-tab]'));
+    var panel = [].slice.call(document.querySelectorAll('.sf-panel'));
+    var peta = { formulir: 'data', 'data-pribadi': 'data', 'foto-anak': 'data', 'data-orang-tua': 'data', kartu: 'tes' };
+
+    function pilih(nama) {
+      tombol.forEach(function (b) { b.classList.toggle('aktif', b.getAttribute('data-tab') === nama); });
+      panel.forEach(function (x) { x.classList.toggle('tampil', x.getAttribute('data-panel') === nama); });
+    }
+
+    tombol.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var nama = b.getAttribute('data-tab');
+        pilih(nama);
+        try { history.replaceState(null, '', '#' + nama); } catch (e) {}
+      });
+    });
+
+    document.querySelectorAll('a[href^="#"]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        var tujuan = peta[a.getAttribute('href').replace('#', '')];
+        if (tujuan) pilih(tujuan);
+      });
+    });
+
+    function dariHash() {
+      var hash = (location.hash || '').replace('#', '');
+      var nama = peta[hash] || hash;
+      if (['ringkasan', 'tes', 'hasil', 'data'].indexOf(nama) >= 0) pilih(nama);
+    }
+
+    dariHash();
+    window.addEventListener('hashchange', dariHash);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', siapkan);
+  } else {
+    siapkan();
+  }
+  // jaring pengaman bila hash diterapkan setelah skrip berjalan
+  window.addEventListener('load', function () { setTimeout(siapkan, 0); });
+})();
+</script>
 @endsection
