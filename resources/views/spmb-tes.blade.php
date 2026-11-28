@@ -1,11 +1,19 @@
-@extends('layouts.publik')
+@extends('layouts.spmb')
 @section('judul', 'Hari Tes — SPMB SMA IT Arafah')
 @section('isi')
-@include('partials.hero', [
   'kecil' => 'Tes Penerimaan',
   'judul' => 'Hari Tes',
   'sub' => $hariTes ? 'Jadwal tes: '.$hariTes.'. Dua tahap: Tes Akademik lalu Tes BTQ.' : 'Jadwal tes ditetapkan panitia.',
 ])
+
+<div class="flex flex-wrap items-end justify-between gap-2 mb-4">
+  <div>
+    <p class="text-[10.5px] font-bold uppercase tracking-[.16em] text-slate-400">Tahap seleksi</p>
+    <h1 class="text-[21px] md:text-[24px] font-semibold text-navy mt-1 leading-tight">Tes Masuk</h1>
+    <p class="text-[12.5px] text-slate-500 mt-1">{{ $hariTes ? 'Jadwal tes: '.$hariTes : 'Jadwal tes ditetapkan panitia' }} · dua tahap: Tes Akademik lalu Tes BTQ.</p>
+  </div>
+  <a href="{{ route('spmb.pendaftar.dasbor') }}" class="text-[12px] font-semibold text-navy border border-slate-200 rounded-lg px-3 py-2">Kembali ke ringkasan</a>
+</div>
 
 <x-seksi judul="Alur Tes Anda">
   <div class="max-w-2xl mx-auto">

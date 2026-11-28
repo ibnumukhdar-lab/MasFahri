@@ -1,4 +1,4 @@
-@extends('layouts.publik')
+@extends('layouts.spmb')
 @section('judul', 'Akun Belum Terverifikasi — SPMB SMA IT Arafah')
 @section('isi')
 @include('partials.hero', ['kecil' => 'SPMB', 'judul' => 'Akun Belum Terverifikasi', 'sub' => 'Pendaftaran Anda sudah tercatat, namun belum diverifikasi oleh panitia.'])

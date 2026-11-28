@@ -1,4 +1,4 @@
-@extends('layouts.publik')
+@extends('layouts.spmb')
 @section('judul', 'Kartu Tes SPMB — SMA IT Arafah')
 @section('isi')
 <style>

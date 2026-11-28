@@ -1,4 +1,4 @@
-@extends('layouts.publik')
+@extends('layouts.spmb')
 @section('judul', 'Dashboard Pendaftar — SPMB SMA IT Arafah')
 @section('isi')
 
@@ -220,17 +220,6 @@
     </div>
   </div>
 </section>
-
-<div class="wrap pt-6">
-  <div class="max-w-5xl mx-auto">
-    <div class="sf-tabs" id="sf-tabs" role="tablist" aria-label="Bagian dashboard">
-      <button type="button" class="sf-tab aktif" data-tab="ringkasan" role="tab">Ringkasan</button>
-      <button type="button" class="sf-tab" data-tab="tes" role="tab">Tes</button>
-      <button type="button" class="sf-tab" data-tab="hasil" role="tab">Hasil</button>
-      <button type="button" class="sf-tab" data-tab="data" role="tab">Data</button>
-    </div>
-  </div>
-</div>
 
 <div class="sf-panel tampil" data-panel="ringkasan">
 
@@ -748,15 +737,16 @@
 (function () {
   function siapkan() {
     var bar = document.getElementById('sf-tabs');
-    if (!bar) return;
-
-    var tombol = [].slice.call(bar.querySelectorAll('[data-tab]'));
+    var tombol = bar ? [].slice.call(bar.querySelectorAll('[data-tab]')) : [];
     var panel = [].slice.call(document.querySelectorAll('.sf-panel'));
     var peta = { formulir: 'data', 'data-pribadi': 'data', 'foto-anak': 'data', 'data-orang-tua': 'data', kartu: 'tes' };
 
     function pilih(nama) {
       tombol.forEach(function (b) { b.classList.toggle('aktif', b.getAttribute('data-tab') === nama); });
       panel.forEach(function (x) { x.classList.toggle('tampil', x.getAttribute('data-panel') === nama); });
+      document.querySelectorAll('[data-nav]').forEach(function (a) {
+        a.classList.toggle('aktif', a.getAttribute('data-nav') === nama);
+      });
     }
 
     tombol.forEach(function (b) {
@@ -776,7 +766,7 @@
 
     function dariHash() {
       var hash = (location.hash || '').replace('#', '');
-      var nama = peta[hash] || hash;
+      var nama = peta[hash] || hash || 'ringkasan';
       if (['ringkasan', 'tes', 'hasil', 'data'].indexOf(nama) >= 0) pilih(nama);
     }
 
