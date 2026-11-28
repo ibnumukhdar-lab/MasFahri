@@ -24,6 +24,7 @@
   $tesBtqSelesai = $quran && $quran->lengkap;
   $tesWawancaraSelesai = $wawancara && $wawancara->lengkap;
   $semuaTesSelesai = $tesTpaSelesai && $tesBtqSelesai && $tesWawancaraSelesai;
+  $tesIntiSelesai = $tesTpaSelesai && $tesBtqSelesai;
 
   $lengkapData = $formulir->terkirim_pada && $persenTotal >= 100;
   $modeUbah = request()->boolean('ubah') || ! $lengkapData;
@@ -38,6 +39,17 @@
   $nilaiWawancara = $wawancara?->skor_wawancara;
   $kumpulanNilai = collect([$nilaiTpa, $nilaiBtq, $nilaiWawancara])->filter(fn ($v) => $v !== null);
   $nilaiAkhir = $kumpulanNilai->count() ? (int) round($kumpulanNilai->avg()) : null;
+
+  // ==== status terintegrasi (data → tes → hasil) ====
+  $statusIntegrasi = match (true) {
+      $registrasi->status === 'diterima' => ['label' => 'Diterima', 'dot' => '#35d07f', 'bg' => 'rgba(34,163,90,.20)', 'fg' => '#b9f3cf', 'bd' => 'rgba(53,208,127,.42)'],
+      $registrasi->status === 'ditolak' => ['label' => 'Tidak diterima', 'dot' => '#f87171', 'bg' => 'rgba(220,38,38,.20)', 'fg' => '#ffc9c9', 'bd' => 'rgba(248,113,113,.42)'],
+      ! $lengkapData => ['label' => 'Lengkapi data', 'dot' => '#fdd100', 'bg' => 'rgba(253,209,0,.16)', 'fg' => '#ffe483', 'bd' => 'rgba(253,209,0,.34)'],
+      $semuaTesSelesai && $sudahDiumumkan => ['label' => 'Menunggu keputusan panitia', 'dot' => '#93c5fd', 'bg' => 'rgba(147,197,253,.16)', 'fg' => '#dbeafe', 'bd' => 'rgba(147,197,253,.36)'],
+      $semuaTesSelesai => ['label' => 'Menunggu pengumuman', 'dot' => '#93c5fd', 'bg' => 'rgba(147,197,253,.16)', 'fg' => '#dbeafe', 'bd' => 'rgba(147,197,253,.36)'],
+      $tesIntiSelesai => ['label' => 'Wawancara menyusul', 'dot' => '#fdd100', 'bg' => 'rgba(253,209,0,.16)', 'fg' => '#ffe483', 'bd' => 'rgba(253,209,0,.34)'],
+      default => ['label' => 'Tahap tes', 'dot' => '#fdd100', 'bg' => 'rgba(253,209,0,.16)', 'fg' => '#ffe483', 'bd' => 'rgba(253,209,0,.34)'],
+  };
 
   $lingkar = 213.63;
 @endphp
@@ -157,9 +169,10 @@
           <p class="sf-eyebrow">Ringkasan pendaftaran</p>
           <p class="text-[17px] md:text-[19px] font-extrabold mt-1 tracking-tight">{{ $registrasi->nomor }}</p>
           <div class="flex flex-wrap items-center gap-2 mt-2">
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:rgba(253,209,0,.16);color:#ffe483;border:1px solid rgba(253,209,0,.34)">
-              <span class="w-1.5 h-1.5 rounded-full" style="background:#fdd100"></span>
-              {{ \App\Models\Registration::STATUS[$registrasi->status] ?? $registrasi->status }}
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full"
+                  style="background:{{ $statusIntegrasi['bg'] }};color:{{ $statusIntegrasi['fg'] }};border:1px solid {{ $statusIntegrasi['bd'] }}">
+              <span class="w-1.5 h-1.5 rounded-full" style="background:{{ $statusIntegrasi['dot'] }}"></span>
+              {{ $statusIntegrasi['label'] }}
             </span>
             <span class="text-[11px] text-white/70">Tahun pelajaran {{ $registrasi->tahun_ajaran }}</span>
           </div>
@@ -256,15 +269,41 @@
           </div>
           @if ($semuaTesSelesai)
             <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:#e7f6ec;color:#166534">Semua tes selesai</span>
+          @elseif ($tesIntiSelesai)
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:#fff8e8;color:#8a5a00">TPA &amp; BTQ selesai · wawancara menyusul</span>
           @endif
         </div>
         <p class="text-[12px] text-slate-500 mb-3">Tiga tahap yang harus dilalui.</p>
 
         @php
           $daftarTes = [
-            ['kode' => 'TPA', 'judul' => 'Tes Potensi Akademik', 'selesai' => $tesTpaSelesai, 'tanggal' => $tanggalTes],
-            ['kode' => 'BTQ', 'judul' => "Baca Tulis Al-Qur'an", 'selesai' => $tesBtqSelesai, 'tanggal' => $tanggalTes],
-            ['kode' => 'WWC', 'judul' => 'Wawancara Minat dan Bakat', 'selesai' => $tesWawancaraSelesai, 'tanggal' => $wawancara?->tanggal ?? $tanggalTes],
+            [
+              'kode' => 'TPA',
+              'judul' => 'Tes Potensi Akademik (CBT)',
+              'selesai' => $tesTpaSelesai,
+              'tanggal' => $tanggalTes,
+              'ket' => ($progres['total'] ?? 0) > 0
+                  ? $progres['selesai'].' / '.$progres['total'].' paket soal selesai'
+                  : 'Paket soal belum dibuka panitia',
+            ],
+            [
+              'kode' => 'BTQ',
+              'judul' => "Baca Tulis Al-Qur'an (BTQ)",
+              'selesai' => $tesBtqSelesai,
+              'tanggal' => $tanggalTes,
+              'ket' => $tesBtqSelesai
+                  ? 'Nilai baca, tulis, dan praktek sholat sudah diisi penguji'
+                  : ($quran ? 'Menunggu penilaian penguji BTQ' : 'Nilai diisi Ustadz/Ustadzah penguji'),
+            ],
+            [
+              'kode' => 'WWC',
+              'judul' => 'Wawancara Minat dan Bakat',
+              'selesai' => $tesWawancaraSelesai,
+              'tanggal' => $wawancara?->tanggal ?? $tanggalTes,
+              'ket' => $tesWawancaraSelesai
+                  ? 'Sudah diwawancarai dan dinilai penguji'
+                  : 'Sistem penilaian wawancara menyusul — panitia akan menjadwalkan',
+            ],
           ];
         @endphp
 
@@ -274,12 +313,9 @@
             <div class="flex-1 min-w-0">
               <p class="sf-tes-judul">{{ $t['judul'] }}</p>
               <p class="sf-tes-ket">
-                @if ($t['selesai'])
-                  Sudah dilaksanakan.
-                @elseif ($t['tanggal'])
-                  Dijadwalkan {{ \Carbon\Carbon::parse($t['tanggal'])->translatedFormat('l, j F Y') }} — persiapkan diri.
-                @else
-                  Jadwal menyusul — siapkan diri.
+                {{ $t['ket'] }}
+                @if (! $t['selesai'] && $t['tanggal'])
+                  <span class="block">Dijadwalkan {{ \Carbon\Carbon::parse($t['tanggal'])->translatedFormat('l, j F Y') }} — persiapkan diri.</span>
                 @endif
               </p>
             </div>
