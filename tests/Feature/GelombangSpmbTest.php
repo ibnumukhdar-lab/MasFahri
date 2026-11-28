@@ -33,11 +33,22 @@ class GelombangSpmbTest extends TestCase
         ]);
     }
 
-    public function test_migrasi_menyediakan_dua_gelombang_contoh(): void
+    public function test_migrasi_menyediakan_dua_gelombang_dengan_tiga_tahapan(): void
     {
         $this->assertSame(2, SpmbGelombang::count());
-        $this->assertSame(2, SpmbJadwalTes::count());
-        $this->assertSame('Gelombang 1', SpmbGelombang::orderBy('urut')->first()->nama);
+        $this->assertSame(6, SpmbJadwalTes::count(), 'tiap hari tes berisi TPA + BTQ + wawancara');
+
+        $gel = SpmbGelombang::orderBy('urut')->first();
+        $this->assertSame('Gelombang 1', $gel->nama);
+
+        // Satu hari tes = satu tanggal berisi tiga tahapan.
+        $perHari = $gel->jadwalPerHari();
+        $this->assertCount(1, $perHari, 'gelombang contoh hanya punya satu hari tes');
+        $this->assertCount(3, $perHari->first());
+        $this->assertSame(
+            ['akademik', 'btq', 'wawancara'],
+            $perHari->first()->pluck('jenis')->all()
+        );
     }
 
     public function test_halaman_spmb_menampilkan_jadwal_dari_data(): void
@@ -51,6 +62,8 @@ class GelombangSpmbTest extends TestCase
         $res->assertSee('Jadwal SPMB');
         $res->assertSee($gel->nama);
         $res->assertSee('Tes Potensi Akademik');
+        $res->assertSee('Baca Tulis Al-Qur\'an');
+        $res->assertSee('Wawancara');
         $res->assertSee('Telah Dibuka', false);
     }
 
@@ -68,7 +81,8 @@ class GelombangSpmbTest extends TestCase
         ])
             ->assertOk()
             ->assertSee($jadwal->nama)
-            ->assertSee('Tambah jadwal tes');
+            ->assertSee('Tambah satu tahapan')
+            ->assertSee('Tambah hari tes lengkap');
     }
 
     public function test_relation_manager_bisa_menambah_jadwal_tes(): void
@@ -134,5 +148,52 @@ class GelombangSpmbTest extends TestCase
         $daftar = Registration::where('nama_siswa', 'Siswa Uji')->first();
         $this->assertNotNull($daftar, 'pendaftaran tidak tersimpan');
         $this->assertSame($gel->id, $daftar->gelombang_id);
+    }
+
+    public function test_aksi_tambah_hari_tes_lengkap_membuat_tiga_tahapan(): void
+    {
+        $this->actingAs($this->admin());
+        Filament::setCurrentPanel(Filament::getPanel('kelola'));
+
+        $gel = SpmbGelombang::orderBy('urut')->first();
+        $sebelum = SpmbJadwalTes::count();
+        $tanggal = now()->addDays(20)->toDateString();
+
+        Livewire::test(JadwalTesRelationManager::class, [
+            'ownerRecord' => $gel,
+            'pageClass' => EditSpmbGelombang::class,
+        ])
+            ->callTableAction('tambahHariLengkap', data: [
+                'tanggal' => $tanggal,
+                'tempat' => 'Kampus SMA IT Arafah',
+                'tpa_mulai' => '08:00', 'tpa_selesai' => '10:00',
+                'btq_mulai' => '10:30', 'btq_selesai' => '11:30',
+                'waw_mulai' => '13:00', 'waw_selesai' => '15:00',
+                'aktif' => true,
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertSame($sebelum + 3, SpmbJadwalTes::count());
+        $this->assertSame(
+            ['akademik', 'btq', 'wawancara'],
+            SpmbJadwalTes::whereDate('tanggal', $tanggal)->orderBy('urut')->pluck('jenis')->all()
+        );
+    }
+
+    public function test_jadwal_dikelompokkan_per_hari(): void
+    {
+        $gel = SpmbGelombang::orderBy('urut')->first();
+
+        $hari2 = now()->addDays(30)->toDateString();
+        foreach ([['akademik', '08:00', '10:00'], ['btq', '10:30', '11:30'], ['wawancara', '13:00', '15:00']] as $i => [$jenis, $mulai, $selesai]) {
+            $gel->jadwalTes()->create([
+                'jenis' => $jenis, 'nama' => 'Tahap '.$jenis, 'tanggal' => $hari2,
+                'jam_mulai' => $mulai, 'jam_selesai' => $selesai, 'urut' => $i + 1, 'aktif' => true,
+            ]);
+        }
+
+        $perHari = $gel->jadwalPerHari();
+        $this->assertCount(2, $perHari, 'dua hari tes');
+        $this->assertCount(3, $perHari->last(), 'hari kedua berisi tiga tahapan');
     }
 }

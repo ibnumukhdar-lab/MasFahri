@@ -44,11 +44,20 @@
           <span class="text-slate-500">Sesuai informasi panitia</span>
         @endif
       </td></tr>
-      @if ($jadwal->isNotEmpty())
-        <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Rincian jadwal</td><td class="py-2.5">
-          @foreach ($jadwal as $jdw)
-            @php $tpt = $jdw->tempat ? ' (' . $jdw->tempat . ')' : ''; @endphp
-            <div style="margin-bottom:4px"><b>{{ $jdw->waktu_label }}</b> · {{ $jdw->nama }}{{ $tpt }}</div>
+      @if ($jadwalHari->isNotEmpty())
+        <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Hari tes</td><td class="py-2.5">
+          @foreach ($jadwalHari as $tanggal => $tahapan)
+            @php
+              $hariKartu = $tahapan->first()?->tanggal;
+              $labelHariKartu = $hariKartu ? $hariKartu->locale('id')->translatedFormat('l, j F Y') : 'Tanggal menyusul';
+            @endphp
+            <div style="margin-bottom:6px">
+              <b>{{ $labelHariKartu }}</b>
+              @foreach ($tahapan as $jdw)
+                @php $jamKartu = $jdw->jamLabel(); @endphp
+                <div style="padding-left:10px">{{ $jamKartu ?? '—' }} · {{ $jdw->nama }}</div>
+              @endforeach
+            </div>
           @endforeach
         </td></tr>
       @endif

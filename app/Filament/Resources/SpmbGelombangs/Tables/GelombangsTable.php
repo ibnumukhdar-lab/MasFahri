@@ -35,12 +35,13 @@ class GelombangsTable
                     ->label('Pendaftaran')
                     ->wrap(),
 
-                TextColumn::make('jadwal_tes_count')
-                    ->label('Jadwal tes')
-                    ->counts('jadwalTes')
+                TextColumn::make('hari_tes')
+                    ->label('Hari tes')
+                    ->state(fn (SpmbGelombang $r): int => $r->jadwalTes->groupBy(fn ($j) => $j->tanggal?->toDateString())->count())
                     ->badge()
                     ->color(fn ($state): string => $state > 0 ? 'success' : 'warning')
-                    ->formatStateUsing(fn ($state): string => $state.' jadwal'),
+                    ->formatStateUsing(fn ($state): string => $state.' hari')
+                    ->description(fn (SpmbGelombang $r): string => $r->jadwalTes->count().' tahapan'),
 
                 TextColumn::make('pendaftar_count')
                     ->label('Pendaftar')

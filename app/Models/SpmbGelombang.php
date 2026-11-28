@@ -114,4 +114,25 @@ class SpmbGelombang extends Model
     {
         return $this->jadwalTes()->where('aktif', true)->reorder()->orderByDesc('tanggal')->first();
     }
+
+    /**
+     * Jadwal dikelompokkan per HARI TES: satu hari berisi seluruh tahapan
+     * (TPA, BTQ, wawancara) yang dilaksanakan berurutan pada hari itu.
+     *
+     * @return \Illuminate\Support\Collection<string, \Illuminate\Support\Collection<int, SpmbJadwalTes>>
+     */
+    public function jadwalPerHari(): \Illuminate\Support\Collection
+    {
+        return $this->jadwalTes()
+            ->where('aktif', true)
+            ->get()
+            ->groupBy(fn (SpmbJadwalTes $j) => $j->tanggal?->toDateString() ?? 'menyusul')
+            ->sortKeys();
+    }
+
+    /** Hari tes pertama pada gelombang (untuk chip hero & kartu tes). */
+    public function hariTesPertama(): ?SpmbJadwalTes
+    {
+        return $this->jadwalTes()->where('aktif', true)->reorder()->orderBy('tanggal')->first();
+    }
 }

@@ -367,6 +367,7 @@ class SpmbPendaftarController extends Controller
             'registrasi' => $registrasi,
             'kode' => $kode,
             'jadwal' => $registrasi->gelombang?->jadwalTes()->where('aktif', true)->get() ?? collect(),
+            'jadwalHari' => $registrasi->gelombang?->jadwalPerHari() ?? collect(),
             'paketList' => \App\Models\SpmbPaketSoal::query()
                 ->where('aktif', true)->where('wajib', true)
                 ->orderBy('urutan')->orderBy('id')->get(),

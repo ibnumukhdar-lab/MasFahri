@@ -45,7 +45,7 @@
     <div class="flex flex-wrap gap-2.5 mb-8">
       @php $tesPertama = $gelombangAktif?->jadwalTes->first(); @endphp
       <span class="sp-chip-tgl">🗓️ Daftar: <b>{{ $gelombangAktif?->rentang_label ?? '1 Des 2026 s/d Feb 2027' }}</b></span>
-      <span class="sp-chip-tgl">📝 Tes pertama: <b>{{ $tesPertama?->waktu_label ?? 'Senin, 14 Des 2026' }}</b></span>
+      <span class="sp-chip-tgl">📝 Hari tes: <b>{{ $tesPertama?->tanggal?->locale('id')->translatedFormat('j F Y') ?? '14 Desember 2026' }}</b></span>
       <span class="sp-chip-tgl">💰 Cashback Desember: <b>Rp 1.000.000</b></span>
     </div>
     <div class="flex flex-wrap gap-3">
@@ -110,15 +110,28 @@
             @if ($g->jadwalTes->isEmpty())
               <p class="text-slate-500 text-[13px]">Jadwal tes menyusul — ikuti informasi panitia.</p>
             @else
-              <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-2">Jadwal tes masuk</p>
-              <ul class="space-y-2.5">
-                @foreach ($g->jadwalTes as $jdw)
-                  <li class="flex gap-3 items-start">
-                    <span class="text-[15px] leading-none mt-0.5" aria-hidden="true">{{ $jdw->jenis === 'akademik' ? '📝' : ($jdw->jenis === 'btq' ? '📖' : ($jdw->jenis === 'wawancara' ? '🎤' : '📌')) }}</span>
-                    <div>
-                      <p class="font-bold text-navy text-[13.5px] leading-snug">{{ $jdw->waktu_label }}</p>
-                      <p class="text-slate-600 text-[13px] leading-snug">{{ $jdw->nama }}@if ($jdw->tempat) · {{ $jdw->tempat }}@endif</p>
-                    </div>
+              <p class="text-[11.5px] font-bold tracking-wide uppercase text-slate-500 mb-2">Hari tes &amp; tahapannya</p>
+              <ul class="space-y-3">
+                @foreach ($g->jadwalPerHari() as $tanggal => $tahapan)
+                  @php
+                    $hari = $tahapan->first()?->tanggal;
+                    $labelHari = $hari ? $hari->locale('id')->translatedFormat('l, j F Y') : 'Tanggal menyusul';
+                    $tempatHari = $tahapan->first()?->tempat;
+                  @endphp
+                  <li>
+                    <p class="font-extrabold text-navy text-[13.5px] leading-snug mb-1">{{ $labelHari }}</p>
+                    @if ($tempatHari)
+                      <p class="text-slate-500 text-[12px] mb-1.5">{{ $tempatHari }}</p>
+                    @endif
+                    <ul class="space-y-1">
+                      @foreach ($tahapan as $jdw)
+                        @php $jamTahap = $jdw->jamLabel(); @endphp
+                        <li class="flex gap-2 items-start text-[13px] leading-snug">
+                          <span class="font-bold text-navy whitespace-nowrap" style="min-width:86px">{{ $jamTahap ?? '—' }}</span>
+                          <span class="text-slate-600">{{ $jdw->nama }}</span>
+                        </li>
+                      @endforeach
+                    </ul>
                   </li>
                 @endforeach
               </ul>
