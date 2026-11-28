@@ -91,12 +91,71 @@ class SpmbPendaftarController extends Controller
         }
         $registrasi->load('ujian');
 
+        $quran = $registrasi->nilaiQuran()->first();
+        $wawancara = $registrasi->wawancara()->first();
+
+        $paketWajib = \App\Models\SpmbPaketSoal::query()
+            ->where('aktif', true)->where('wajib', true)->orderBy('urutan')->get();
+        $tanggalTes = $paketWajib->pluck('tanggal_tes')->filter()->sort()->last();
+
+        $manual = \App\Models\Setting::ambil('spmb_tanggal_pengumuman');
+        $tanggalPengumuman = $manual
+            ? \Carbon\Carbon::parse($manual)
+            : ($tanggalTes ? $tanggalTes->copy()->addDay() : null);
+
         return view('spmb-dasbor', [
             'registrasi' => $registrasi,
             'biodata' => $registrasi->biodata()->firstOrCreate([]),
             'formulir' => $registrasi->formulir()->firstOrCreate([]),
             'ujian' => $registrasi->ujianSemua()->latest('id')->first(),
             'progresTes' => $registrasi->progresTes(),
+            'quran' => $quran,
+            'wawancara' => $wawancara,
+            'tanggalTes' => $tanggalTes,
+            'tanggalPengumuman' => $tanggalPengumuman,
+        ]);
+    }
+
+    /** Bukti kelulusan (cetak) — hanya untuk pendaftar yang dinyatakan diterima. */
+    public function bukti(Request $request)
+    {
+        $registrasi = $this->pendaftarSesi($request);
+        if (! $registrasi) {
+            return redirect()->route('spmb.pendaftar.masuk');
+        }
+        if ($registrasi->status !== 'diterima') {
+            return redirect()->route('spmb.pendaftar.dasbor')
+                ->withErrors(['bukti' => 'Bukti kelulusan hanya tersedia bagi pendaftar yang dinyatakan diterima.']);
+        }
+
+        $quran = $registrasi->nilaiQuran()->first();
+        $wawancara = $registrasi->wawancara()->first();
+        $progres = $registrasi->progresTes();
+
+        $nilai = [
+            'tpa' => $progres['rata'] ?? null,
+            'btq' => $quran?->skor_btq,
+            'wawancara' => $wawancara?->skor_wawancara,
+        ];
+        $isi = array_filter($nilai, fn ($v) => $v !== null);
+        $nilaiAkhir = $isi ? (int) round(array_sum($isi) / count($isi)) : null;
+
+        $paketWajib = \App\Models\SpmbPaketSoal::query()
+            ->where('aktif', true)->where('wajib', true)->get();
+        $tanggalTes = $paketWajib->pluck('tanggal_tes')->filter()->sort()->last();
+
+        $manual = \App\Models\Setting::ambil('spmb_tanggal_pengumuman');
+        $tanggalPengumuman = $manual
+            ? \Carbon\Carbon::parse($manual)
+            : ($tanggalTes ? $tanggalTes->copy()->addDay() : null);
+
+        return view('spmb-bukti', [
+            'registrasi' => $registrasi,
+            'formulir' => $registrasi->formulir()->first(),
+            'nilai' => $nilai,
+            'nilaiAkhir' => $nilaiAkhir,
+            'tanggalPengumuman' => $tanggalPengumuman,
+            'kodeVerifikasi' => strtoupper(substr(md5($registrasi->nomor.'|'.$registrasi->kode_tes), 0, 10)),
         ]);
     }
 

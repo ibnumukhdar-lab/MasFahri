@@ -17,12 +17,28 @@
   $isiForm = $isiPribadi + $isiOrtu + ($adaFoto ? 1 : 0);
   $persenTotal = (int) round(100 * $isiForm / $bobotForm);
   $formulirTampil = $formulir->terkirim_pada || in_array($registrasi->status, ['dihubungi', 'lengkapi_formulir', 'tes'], true);
-  $statusTiles = [];
-  if ($formulirTampil) {
-      $statusTiles[] = ['judul' => 'Biodata anak', 'ket' => 'Identitas calon murid', 'isi' => $isiPribadi, 'total' => count($kolPribadi), 'anchor' => '#data-pribadi', 'ikon' => 'anak'];
-      $statusTiles[] = ['judul' => 'Foto anak', 'ket' => 'Latar merah — wajib', 'isi' => $adaFoto ? 1 : 0, 'total' => 1, 'anchor' => '#foto-anak', 'ikon' => 'foto'];
-      $statusTiles[] = ['judul' => 'Biodata orang tua', 'ket' => 'Ayah & ibu / wali', 'isi' => $isiOrtu, 'total' => count($kolOrtu), 'anchor' => '#data-orang-tua', 'ikon' => 'ortu'];
-  }
+
+  // ==== tahap tes & hasil ====
+  $progres = $progresTes ?? ['total' => 0, 'selesai' => 0, 'tuntas' => false, 'rata' => null];
+  $tesTpaSelesai = ($progres['total'] ?? 0) > 0 && ! empty($progres['tuntas']);
+  $tesBtqSelesai = $quran && $quran->lengkap;
+  $tesWawancaraSelesai = $wawancara && $wawancara->lengkap;
+  $semuaTesSelesai = $tesTpaSelesai && $tesBtqSelesai && $tesWawancaraSelesai;
+
+  $lengkapData = $formulir->terkirim_pada && $persenTotal >= 100;
+  $modeUbah = request()->boolean('ubah') || ! $lengkapData;
+
+  $tglUmum = $tanggalPengumuman ? \Carbon\Carbon::parse($tanggalPengumuman) : null;
+  $sudahDiumumkan = $tglUmum ? now()->startOfDay()->gte($tglUmum->copy()->startOfDay()) : false;
+  $sisaHari = $tglUmum ? (int) now()->startOfDay()->diffInDays($tglUmum->copy()->startOfDay(), false) : null;
+  $statusFinal = in_array($registrasi->status, ['diterima', 'ditolak'], true);
+
+  $nilaiTpa = $progres['rata'] ?? null;
+  $nilaiBtq = $quran?->skor_btq;
+  $nilaiWawancara = $wawancara?->skor_wawancara;
+  $kumpulanNilai = collect([$nilaiTpa, $nilaiBtq, $nilaiWawancara])->filter(fn ($v) => $v !== null);
+  $nilaiAkhir = $kumpulanNilai->count() ? (int) round($kumpulanNilai->avg()) : null;
+
   $lingkar = 213.63;
 @endphp
 
@@ -109,6 +125,28 @@
   .sf-catatan svg{flex:none;margin-top:1px;color:#b58a00}
   .sf-error{border-radius:13px;border:1px solid #f6c9d0;background:#fff5f6;padding:13px 15px;font-size:13px;color:#8d2233}
   .sf-sukses{border-radius:13px;border:1px solid #bfe8cf;background:#f4fbf6;padding:13px 15px;font-size:13px;color:#136b43}
+
+  .sf-cek{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed #eef3f9;font-size:13px}
+  .sf-cek:last-child{border-bottom:0}
+  .sf-cek-ikon{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#eef4fb;color:#b6c2d1}
+  .sf-cek.ok .sf-cek-ikon{background:#22a35a;color:#fff}
+  .sf-cek-nama{font-weight:600;color:#1f3a5f;flex:1;min-width:0}
+  .sf-cek-info{font-size:11.5px;color:#94a3b8;flex:none}
+  .sf-cek.ok .sf-cek-info{color:#14875a;font-weight:700}
+  .sf-tes{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed #eef3f9;align-items:flex-start}
+  .sf-tes:last-child{border-bottom:0}
+  .sf-tes-ikon{flex:none;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:#eef4fb;color:#1f3a5f;font-weight:800;font-size:11px}
+  .sf-tes.ok .sf-tes-ikon{background:#dcf5e6;color:#14875a}
+  .sf-tes-judul{font-weight:700;color:#1f3a5f;font-size:13.5px}
+  .sf-tes-ket{font-size:12px;color:#7c8ba1;margin-top:2px;line-height:1.45}
+  .sf-centang{flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#eef2f7;color:#c3ccd8;margin-top:2px}
+  .sf-centang.ok{background:#22a35a;color:#fff}
+  .sf-hasil-lulus{background:linear-gradient(125deg,#0f6b3f,#14875a);color:#fff;border-radius:16px;padding:20px}
+  .sf-nilai-tabel{width:100%;border-collapse:collapse;font-size:13px}
+  .sf-nilai-tabel td{padding:8px 4px;border-bottom:1px dashed #e8eef6}
+  .sf-nilai-tabel tr:last-child td{border-bottom:0}
+  .sf-nilai-tabel td:last-child{text-align:right;font-weight:800;color:#1f3a5f}
+  .sf-tombol-kecil{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:8px 13px;border-radius:10px;text-decoration:none}
 </style>
 
 <section class="wrap pt-8">
@@ -149,39 +187,167 @@
         <div class="h-full rounded-full transition-all" style="width:{{ $persenTotal }}%;background:{{ $persenTotal >= 100 ? 'linear-gradient(90deg,#14875a,#22a35a)' : 'linear-gradient(90deg,#1f3a5f,#3d5987 60%,#fdd100)' }}"></div>
       </div>
 
-      @if ($statusTiles)
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          @foreach ($statusTiles as $tile)
-            @php $lengkap = $tile['isi'] >= $tile['total']; $persenTile = (int) round(100 * $tile['isi'] / $tile['total']); @endphp
-            <a href="{{ $tile['anchor'] }}" class="sf-tile {{ $lengkap ? 'ok' : '' }}">
-              <div class="flex items-center gap-3 mb-2.5">
-                <span class="sf-tile-ikon">
-                  @if ($tile['ikon'] === 'anak')
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.6-4 3.6-6 7.5-6s6.9 2 7.5 6"/></svg>
-                  @elseif ($tile['ikon'] === 'foto')
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.4"/><path d="M8 6l1.4-2h5.2L16 6"/></svg>
-                  @else
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19c.5-3.4 3-5.2 6-5.2s5.5 1.8 6 5.2"/><path d="M16 5.6a3 3 0 010 5.6"/><path d="M18 19c-.2-2-.9-3.6-2-4.7 2.9-.3 5 1.5 5 4.7z"/></svg>
-                  @endif
-                </span>
-                <span class="text-[13px] font-bold text-navy flex-1 min-w-0">{{ $tile['judul'] }}</span>
-                @if ($lengkap)
-                  <span class="w-5 h-5 rounded-full grid place-items-center flex-none" style="background:#22a35a"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></span>
-                @endif
-              </div>
-              <p class="text-[11.5px] text-slate-500 mb-2">{{ $tile['ket'] }}</p>
-              <div class="flex items-center justify-between text-[11.5px] mb-1.5">
-                <span class="font-semibold" style="color:{{ $lengkap ? '#177a43' : '#5b6470' }}">{{ $tile['isi'] }}/{{ $tile['total'] }} {{ $lengkap ? 'lengkap' : 'terisi' }}</span>
-                @if (! $lengkap)<span class="text-slate-400">klik untuk isi</span>@endif
-              </div>
-              <div class="h-1.5 rounded-full bg-slate-100 overflow-hidden">
-                <div class="h-full rounded-full" style="width:{{ $persenTile }}%;background:{{ $lengkap ? '#22a35a' : '#fdd100' }}"></div>
-              </div>
-            </a>
-          @endforeach
+    </div>
+  </div>
+</section>
+
+{{-- ================= KELENGKAPAN DATA ================= --}}
+<section class="wrap pt-4">
+  <div class="max-w-3xl mx-auto">
+    <div class="sf-kartu">
+      <div class="p-5 md:p-6">
+        <div class="flex items-end justify-between gap-2 mb-3">
+          <div>
+            <p class="sf-eyebrow" style="color:#94a3b8">Ringkasan</p>
+            <h2 class="text-[18px] md:text-[20px] font-extrabold text-navy mt-0.5">Kelengkapan Data</h2>
+          </div>
+          <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:{{ $persenTotal >= 100 ? '#e7f6ec' : '#fff8e8' }};color:{{ $persenTotal >= 100 ? '#166534' : '#8a5a00' }}">
+            {{ $isiForm }}/{{ $bobotForm }} kolom
+          </span>
         </div>
-        <p class="text-[11.5px] text-slate-400 mt-3">Dihitung dari data tersimpan — tekan "Simpan Data" agar isian baru ikut terhitung.</p>
-      @endif
+
+        @foreach ([
+          ['Biodata siswa', $isiPribadi, count($kolPribadi), '#data-pribadi'],
+          ['Foto latar merah', $adaFoto ? 1 : 0, 1, '#foto-anak'],
+          ['Data ayah', $isiAyah, count($kolAyah), '#data-orang-tua'],
+          ['Data ibu', $isiIbu, count($kolIbu), '#data-orang-tua'],
+        ] as [$judulCek, $isiCek, $totalCek, $anchorCek])
+          @php $okCek = $isiCek >= $totalCek; @endphp
+          <div class="sf-cek {{ $okCek ? 'ok' : '' }}">
+            <span class="sf-cek-ikon">
+              @if ($okCek)
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+              @else
+                <span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>
+              @endif
+            </span>
+            <span class="sf-cek-nama">{{ $judulCek }}</span>
+            <span class="sf-cek-info">{{ $okCek ? 'lengkap' : $isiCek.'/'.$totalCek }}</span>
+            @if (! $okCek)<a href="{{ $anchorCek }}" class="text-[11px] underline" style="color:#b58a00">isi</a>@endif
+          </div>
+        @endforeach
+
+        <div class="sf-cek {{ $formulir->terkirim_pada ? 'ok' : '' }}">
+          <span class="sf-cek-ikon">
+            @if ($formulir->terkirim_pada)
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+            @else
+              <span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>
+            @endif
+          </span>
+          <span class="sf-cek-nama">Formulir diserahkan</span>
+          <span class="sf-cek-info">{{ $formulir->terkirim_pada ? 'terkirim '.$formulir->terkirim_pada->format('d M Y') : 'belum' }}</span>
+          @if (! $formulir->terkirim_pada)<a href="#formulir" class="text-[11px] underline" style="color:#b58a00">isi</a>@endif
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- ================= TES MASUK ================= --}}
+<section class="wrap pt-4">
+  <div class="max-w-3xl mx-auto">
+    <div class="sf-kartu">
+      <div class="p-5 md:p-6">
+        <div class="flex items-end justify-between gap-2 mb-1">
+          <div>
+            <p class="sf-eyebrow" style="color:#94a3b8">Seleksi</p>
+            <h2 class="text-[18px] md:text-[20px] font-extrabold text-navy mt-0.5">Tes Masuk</h2>
+          </div>
+          @if ($semuaTesSelesai)
+            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full" style="background:#e7f6ec;color:#166534">Semua tes selesai</span>
+          @endif
+        </div>
+        <p class="text-[12px] text-slate-500 mb-3">Tiga tahap yang harus dilalui.</p>
+
+        @php
+          $daftarTes = [
+            ['kode' => 'TPA', 'judul' => 'Tes Potensi Akademik', 'selesai' => $tesTpaSelesai, 'tanggal' => $tanggalTes],
+            ['kode' => 'BTQ', 'judul' => "Baca Tulis Al-Qur'an", 'selesai' => $tesBtqSelesai, 'tanggal' => $tanggalTes],
+            ['kode' => 'WWC', 'judul' => 'Wawancara Minat dan Bakat', 'selesai' => $tesWawancaraSelesai, 'tanggal' => $wawancara?->tanggal ?? $tanggalTes],
+          ];
+        @endphp
+
+        @foreach ($daftarTes as $t)
+          <div class="sf-tes {{ $t['selesai'] ? 'ok' : '' }}">
+            <span class="sf-tes-ikon">{{ $t['kode'] }}</span>
+            <div class="flex-1 min-w-0">
+              <p class="sf-tes-judul">{{ $t['judul'] }}</p>
+              <p class="sf-tes-ket">
+                @if ($t['selesai'])
+                  Sudah dilaksanakan.
+                @elseif ($t['tanggal'])
+                  Dijadwalkan {{ \Carbon\Carbon::parse($t['tanggal'])->translatedFormat('l, j F Y') }} — persiapkan diri.
+                @else
+                  Jadwal menyusul — siapkan diri.
+                @endif
+              </p>
+            </div>
+            <span class="sf-centang {{ $t['selesai'] ? 'ok' : '' }}">
+              @if ($t['selesai'])
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>
+              @endif
+            </span>
+          </div>
+        @endforeach
+      </div>
+    </div>
+  </div>
+</section>
+
+{{-- ================= HASIL TES ================= --}}
+<section class="wrap pt-4">
+  <div class="max-w-3xl mx-auto">
+    <div class="sf-kartu">
+      <div class="p-5 md:p-6">
+        <p class="sf-eyebrow" style="color:#94a3b8">Pengumuman</p>
+        <h2 class="text-[18px] md:text-[20px] font-extrabold text-navy mt-0.5 mb-3">Hasil Tes</h2>
+
+        @if (! $tglUmum)
+          <p class="text-[13px] text-slate-500">Tanggal pengumuman belum ditetapkan panitia.</p>
+        @elseif (! $sudahDiumumkan)
+          <div class="rounded-xl p-4" style="background:#f4f8fd;border:1px solid #dbe7f4">
+            <p class="text-[11px] font-bold uppercase tracking-wide text-slate-500 mb-1">Diumumkan pada</p>
+            <p class="font-extrabold text-navy text-[15px]">{{ $tglUmum->translatedFormat('l, j F Y') }}</p>
+            @if ($sisaHari !== null && $sisaHari > 0)
+              <p class="text-[12.5px] text-slate-600 mt-1">Sekitar {{ $sisaHari }} hari lagi. Hasil belum dibuka.</p>
+            @endif
+          </div>
+        @elseif ($statusFinal && $registrasi->status === 'diterima')
+          <div class="sf-hasil-lulus">
+            <p class="text-[10px] font-bold uppercase tracking-[.18em]" style="color:rgba(255,255,255,.75)">Hasil seleksi</p>
+            <p class="text-[26px] font-extrabold mt-1 mb-1">LULUS / DITERIMA</p>
+            <p class="text-[12.5px]" style="color:rgba(255,255,255,.85)">Selamat! Anda dinyatakan diterima di SMA IT Arafah.</p>
+          </div>
+
+          <div class="mt-4 rounded-xl p-4" style="background:#f8fbff;border:1px solid #e2ecf7">
+            <p class="text-[10px] font-bold uppercase tracking-wide text-slate-400 mb-2">Rincian nilai</p>
+            <table class="sf-nilai-tabel">
+              <tr><td>Tes Potensi Akademik</td><td>{{ $nilaiTpa ?? '—' }}</td></tr>
+              <tr><td>Baca Tulis Al-Qur'an</td><td>{{ $nilaiBtq ?? '—' }}</td></tr>
+              <tr><td>Wawancara Minat dan Bakat</td><td>{{ $nilaiWawancara ?? '—' }}</td></tr>
+              <tr><td style="font-weight:800;color:#1f3a5f">Nilai akhir</td><td style="font-size:16px">{{ $nilaiAkhir ?? '—' }}</td></tr>
+            </table>
+          </div>
+
+          @if ($registrasi->pesan_admin)
+            <p class="text-[12.5px] text-slate-600 mt-3 leading-relaxed">{{ $registrasi->pesan_admin }}</p>
+          @endif
+
+          <a href="{{ route('spmb.pendaftar.bukti') }}" target="_blank"
+             class="sf-tombol-kecil mt-4" style="background:#1f3a5f;color:#fff">
+            Cetak Bukti Kelulusan
+          </a>
+        @elseif ($statusFinal)
+          <div class="rounded-xl p-4" style="background:#fdf2f2;border:1px solid #f3d1d1">
+            <p class="text-[10px] font-bold uppercase tracking-wide" style="color:#9b1c1c">Hasil seleksi</p>
+            <p class="text-[20px] font-extrabold mt-1" style="color:#9b1c1c">TIDAK DITERIMA</p>
+            <p class="text-[12.5px] text-slate-600 mt-1">{{ $registrasi->pesan_admin ?: 'Terima kasih atas keikutsertaan Anda.' }}</p>
+          </div>
+        @else
+          <p class="text-[13px] text-slate-500">Hasil sedang diproses panitia. Silakan cek kembali.</p>
+        @endif
+      </div>
     </div>
   </div>
 </section>
@@ -227,6 +393,7 @@
 @endif
 
 @if ($formulirTampil)
+@if ($modeUbah)
 <section id="formulir" class="wrap py-12 md:py-14" style="scroll-margin-top:88px">
   <div class="max-w-3xl mx-auto">
     <h2 class="text-[22px] md:text-[27px] font-extrabold text-navy mb-2">Formulir Pendaftaran Murid Baru</h2>
@@ -410,6 +577,83 @@
   </script>
 </div>
 </section>
+@else
+{{-- ================= PROFIL (BACA SAJA) ================= --}}
+<section class="wrap py-8 md:py-10">
+  <div class="max-w-3xl mx-auto">
+    <div class="sf-kartu">
+      <div class="p-5 md:p-6">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+          <div>
+            <p class="sf-eyebrow" style="color:#94a3b8">Data pendaftar</p>
+            <h2 class="text-[19px] md:text-[21px] font-extrabold text-navy mt-0.5">Profil &amp; Formulir</h2>
+          </div>
+          <a href="{{ route('spmb.pendaftar.dasbor', ['ubah' => 1]) }}#formulir"
+             class="sf-tombol-kecil" style="background:#1f3a5f;color:#fff">Perbarui data</a>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4">
+          <div style="flex:none">
+            @if ($formulir->foto_latar_merah)
+              <img src="{{ asset('media/'.$formulir->foto_latar_merah) }}" alt="Foto {{ $registrasi->nama_siswa }}"
+                   style="width:104px;height:138px;object-fit:cover;border-radius:12px;border:1px solid #e2ecf7">
+            @else
+              <div style="width:104px;height:138px;border-radius:12px;border:1px dashed #c6d8ea;display:grid;place-items:center;font-size:10px;color:#a87777;text-align:center;padding:6px">Foto belum ada</div>
+            @endif
+          </div>
+
+          <div style="flex:1;min-width:0">
+            <p class="text-[16px] font-extrabold text-navy">{{ $registrasi->nama_siswa }}</p>
+            <p class="text-[12px] text-slate-500 mb-2">{{ $registrasi->nomor }} · {{ $registrasi->tahun_ajaran }}</p>
+            <dl>
+              <div class="sf-info"><dt>Nama panggilan</dt><dd>{{ $formulir->nama_panggilan ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>NISN</dt><dd>{{ $formulir->nisn ?: ($biodata->nisn ?: '—') }}</dd></div>
+              <div class="sf-info"><dt>NIK</dt><dd>{{ $formulir->nik ?: ($biodata->nik ?: '—') }}</dd></div>
+              <div class="sf-info"><dt>Tempat, tanggal lahir</dt><dd>{{ trim(($formulir->tempat_lahir ?: $biodata->tempat_lahir ?: '').', '.($formulir->tanggal_lahir?->format('d M Y') ?: ''), ', ') ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Golongan darah</dt><dd>{{ $formulir->golongan_darah ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Suku</dt><dd>{{ $formulir->suku_bangsa ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Anak ke</dt><dd>{{ $formulir->anak_ke ?: '—' }} dari {{ $formulir->dari_bersaudara ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Alamat</dt><dd>{{ trim(($formulir->alamat_jalan ?: '').', '.($formulir->kelurahan ?: '').', '.($formulir->kecamatan ?: ''), ', ') ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Sekolah asal</dt><dd>{{ $registrasi->sekolah_asal ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>WhatsApp</dt><dd>{{ $registrasi->whatsapp }}</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Data ayah</p>
+            <dl>
+              <div class="sf-info"><dt>Nama</dt><dd>{{ $formulir->ayah_nama ?: ($biodata->nama_ayah ?: '—') }}</dd></div>
+              <div class="sf-info"><dt>TTL</dt><dd>{{ $formulir->ayah_ttl ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Pendidikan</dt><dd>{{ $formulir->ayah_pendidikan ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Pekerjaan</dt><dd>{{ $formulir->ayah_pekerjaan ?: ($biodata->pekerjaan_ayah ?: '—') }}</dd></div>
+              <div class="sf-info"><dt>Penghasilan</dt><dd>{{ $formulir->ayah_penghasilan ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Telepon</dt><dd>{{ $formulir->ayah_telepon ?: '—' }}</dd></div>
+            </dl>
+          </div>
+          <div>
+            <p class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Data ibu</p>
+            <dl>
+              <div class="sf-info"><dt>Nama</dt><dd>{{ $formulir->ibu_nama ?: ($biodata->nama_ibu ?: '—') }}</dd></div>
+              <div class="sf-info"><dt>TTL</dt><dd>{{ $formulir->ibu_ttl ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Pendidikan</dt><dd>{{ $formulir->ibu_pendidikan ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Pekerjaan</dt><dd>{{ $formulir->ibu_pekerjaan ?: ($biodata->pekerjaan_ibu ?: '—') }}</dd></div>
+              <div class="sf-info"><dt>Penghasilan</dt><dd>{{ $formulir->ibu_penghasilan ?: '—' }}</dd></div>
+              <div class="sf-info"><dt>Telepon</dt><dd>{{ $formulir->ibu_telepon ?: '—' }}</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <p class="text-[11.5px] text-slate-400 mt-4">
+          Data ini sudah diserahkan{{ $formulir->terkirim_pada ? ' pada '.$formulir->terkirim_pada->format('d M Y H:i') : '' }}.
+          Perubahan hanya bila diperlukan — tekan “Perbarui data”.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+@endif
 @endif
 
 <section class="wrap py-12 md:py-14" style="scroll-margin-top:88px">

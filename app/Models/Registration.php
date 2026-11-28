@@ -63,6 +63,11 @@ class Registration extends Model
         return $this->hasOne(\App\Models\SpmbNilaiQuran::class);
     }
 
+    public function wawancara()
+    {
+        return $this->hasOne(\App\Models\SpmbWawancara::class);
+    }
+
     /** Kode tes 6 karakter (tanpa 0/O/1/I) — gerbang masuk CBT, tercetak di kartu tes. */
     public static function kodeTesBaru(): string
     {

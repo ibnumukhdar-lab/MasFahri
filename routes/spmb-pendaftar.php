@@ -9,6 +9,7 @@ Route::post('/spmb/masuk', [SpmbPendaftarController::class, 'login'])->middlewar
 Route::post('/spmb/keluar', [SpmbPendaftarController::class, 'logout'])->name('spmb.pendaftar.keluar');
 Route::get('/spmb/kena', [SpmbPendaftarController::class, 'belumVerifikasi'])->name('spmb.pendaftar.kena');
 Route::get('/spmb/dasbor', [SpmbPendaftarController::class, 'dasbor'])->name('spmb.pendaftar.dasbor');
+Route::get('/spmb/bukti', [SpmbPendaftarController::class, 'bukti'])->name('spmb.pendaftar.bukti');
 Route::post('/spmb/dasbor/biodata', [SpmbPendaftarController::class, 'simpanBiodata'])->middleware('throttle:10,1')->name('spmb.pendaftar.biodata');
 Route::post('/spmb/dasbor/formulir', [SpmbPendaftarController::class, 'simpanFormulir'])->middleware('throttle:10,1')->name('spmb.pendaftar.formulir');
 
