@@ -26,15 +26,20 @@
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Nomor pendaftaran</td><td class="py-2.5 font-semibold">{{ $registrasi->nomor }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Nama wali</td><td class="py-2.5">{{ $registrasi->nama_wali }}</td></tr>
       <tr class="border-b border-slate-100"><td class="py-2.5 pr-4 text-slate-500">Jalur</td><td class="py-2.5">{{ $registrasi->minat_program ?: '-' }}</td></tr>
-      <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Paket &amp; jadwal tes</td><td class="py-2.5">
-        @forelse ($paketList as $p)
-          <div class="flex flex-wrap gap-x-2">
-            <b>{{ $p->judul }}</b>
-            <span class="text-slate-500">· {{ $p->jadwal }}</span>
-          </div>
-        @empty
-          <span class="text-slate-500">Menyusul dari panitia</span>
-        @endforelse
+      <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Tahap tes</td><td class="py-2.5">
+        <ol class="space-y-1 list-none m-0 p-0">
+          <li><b>1.</b> Tes Potensi Akademik <span class="text-slate-500">(CBT, dikerjakan daring)</span></li>
+          <li><b>2.</b> Baca Tulis Al-Qur'an <span class="text-slate-500">(praktik bersama penguji)</span></li>
+          <li><b>3.</b> Wawancara minat dan bakat <span class="text-slate-500">(bersama pendidik)</span></li>
+        </ol>
+      </td></tr>
+      <tr class="align-top"><td class="py-2.5 pr-4 text-slate-500">Tanggal tes</td><td class="py-2.5">
+        @php $tanggalTes = $paketList->pluck('tanggal_tes')->filter()->sort()->last(); @endphp
+        @if ($tanggalTes)
+          <b>{{ $tanggalTes->translatedFormat('l, j F Y') }}</b>
+        @else
+          <span class="text-slate-500">Sesuai informasi panitia</span>
+        @endif
       </td></tr>
     </tbody></table>
 
